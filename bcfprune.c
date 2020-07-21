@@ -79,7 +79,7 @@ if(distance<=0)  {
     ERROR("Bad distance '%d' <=0.",distance);
     return EXIT_FAILURE;    
     }
-if(optind+1>argc) {
+if(!(optind==argc || optind<argc)) {
     ERROR("Illegal number of arguments");
     return EXIT_FAILURE;    
     }

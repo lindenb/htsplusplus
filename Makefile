@@ -12,6 +12,7 @@ bcfprune.o: bcfprune.c
 test: bcfprune test.bcf
 	export LD_LIBRARY_PATH=$${PATH}:$(HTSLIB) && ./bcfprune -d 100 test.bcf | grep -w "^3"  | awk '{P=int($$2);if(NR>1 && P-PREV<100){print P-PREV; exit(-1)};PREV=P;}' 
 	export LD_LIBRARY_PATH=$${PATH}:$(HTSLIB) && ./bcfprune -d 100 test.bcf | bcftools view - > /dev/null
+	export LD_LIBRARY_PATH=$${PATH}:$(HTSLIB) && ./bcfprune -d 100 < test.bcf | bcftools view - > /dev/null
 
 clean:
 	rm -f *.o bcfprune
