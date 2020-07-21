@@ -115,7 +115,7 @@ int32_t prev_tid=-1;
 int ret=0;
 while((ret=bcf_read(in, header, bcf))==0) {
        if(bcf->errcode!=0) {
-            WARNING("Skipping Error in VCF record at %s:%"PRIhts_pos, bcf_seqname_safe(header,bcf), bcf->pos+1);
+            WARNING("Skipping Error in VCF record at tid %d:%"PRIhts_pos,bcf->rid, bcf->pos+1);
             continue;
             }
        if(prev_tid>=0 && (prev_tid> bcf->rid || (prev_tid==bcf->rid && bcf->pos < prev_start))) {
