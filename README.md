@@ -1,7 +1,8 @@
 # bcfprune
 
-2020 July 20. Pour Isabel Alves. Selection de variants espacés par une distance 'd'.
+2020 July 20.
 
+Select variants  from BCF/VCF spaced by a distance 'd'.
 
 # Usage
 
@@ -17,15 +18,16 @@ Options:
 # Compilation
 
 ```
-git clone "https://LOGIN@gitlab.univ-nantes.fr/pierre.lindenbaum/bcfprune.git"
+git clone "https://github.com/lindenb/bcfprune"
 cd bcfprune
-make HTSLIB=/sandbox/apps/bioinfo/binaries/htslib/0.0.0/htslib
+# set the path to a compiled C htslib directory
+make HTSLIB=/path/to/htslib
 ```
 
 # Example
 
 ```
-export LD_LIBRARY_PATH=/sandbox/apps/bioinfo/binaries/htslib/0.0.0/htslib
+export LD_LIBRARY_PATH=/path/to/htslib
 ./bcfprune -d 100 test.bcf
 ```
 
