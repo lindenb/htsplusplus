@@ -28,9 +28,13 @@ SOFTWARE.
 #include <cstdlib>
 #include <cstring>
 #include <map>
+#include <vector>
 #include <unistd.h>
 #include <htslib/hts.h>
+#include <htslib/sam.h>
 #include <htslib/vcf.h>
+#include <htslib/kseq.h>
+
 
 using namespace std;
 #define WHERE do {fprintf(stderr,"[%s:%d]",__FILE__,__LINE__);} while(0)
@@ -45,6 +49,7 @@ struct TidStartEnd {
 	};
 
 static void read_bed(const char* fname,sam_hdr_t *h,vector<TidStartEnd*>& beds) {
+    int ret = 0;
     kstring_t str = KS_INITIALIZE;
     htsFile *fp= hts_open(fname,"r");
     if ( fp == NULL ) {
@@ -65,18 +70,17 @@ static void read_bed(const char* fname,sam_hdr_t *h,vector<TidStartEnd*>& beds) 
 		*ss = 0;
 		*se = 0;
 		
-		int tid = sam_hdr_name2tid(h, str.s);
+		int tid = bam_name2id(h, (char*)str.s);
 		if(tid<0) {
 			fprintf(stderr,"unknown chromosome %s in %s\n",str.s,fname);
 			exit(EXIT_FAILURE);
 			}
-		TidStartEnd rec= new TidStartEnd;
+		TidStartEnd* rec= new TidStartEnd;
 		rec->tid=tid;
 		rec->start = atoi(ss);
 		rec->end = atoi(ss);
 		rec->count = 0L;
 		beds.push_back(rec);
-		
    		}
    
    hts_close(fp);
@@ -95,8 +99,8 @@ static void usage(const char* name,FILE* out) {
     }
 
 int samcount_main(int argc,char** argv) {
-	vector<TidStartEnd> beds;
-	map<int,map<int,vector<TidStartEnd*>* > > tid2bin;
+vector<TidStartEnd*> beds;
+map<int32_t,map<int32_t,vector<TidStartEnd*>*>*> tid2bin;
 char* bedfname = NULL;
 char* fileout=NULL;
 int c;
@@ -119,45 +123,55 @@ if(bedfname==NULL) {
 	ERROR("undefined bed file");
     return EXIT_FAILURE;  
 	}
-if(!(optind==argc) {
+if(optind==argc) {
     ERROR("Illegal number of arguments");
     return EXIT_FAILURE;    
     }
 htsFile *in = hts_open(argv[optind],"r");
 if(in==NULL) {
-    ERROR("Cannot open input vcf %s. (%s)",(optind==argc ?"<stdin>":argv[optind]),strerror(errno));
+    ERROR("Cannot open input %s. (%s)",(optind==argc ?"<stdin>":argv[optind]),strerror(errno));
     return EXIT_FAILURE;    
     }
-bcf_hdr_t *header = bcf_hdr_read(in);
+sam_hdr_t *header = sam_hdr_read(in);
 if(header==NULL) {
-    ERROR("Cannot read header for input vcf %s.",(optind==argc ?"<stdin>":argv[optind]));
+    ERROR("Cannot read header for input %s.",argv[optind]);
     return EXIT_FAILURE;    
     }
-    
+hts_idx_t *idx = sam_index_load(in,argv[optind]);
+	if(idx==NULL) {
+	fprintf(stderr,"Cannot read index for %s.\n",argv[optind]);
+	exit(EXIT_FAILURE);
+	}
+
 read_bed(bedfname,header,beds);
 if(beds.empty()) {
 	ERROR("no bed record in %s.",bedfname);
-    return EXIT_FAILURE;    
+	return EXIT_FAILURE;    
 	}
+
 for(unsigned int i=0;i< beds.size();i++) {
-	map<int,vector<TidStartEnd*>* > binmap = NULL;
-	if((r=tid2bin.find(beds[i].tid))==tid2bin.end()) {
-		binmap = new map<int,vector<TidStartEnd*> >;
-		tid2bin.insert(make_pair(beds[i].tid,binmap));
+	TidStartEnd* rec = beds[i];
+	map<int32_t,vector<TidStartEnd*>* >*  binmap = NULL;
+	map<int32_t,map<int32_t,vector<TidStartEnd*>*>* >::iterator r;
+
+	if((r=tid2bin.find(rec->tid))==tid2bin.end()) {
+		binmap = new map<int32_t,vector<TidStartEnd*>*>;
+		tid2bin.insert(make_pair(rec->tid,binmap));
 		}
 	else{
-		binmap = r.second;
+		binmap = r->second;
 		}
-	int binid = binOf(beds[i].start,beds[i].end);
+	int32_t binid = hts_reg2bin(rec->start,rec->end,14,5);
+	map<int32_t,vector<TidStartEnd*>* >::iterator r2;
 	vector<TidStartEnd*>* v = NULL;
-	if((r2=binmap->find(binid))==tid2bin.end()) {
+	if((r2=binmap->find(binid))==binmap->end()) {
 		v = new vector<TidStartEnd*> ;
-		tid2bin.insert(make_pairbinid,v));
+		binmap->insert(make_pair(binid,v));
 		}
 	else{
-		v = r2.second;
+		v = r2->second;
 		}
-	v->push_back(
+	v->push_back(rec);
 	}
     
 FILE *out = fopen((fileout==NULL?"-":fileout),"w");
@@ -166,22 +180,24 @@ if(out==NULL) {
     return EXIT_FAILURE;    
     }
 
-bcf1_t* bcf = bcf_init();
-if(bcf==NULL) {
+bam1_t* b = bam_init1();
+if(b==NULL) {
     ERROR("Out of memory.");
     return EXIT_FAILURE;    
     }
 
 int32_t prev_tid=-1;
 int ret=0;
-while((ret=bcf_read(in, header, bcf))==0) {
-      
+while((ret= sam_read1(in,header, b))>=0) {
+      if( b->core.flag & (BAM_FUNMAP | BAM_FSECONDARY | BAM_FQCFAIL | BAM_FDUP) ) continue;      
+      prev_tid=0;
       }
-if(fileout) free(fileout);
-bcf_destroy(bcf);
-bcf_hdr_destroy(header);
+hts_idx_destroy(idx);
+bam_destroy1(b);
+bam_hdr_destroy(header);
 hts_close(in);
-hts_close(out);
+fclose(out);
+free(fileout);
 if(ret<-1) {
     ERROR("IO error in input VCF.\n");
     return EXIT_FAILURE;
