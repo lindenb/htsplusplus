@@ -48,6 +48,22 @@ struct TidStartEnd {
 	long count;
 	};
 
+#define BAM_MAX_BIN 37450 // =(8^6-1)/7+1
+static int reg2bins(uint32_t beg, uint32_t end, uint16_t list[BAM_MAX_BIN])
+{
+	int i = 0, k;
+	if (beg >= end) return 0;
+	if (end >= 1u<<29) end = 1u<<29;
+	--end;
+	list[i++] = 0;
+	for (k =    1 + (beg>>26); k <=    1 + (end>>26); ++k) list[i++] = k;
+	for (k =    9 + (beg>>23); k <=    9 + (end>>23); ++k) list[i++] = k;
+	for (k =   73 + (beg>>20); k <=   73 + (end>>20); ++k) list[i++] = k;
+	for (k =  585 + (beg>>17); k <=  585 + (end>>17); ++k) list[i++] = k;
+	for (k = 4681 + (beg>>14); k <= 4681 + (end>>14); ++k) list[i++] = k;
+	return i;
+}
+
 static void read_bed(const char* fname,sam_hdr_t *h,vector<TidStartEnd*>& beds) {
     int ret = 0;
     kstring_t str = KS_INITIALIZE;
@@ -100,7 +116,7 @@ static void usage(const char* name,FILE* out) {
 
 int samcount_main(int argc,char** argv) {
 vector<TidStartEnd*> beds;
-map<int32_t,map<int32_t,vector<TidStartEnd*>*>*> tid2bin;
+vector<vector<TidStartEnd*>*> tid2bin;
 char* bedfname = NULL;
 char* fileout=NULL;
 int c;
@@ -151,33 +167,24 @@ if(beds.empty()) {
 
 for(unsigned int i=0;i< beds.size();i++) {
 	TidStartEnd* rec = beds[i];
-	map<int32_t,vector<TidStartEnd*>* >*  binmap = NULL;
-	map<int32_t,map<int32_t,vector<TidStartEnd*>*>* >::iterator r;
 
-	if((r=tid2bin.find(rec->tid))==tid2bin.end()) {
-		binmap = new map<int32_t,vector<TidStartEnd*>*>;
-		tid2bin.insert(make_pair(rec->tid,binmap));
+	while(rec->tid >= (int32_t)tid2bin.size()) {
+		tid2bin.push_back(new vector<TidStartEnd*>);
 		}
-	else{
-		binmap = r->second;
-		}
+
+	vector<TidStartEnd*>*   binmap = tid2bin[rec->tid];
+
 	int32_t binid = hts_reg2bin(rec->start,rec->end,14,5);
-	map<int32_t,vector<TidStartEnd*>* >::iterator r2;
-	vector<TidStartEnd*>* v = NULL;
-	if((r2=binmap->find(binid))==binmap->end()) {
-		v = new vector<TidStartEnd*> ;
-		binmap->insert(make_pair(binid,v));
+	while(binid>= (int32_t)binmap.size()) {
+		binmap.push_back(new vector<TidStartEnd*>);
 		}
-	else{
-		v = r2->second;
-		}
-	v->push_back(rec);
+	binmap->push_back(rec);
 	}
     
-FILE *out = fopen((fileout==NULL?"-":fileout),"w");
+FILE *out = fileout==NULL?stdout:fopen(fileout),"w");
 if(out==NULL) {
     ERROR("Cannot open output %s. (%s)",(fileout==NULL?"<STDOUT>":fileout),strerror(errno));
-    return EXIT_FAILURE;    
+    return EXIT_FAILURE;
     }
 
 bam1_t* b = bam_init1();
@@ -188,8 +195,24 @@ if(b==NULL) {
 
 int32_t prev_tid=-1;
 int ret=0;
+
+uint16_t*	bins = (uint16_t*)calloc(BAM_MAX_BIN, 2);
+
 while((ret= sam_read1(in,header, b))>=0) {
       if( b->core.flag & (BAM_FUNMAP | BAM_FSECONDARY | BAM_FQCFAIL | BAM_FDUP) ) continue;      
+      int tid =  b->core.tid;
+      if(tid<0 || tid >=  tid2bin.size()) continue;
+      vector<vector<TidStartEnd*>*> binmap = tid2bin[tid];
+      if(binmap.empty()) continue;
+      int beg = b->core.pos
+      int end = bam_endpos(b);
+      int n_bins = reg2bins(beg, end, bins);
+      for(int i=0;i< nÃ_bins;i++) {
+	int bin = bins[i];
+	if(bin>=binmap->size()) continue;
+	for(size_t j=0;j<
+	}
+
       prev_tid=0;
       }
 hts_idx_destroy(idx);
