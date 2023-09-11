@@ -207,7 +207,7 @@ while((ret= sam_read1(in,header, b))>=0) {
       int beg = b->core.pos
       int end = bam_endpos(b);
       int n_bins = reg2bins(beg, end, bins);
-      for(int i=0;i< nÃ_bins;i++) {
+      for(int i=0;i< n_bins;i++) {
 	int bin = bins[i];
 	if(bin>=binmap->size()) continue;
 	for(size_t j=0;j<

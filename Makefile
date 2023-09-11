@@ -3,7 +3,9 @@ CFLAGS=-I$(HTSLIB) -c -Wall
 LDFLAGS=-L$(HTSLIB) -lhts
 CC=g++
 
-hts++: bcfprune.o htsplusplus.o samcount.o bcfexludebed.o
+
+
+hts++: bcfprune.o htsplusplus.o arguments.hh
 	$(CC) -o $@ $^ $(LDFLAGS)
 bcfprune.o: bcfprune.c
 	$(CC) -c -o $@ $(CFLAGS) $<
@@ -14,7 +16,7 @@ samcount.o: samcount.c
 bcfexludebed.o: bcfexludebed.c
 	$(CC) -c -o $@ $(CFLAGS) $<
 
-htsplusplus.o: htsplusplus.c
+htsplusplus.o: htsplusplus.cpp arguments.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 test: hts++ test.bcf

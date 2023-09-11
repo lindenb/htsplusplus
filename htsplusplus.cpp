@@ -1,12 +1,23 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include "arguments.hh"
+
+using namespace std;
 
 extern int bcfprune_main(int,char**);
-extern int samcount_main(int,char**);
-extern int bcfexcludebed_main(int,char**);
+
 
 int main(int argc,char** argv) {
+	HelpArg arg1;
+	ArgumentList app(&arg1, NULL);
+	app.parse(argc, argv);
+	if(arg1.print_help_flag) {
+		cerr << "Options:" << endl;
+		app.usage(cout);
+		return 0;
+		}
+
 	if(argc<2) {
 		fprintf(stderr,"%s. Sub-commands.\n",argv[0]);
 		fprintf(stderr," bcfprune\n");
@@ -17,12 +28,7 @@ int main(int argc,char** argv) {
 	if(strcmp(argv[1],"bcfprune")==0) {
 		return bcfprune_main(argc-1,&argv[1]);
 		}
-	if(strcmp(argv[1],"samcount")==0) {
-		return samcount_main(argc-1,&argv[1]);
-		}
-	if(strcmp(argv[1],"bcf-exclude-bed")==0) {
-		return bcfexcludebed_main(argc-1,&argv[1]);
-		}
+	
 	fprintf(stderr,"Unknown sub command \"%s\".\n",argv[1]);
 	return EXIT_FAILURE;
 	}
