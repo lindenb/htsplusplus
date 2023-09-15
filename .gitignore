@@ -1,2 +1,3 @@
 *.o
-bcfprune
+hts++
+programs.hh

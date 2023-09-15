@@ -15,7 +15,7 @@ class HtsFile {
 			return fp!=NULL;
 			}
 		virtual void close() {
-			if(is_open()) {
+			if(fp!=NULL) {
 				::hts_close(fp);
 				fp = NULL;
 				}

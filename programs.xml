@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programs>
+
+
+	<program name="interval">
+		<macro name="version.help"/>
+		<macro name="reference"/>
+		<option name="bed" type="string" short-option='B' long-option="bed">
+			<short-description><macro name="what.is.bed"/></short-description>
+		</option>
+	</program>
+
+</programs>
