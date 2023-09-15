@@ -8,6 +8,7 @@
 <xsl:template match="/">
 <xsl:apply-templates select="*"/>
 </xsl:template>
+
 <xsl:template match="macro[@name='what.is.bed']">
 	<xsl:text>A BED file.</xsl:text>
 </xsl:template>
@@ -22,6 +23,13 @@
 		<option name="show_version" type="bool" short-option="v" long-option="version">
 			<short-description>Display Version and exit</short-description>
 		</option>
+</xsl:template>
+
+
+<xsl:template match="macro[@name='output']">
+                <option name="output" type="string" short-option="o" long-option="output">
+                        <short-description>output or stdout</short-description>
+                </option>
 </xsl:template>
 
 

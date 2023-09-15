@@ -142,6 +142,7 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
 		<xsl:choose>
 		  <xsl:when test="@type='bool'">bool</xsl:when>
           <xsl:when test="@type='string'">char*</xsl:when>
+          <xsl:when test="@type='int'">int32_t</xsl:when>
 		  <xsl:otherwise>
 				<xsl:message terminate="yes">Cannot handle <xsl:value-of select="@type"/></xsl:message>
 		  </xsl:otherwise>
@@ -299,6 +300,12 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
                  <xsl:value-of select="@name"/>
                  <xsl:text> = true;</xsl:text>
 			</xsl:when>
+            <xsl:when test="@type='int'">
+			 <xsl:text>this-&gt;</xsl:text>
+                <xsl:value-of select="@name"/>
+		<xsl:text> = atoi(optarg);break;
+		</xsl:text>
+	    </xsl:when>
             <xsl:when test="@type='string'">
                 <xsl:text>if(this-&gt;</xsl:text>
                 <xsl:value-of select="@name"/>
@@ -308,7 +315,7 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
 				<xsl:text>) ;} this-&gt;</xsl:text>
                 <xsl:value-of select="@name"/>
                 <xsl:text>= strdup(optarg);</xsl:text>
-			</xsl:when>
+		</xsl:when>
 			<xsl:otherwise>
 				<xsl:message terminate="yes"> cannot handle @type=<xsl:value-of select="@type"/></xsl:message>
 			</xsl:otherwise>

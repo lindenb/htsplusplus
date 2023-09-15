@@ -46,7 +46,7 @@ static void usage(const char* name,FILE* out) {
     fprintf(out,"\n");
     }
 
-int bcfprune_main(int argc,char** argv) {
+int main_bcfprune(int argc,char** argv) {
 int distance=-1;
 char* fileout=NULL;
 int c;
@@ -107,7 +107,7 @@ if ( bcf_hdr_write(out, header)!=0 ) {
 bcf1_t* bcf = bcf_init();
 if(bcf==NULL) {
     ERROR("Out of memory.");
-    return EXIT_FAILURE;    
+    return EXIT_FAILURE;
     }
 hts_pos_t prev_end = -1;
 hts_pos_t prev_start = -1;
@@ -120,7 +120,7 @@ while((ret=bcf_read(in, header, bcf))==0) {
             }
        if(prev_tid>=0 && (prev_tid> bcf->rid || (prev_tid==bcf->rid && bcf->pos < prev_start))) {
             ERROR("Data are not ordered (tid %d:%"PRIhts_pos") vs (tid %d:%"PRIhts_pos").",prev_tid,prev_start+1,bcf->rid,bcf->pos+1);
-            return EXIT_FAILURE;        
+            return EXIT_FAILURE;
             }
        if(bcf->rid!=prev_tid || (bcf->pos - prev_end) >= distance ) {
            if(bcf_write1(out, header, bcf)!=0) {

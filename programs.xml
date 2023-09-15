@@ -10,4 +10,13 @@
 		</option>
 	</program>
 
+
+	<program name="bcfprune">
+		<macro name="version.help"/>
+		<macro name="output"/>
+		<option name="distance" type="int" short-option='d' long-option="distance" default-value="999">
+			<short-description>distance</short-description>
+		</option>
+	</program>
+
 </programs>
