@@ -32,6 +32,12 @@
                 </option>
 </xsl:template>
 
+<xsl:template match="macro[@name='compression_level']">
+                <option name="compression_level" type="int" long-option="compression-level" default-value="5">
+                        <short-description>compression-level</short-description>
+                </option>
+</xsl:template>
+
 
 <xsl:template match="macro[@name='reference']">
 		<option name="reference" type="string" short-option="R" long-option="reference" arg-name="fasta">
@@ -42,8 +48,13 @@
 		</option>
 </xsl:template>
 
+<xsl:template match="macro[@name='bcf.output.format']">
+	<option name="bcf_output_format" type="char" short-option="O" long-option="vcf-format" arg-name="format" default-value="'v'">
+		<short-description>output format for VCF/BCF: z:gzip vcf v:vcf b:bcf (default v)</short-description>
+	</option>
+</xsl:template>
 
-<xsl:template match="macro[@name='version.help']">
+<xsl:template match="macro[@name='version.help']">	
 	<macro name="help"/>
 	<macro name="version"/>
 </xsl:template>
@@ -51,6 +62,10 @@
 <xsl:template match="*|text()">
 <xsl:copy>
 <xsl:copy-of select="@*"/>
+<xsl:choose>
+	<xsl:when test="@type='int' and not(@parser)"><xsl:attribute name="parser">this-&gt;parseInt</xsl:attribute></xsl:when>
+	<xsl:when test="@type='char' and not(@parser)"><xsl:attribute name="parser">this-&gt;parseChar</xsl:attribute></xsl:when>
+</xsl:choose>
 <xsl:apply-templates select="*"/>
 </xsl:copy>
 </xsl:template>

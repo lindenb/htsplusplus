@@ -7,5 +7,11 @@ int main_interval(int argc,char** argv) {
 
 int main(int argc,char** argv) {
 	MainArgs app;
-	return app.main(argc, argv);
+	try {
+		return app.main(argc, argv);
+		}
+	catch(...) {
+		std::cerr << "Error Raised. Exiting." << std::endl;
+		return EXIT_FAILURE;
+		}
 	}

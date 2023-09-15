@@ -30,6 +30,19 @@ THIS FILE WAS AUTO-GENERATED, DO NOT EDIT
 
 <xsl:template match="programs">
 class ProgramArgs {
+	protected:
+		int32_t parseInt(const char* s) {
+			return  std::stoi(s);
+			}
+		char parseChar(const char* s) {
+			if(std::strcmp(s,"\\t")==0) return '\t';
+			if(std::strcmp(s,"\\n")==0) return '\n';
+			if(std::strcmp(s,"\\r")==0) return '\r';
+			if(std::strlen(s)!=1) {
+				throw std::runtime_error("Expected only one character");
+				}
+			return s[0];
+			}
 	public:
 		ProgramArgs() {
 			}
@@ -98,9 +111,20 @@ class MainArgs {
 	<xsl:text>if(std::strcmp(argv[1],"</xsl:text>
 	<xsl:value-of select="@name"/>
 	<xsl:text>")==0) {
+			try {
 			return main_</xsl:text>
 	 <xsl:value-of select="@name"/>
 	<xsl:text>(argc-1,&amp;argv[1]);
+				}
+			catch(std::exception&amp; e) {
+				std::cerr &lt;&lt; "[ERROR] </xsl:text><xsl:value-of select="@name"/><xsl:text> : " &lt;&lt; e.what() &lt;&lt; std::endl;
+				return EXIT_FAILURE;
+				}
+			catch(...) {
+				std::cerr &lt;&lt; "[ERROR] </xsl:text><xsl:value-of select="@name"/><xsl:text>." &lt;&lt; std::endl;
+				return EXIT_FAILURE;
+				}
+			
 			}</xsl:text>
 	</xsl:for-each>
 	else {
@@ -141,10 +165,11 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
         </xsl:if>
 		<xsl:choose>
 		  <xsl:when test="@type='bool'">bool</xsl:when>
+          <xsl:when test="@type='char'">char</xsl:when>
           <xsl:when test="@type='string'">char*</xsl:when>
           <xsl:when test="@type='int'">int32_t</xsl:when>
 		  <xsl:otherwise>
-				<xsl:message terminate="yes">Cannot handle <xsl:value-of select="@type"/></xsl:message>
+				<xsl:message terminate="yes">Class Declaration: Cannot handle <xsl:value-of select="@type"/></xsl:message>
 		  </xsl:otherwise>
 		</xsl:choose>
 		<xsl:text> </xsl:text>
@@ -157,7 +182,6 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
 		<xsl:for-each select="option">
 		<xsl:choose>
 		  <xsl:when test="@type='bool'"><xsl:value-of select="@name"/> = false ;</xsl:when>
-
           <xsl:when test="@type='string' and @default-value"><xsl:value-of select="@name"/> = strdup(<xsl:value-of select='@default-value'/>); if(<xsl:value-of select="@name"/>==NULL) abort(); </xsl:when>
          <xsl:when test="@type='string'"><xsl:value-of select="@name"/> = NULL;</xsl:when>
          <xsl:when test="@default-value"><xsl:value-of select="@name"/> = (<xsl:value-of select="@type"/>)<xsl:value-of select='@default-value'/>;</xsl:when>
@@ -251,7 +275,7 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
 				<xsl:value-of select="@short-option"/>
 				<xsl:text>'</xsl:text>
 			</xsl:when>
-                        <xsl:otherwise>0</xsl:otherwise>
+                        <xsl:otherwise>(-<xsl:value-of select="position()"/>)</xsl:otherwise>
                 </xsl:choose>},		
 	</xsl:for-each>
 		{0,0,0,0}
@@ -300,10 +324,20 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
                  <xsl:value-of select="@name"/>
                  <xsl:text> = true;</xsl:text>
 			</xsl:when>
-            <xsl:when test="@type='int'">
-			 <xsl:text>this-&gt;</xsl:text>
+            <xsl:when test="@type='int' or @type='char'">
+			 <xsl:text>try {
+		this-&gt;</xsl:text>
                 <xsl:value-of select="@name"/>
-		<xsl:text> = atoi(optarg);break;
+		<xsl:text> = </xsl:text>
+		<xsl:value-of select="@parser"/>
+		<xsl:text>(optarg); }
+		catch(...) {
+			std::cerr &lt;&lt; "Cannot parse \"" &lt;&lt; optarg &lt;&lt; " for </xsl:text>
+			<xsl:apply-templates select="." mode="usage"/>
+			<xsl:text>" &lt;&lt; std::endl;
+			std::exit(EXIT_FAILURE);
+			}
+		break;
 		</xsl:text>
 	    </xsl:when>
             <xsl:when test="@type='string'">
@@ -316,8 +350,10 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
                 <xsl:value-of select="@name"/>
                 <xsl:text>= strdup(optarg);</xsl:text>
 		</xsl:when>
+		
+
 			<xsl:otherwise>
-				<xsl:message terminate="yes"> cannot handle @type=<xsl:value-of select="@type"/></xsl:message>
+				<xsl:message terminate="yes">Switch/shortopt: cannot handle @type=<xsl:value-of select="@type"/></xsl:message>
 			</xsl:otherwise>
 		</xsl:choose>
 		<xsl:text>break;

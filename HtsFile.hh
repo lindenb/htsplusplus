@@ -1,0 +1,39 @@
+#ifndef HTSFILE_HPP
+#define HTSFILE_HPP
+
+#include <cerrno>
+#include <stdexcept>
+#include <sstream>
+#include <memory>
+#include <htslib/hts.h>
+
+class HtsFile {
+	protected:
+		HtsFile( htsFile *fp):fp(fp) {
+			}
+	public:
+		htsFile *fp;
+		virtual void close() {
+			if(fp!=NULL) {
+				::hts_close(fp);
+				fp = NULL;
+				}
+			}
+		virtual bool is_open() {
+			return fp!=NULL;
+			}
+		virtual ~HtsFile() {
+			close();
+			}
+		htsFile* get() {
+			return fp;
+			}
+		htsFile* operator()() {
+			return get();
+			}
+
+		static std::unique_ptr<HtsFile> open(const char* fn,const char* mode);
+	};
+
+#endif
+
