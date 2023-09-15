@@ -3,10 +3,13 @@ CFLAGS=-I$(HTSLIB) -c -Wall -g
 LDFLAGS=-L$(HTSLIB) -lhts
 CC=g++
 
+%.o: %.cpp
+	$(CC) -c -o $@ $(CFLAGS) $<
 
 
-hts++: $(addsuffix .o, bcfprune htsplusplus RegIdx HtsFile  BcfHeader BcfReader)
+hts++: $(sort $(addsuffix .o, bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader ))
 	$(CC) -o $@ $^ $(LDFLAGS)
+
 bcfprune.o: bcfprune.cpp programs.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
@@ -19,17 +22,6 @@ bcfexludebed.o: bcfexludebed.c
 htsplusplus.o: htsplusplus.cpp  programs.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
-RegIdx.o: RegIdx.cpp RegIdx.hh
-	$(CC) -c -o $@ $(CFLAGS) $<
-
-HtsFile.o: HtsFile.cpp HtsFile.hh
-	$(CC) -c -o $@ $(CFLAGS) $<
-
-BcfHeader.o: BcfHeader.cpp BcfHeader.hh
-	$(CC) -c -o $@ $(CFLAGS) $<
-
-BcfReader.o: BcfReader.cpp BcfReader.hh
-	$(CC) -c -o $@ $(CFLAGS) $<
 
 programs.hh : programs.xml programs2C.xsl  programs.enrich.xsl
 	xsltproc programs.enrich.xsl $< |\

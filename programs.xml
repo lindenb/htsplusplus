@@ -2,7 +2,7 @@
 <programs>
 
 
-	<program name="interval">
+	<program name="samviewwithmate">
 		<macro name="version.help"/>
 		<macro name="reference"/>
 		<option name="bed" type="string" short-option='B' long-option="bed">

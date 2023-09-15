@@ -11,7 +11,7 @@ class BcfHeader {
 
 		BcfHeader( bcf_hdr_t *header):header(header) {
 			}
-		BcfHeader(const BcfHeader& cp):header(cp.header==NULL?NULL:::bcf_hdr_dup(cp.header)) {
+		BcfHeader(const BcfHeader& cp):header(cp.header==NULL?NULL: ::bcf_hdr_dup(cp.header)) {
 			if (cp.header!=NULL && header==NULL) {
 				THROW_ERROR("Cannot copy VCF header");
 				}
@@ -30,6 +30,9 @@ class BcfHeader {
 			}
 		bcf_hdr_t* operator()() {
 			return get();
+			}
+		std::unique_ptr<BcfHeader> clone() {
+			return std::unique_ptr<BcfHeader>(new BcfHeader(*this));
 			}
 
 		static std::unique_ptr<BcfHeader> read(htsFile *fp);

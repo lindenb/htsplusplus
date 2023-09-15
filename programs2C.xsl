@@ -275,7 +275,7 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
 				<xsl:value-of select="@short-option"/>
 				<xsl:text>'</xsl:text>
 			</xsl:when>
-                        <xsl:otherwise>(-<xsl:value-of select="position()"/>)</xsl:otherwise>
+                        <xsl:otherwise><xsl:value-of select="(position() + 999)"/></xsl:otherwise>
                 </xsl:choose>},		
 	</xsl:for-each>
 		{0,0,0,0}
@@ -314,10 +314,15 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
           printf ("\n");
           break;
 
-	<xsl:for-each select="option[@short-option]">
-	    <xsl:text>case '</xsl:text>
-        <xsl:value-of select="@short-option"/>
-        <xsl:text>' : </xsl:text>
+	<xsl:for-each select="option">
+	    <xsl:text>case </xsl:text>
+	    <xsl:value-of select="(position() + 999)"/>
+	    <xsl:text>: </xsl:text>
+	    <xsl:if test="@short-option">
+	    	<xsl:text>case '</xsl:text>
+	        <xsl:value-of select="@short-option"/>
+        	<xsl:text>' : </xsl:text>
+	    </xsl:if>
 		<xsl:choose>
 			<xsl:when test="@type='bool'">
 				 <xsl:text>this-&gt;</xsl:text>
