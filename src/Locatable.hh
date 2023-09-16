@@ -3,21 +3,28 @@
 #include <htslib/hts.h>
 #include <string>
 
-class Locatable {
+template<typename POS_TYPE>
+class StartEnd {
+	public:
+		virtual POS_TYPE getStart() const = 0;
+		virtual POS_TYPE getEnd() const = 0;
+	};
+
+template<typename CONTIG_TYPE,typename POS_TYPE>
+class Locatable: public StartEnd<POS_TYPE> {
 	public:
 		Locatable() {}
 		virtual ~Locatable() {}
-		virtual const char* getContig() const = 0;
-		virtual hts_pos_t getStart() const = 0;
-		virtual hts_pos_t getEnd() const = 0;
+		virtual CONTIG_TYPE getContig() const = 0;
 	};
 
-class SimpleInterval: public Locatable
+template<typename CONTIG_TYPE,typename POS_TYPE>
+class SimpleInterval: public Locatable<CONTIG_TYPE,POS_TYPE>
 	{
 	private:
-		std::string contig;
-		hts_pos_t start;
-		hts_pos_t end;
+		CONTIG_TYPE contig;
+		POST_TYPE start;
+		POST_TYPE end;
 	public:
 		SimpleInterval(std::string contig,  hts_pos_t start,  hts_pos_t end):contig(contig),start(start),end(end) {
 			}

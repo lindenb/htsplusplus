@@ -46,7 +46,7 @@ if(!(optind==argc || optind<argc)) {
     }
 std::unique_ptr<BcfReader> in = BcfReader::open(optind==argc ?"-":argv[optind]);
 BcfWriterFactory writer_factory;
-std::unique_ptr<BcfWriter> out = writer_factory.format(args.bcf_output_format).open(args.output);
+std::unique_ptr<BcfWriter> out = writer_factory.format(args.bcf_output_format).open(args.output_filename);
 
 out->write_header(in->header->get());
 

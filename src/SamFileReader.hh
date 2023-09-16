@@ -5,7 +5,43 @@
 #include "debug.hh"
 #include "SamFileHeader.hh"
 
-class SamRecord {
+class AbstractSamRecord {
+	public:
+		virtual bam1_t* get()=0;
+		virtual bam1_t* get_not_null() {
+			bam1_t* b = get();
+			ASSERT_NOT_NULL(b);
+			return b;
+			}
+		AbstractSamRecord() {
+			}
+		virtual ~AbstractSamRecord() {
+			}
+		virtual int flags() {
+			return get_not_null()->core.flag;
+			}
+		virtual int tid() {
+			return get_not_null()->core.tid;
+			}		
+		virtual int start0() {
+			return get_not_null()->core.pos;
+			}
+		virtual int start() {
+			return start0() + 1;
+			}
+		virtual int end() {
+			return bam_endpos(get_not_null());
+			}
+		virtual const char* read_name() {
+			return bam_get_qname(get());
+			}
+		virtual bool is_unmapped() {
+			return (flags() & BAM_FMUNMAP);
+			}
+	};
+
+
+class SamRecord : public AbstractSamRecord {
 	public:
 		bam1_t* b;
 
@@ -14,13 +50,21 @@ class SamRecord {
 				THROW_ERROR("Out of memory.");
 				}
 			}
+		SamRecord(const SamRecord& cp):b(::bam_dup1(cp.b)) {
+			if(b==NULL) {
+				THROW_ERROR("Out of memory.");
+				}
+			}
 		bam1_t* get() {
 			return b;
 			}
 		virtual ~SamRecord() {
-			if(b!=NULL) bam_destroy1(b);
+			if(b!=NULL) ::bam_destroy1(b);
 			}
-	};
+		std::unique_ptr<SamRecord> clone() {
+			return std::unique_ptr<SamRecord>(new SamRecord(*this));
+			}
+		};
 
 class SamFile{
 	public:
@@ -56,8 +100,8 @@ class SamFileReader {
 			return read1(rec->get());
 			}
 		std::unique_ptr<SamRecord> read2() {
-			std::unique_ptr<SamRecord> rec = std::unique_ptr<SamRecord>(new SamRecord());
-			if(read2(rec->get())) {
+			std::unique_ptr<SamRecord> rec = std::unique_ptr<SamRecord>(new SamRecord);
+			if(!read2(rec.get())) {
 				rec.reset();
 				}
 			return rec;

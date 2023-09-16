@@ -1,3 +1,4 @@
 *.o
 hts++
-programs.hh
+src/programs.hh
+src/git.hh

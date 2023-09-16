@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<programs>
+
+
+	<program name="samviewwithmate">
+		<short-description>select read and bams that falls within a region</short-description>
+		<macro name="version.help"/>
+		<macro name="output"/>
+		<macro name="reference"/>
+		<macro name="bam.output"/>
+		<option name="bed_file" type="string" short-option='B' long-option="bed" arg-name="BED" required="true">
+			<short-description><macro name="what.is.bed"/></short-description>
+		</option>
+		<code section='validation'>
+			/** this is a test */
+		</code>
+	</program>
+
+
+	<program name="bcfprune">
+		<short-description>remove variants that are too close</short-description>
+		<macro name="version.help"/>
+		<macro name="output"/>
+		<macro name="bcf.output"/>
+		<option name="distance" type="int" short-option='d' long-option="distance" default-value="999">
+			<short-description>distance</short-description>
+		</option>
+	</program>
+	
+	<program name="tests">
+		<short-description>peforms some tests</short-description>
+		<macro name="version.help"/>
+		<option name="datadirectory" type="string" short-option='D' long-option="directory" arg-name="DIR" required="true">
+			<short-description>test directory</short-description>
+		</option>
+	</program>
+</programs>

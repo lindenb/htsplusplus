@@ -18,9 +18,12 @@ THIS FILE WAS AUTO-GENERATED, DO NOT EDIT
 #include &lt;cstdlib&gt;
 #include &lt;cstring&gt;
 #include &lt;iostream&gt;
+#include &lt;sstream&gt;
+#include &lt;cctype&gt;
 #include &lt;string&gt;
+#include &lt;vector&gt;
 #include &lt;getopt.h&gt;
-
+#include "git.hh"
 
 <xsl:apply-templates select="programs"/>
 
@@ -29,7 +32,12 @@ THIS FILE WAS AUTO-GENERATED, DO NOT EDIT
 
 
 <xsl:template match="programs">
+
+#define THROW_PROGRAM_ERROR(...) std::ostringstream os; os &lt;&lt;  "[" &lt;&lt; __FILE__ &lt;&lt; ":" &lt;&lt; __LINE__ &lt;&lt; program_name()  &lt;&lt;  "]" &lt;&lt; __VA_ARGS__; throw std::runtime_error(os.str());
+
 class ProgramArgs {
+	public:
+		virtual const char* program_name()=0;
 	protected:
 		int32_t parseInt(const char* s) {
 			return  std::stoi(s);
@@ -39,19 +47,31 @@ class ProgramArgs {
 			if(std::strcmp(s,"\\n")==0) return '\n';
 			if(std::strcmp(s,"\\r")==0) return '\r';
 			if(std::strlen(s)!=1) {
-				throw std::runtime_error("Expected only one character");
+				THROW_PROGRAM_ERROR("Expected only one character");
 				}
 			return s[0];
 			}
 	public:
+		/** files after parsing arguments */
+		std::vector&lt;std::string&gt; program_files;
+
 		ProgramArgs() {
 			}
 		virtual ~ProgramArgs() {
 			}
 		virtual std::ostream&amp; usage(std::ostream&amp; out)=0;
 		virtual const char* program_version()=0;
-		virtual const char* program_name()=0;
-		virtual int parse(int argc,char** argv)=0;
+		virtual bool parse(int argc,char** argv)=0;
+
+		const char* oneFileOrNull() {
+			if(this-&gt;program_files.empty()) return NULL;
+			if(program_files.size()==1) return program_files[0].c_str();
+			THROW_PROGRAM_ERROR("expected zero or one arguments but got (" &lt;&lt; program_files.size() &lt;&lt;")");
+			}
+		const char* oneAndOnlyOneFile() {
+			if(program_files.size()==1) return program_files[0].c_str();
+			THROW_PROGRAM_ERROR("expected one and only one arguments but got (" &lt;&lt; program_files.size() &lt;&lt;")");
+			}
 	};
 
 <xsl:apply-templates select="program"/>
@@ -68,18 +88,21 @@ class MainArgs {
 				<xsl:otherwise>return "0.0.0";</xsl:otherwise>
 			</xsl:choose>
 			}
-		virtual int parse(int argc,char** argv) {
-			return 0;
+		virtual bool parse(int argc,char** argv) {
+			return true;
 			}
 
 		virtual std::ostream&amp; usage(std::ostream&amp; out) {
 	                out &lt;&lt; program_name() &lt;&lt; std::endl;
 			out &lt;&lt; "Compilation: " &lt;&lt; __DATE__ &lt;&lt; " at " &lt;&lt; __TIME__ &lt;&lt; std::endl;
+			out &lt;&lt; "git: " &lt;&lt; GIT_VERSION &lt;&lt; std::endl;
+			out &lt;&lt; "Author: Pierre Lindenbaum PhD" &lt;&lt; std::endl;
 			out &lt;&lt; "Programs: " &lt;&lt; std::endl;
 
 
 			<xsl:for-each select="program[not(@hidden='false')]">
-				out &lt;&lt; "\t<xsl:value-of select="@name"/>";
+				<xsl:sort select="@name"/>
+				out &lt;&lt; "\t<xsl:value-of select="@name"/>\t";
 				<xsl:choose>
 					<xsl:when test="short-description">
 						<xsl:text>out &lt;&lt; "</xsl:text>
@@ -105,6 +128,18 @@ class MainArgs {
 			}
 
 		virtual int main(int argc,char** argv) {
+			if(argc==1) {
+				usage(std::cerr);
+				return EXIT_FAILURE;
+				}
+			if(std::strcmp("--help",argv[1])==0 || std::strcmp("-h",argv[1])==0 || std::strcmp("-?",argv[1])==0) {
+				usage(std::cout);
+				return EXIT_SUCCESS;
+				}
+			if(std::strcmp("--version",argv[1])==0) {
+				std::cout &lt;&lt; program_version() &lt;&lt; std::endl;
+				return EXIT_SUCCESS;
+				}
 
 <xsl:for-each select="program">
 	<xsl:if test="position()!=1">else </xsl:if>
@@ -117,11 +152,11 @@ class MainArgs {
 	<xsl:text>(argc-1,&amp;argv[1]);
 				}
 			catch(std::exception&amp; e) {
-				std::cerr &lt;&lt; "[ERROR] </xsl:text><xsl:value-of select="@name"/><xsl:text> : " &lt;&lt; e.what() &lt;&lt; std::endl;
+				THROW_PROGRAM_ERROR("[ERROR] </xsl:text><xsl:value-of select="@name"/><xsl:text> : " &lt;&lt; e.what());
 				return EXIT_FAILURE;
 				}
 			catch(...) {
-				std::cerr &lt;&lt; "[ERROR] </xsl:text><xsl:value-of select="@name"/><xsl:text>." &lt;&lt; std::endl;
+				THROW_PROGRAM_ERROR("[ERROR] </xsl:text><xsl:value-of select="@name"/><xsl:text>.");
 				return EXIT_FAILURE;
 				}
 			
@@ -140,7 +175,29 @@ class MainArgs {
 
 	};
 
+#define PROGRAM_SHOW_HELP_OR_VERSION(args) \
+	do {\
+	if(args.show_help) {\
+                args.usage(std::cout);\
+                return EXIT_SUCCESS;\
+                }\
+        if(args.show_version) {\
+		std::cout &lt;&lt; args.program_name() &lt;&lt; std::endl;\
+                std::cout &lt;&lt; "Version: " &lt;&lt; args.program_version() &lt;&lt; std::endl;\
+                std::cout &lt;&lt; "Git" &lt;&lt; GIT_VERSION &lt;&lt; std::endl;\
+                return EXIT_SUCCESS;\
+                }\
+	}while(false)
 
+#define PROGRAM_COMMON(args) \
+	do {\
+	PROGRAM_SHOW_HELP_OR_VERSION(args);\
+        if(!args.validate()) {\
+                return EXIT_FAILURE;\
+                }\
+	}while(false)
+
+#undef THROW_PROGRAM_ERROR
 
 </xsl:template>
 
@@ -176,6 +233,9 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
 		<xsl:value-of select="@name"/>;
 		</xsl:for-each>
 
+	    <xsl:apply-templates select="code[@section='class-declaration']"/>
+
+
         /** constructor for <xsl:value-of select="$className"/>  */
 		<xsl:value-of select="$className"/>() {
             /* initialize fields */
@@ -187,6 +247,8 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
          <xsl:when test="@default-value"><xsl:value-of select="@name"/> = (<xsl:value-of select="@type"/>)<xsl:value-of select='@default-value'/>;</xsl:when>
 		</xsl:choose>
 		</xsl:for-each>
+
+	    <xsl:apply-templates select="code[@section='class-constructor']"/>
 			}
 
 		/** destructor for <xsl:value-of select="$className"/> */
@@ -196,6 +258,9 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
 		        <xsl:when test="@type='string'">if(<xsl:value-of select="@name"/> != NULL) {std::free(<xsl:value-of select="@name"/>);}</xsl:when>
             </xsl:choose>
 		    </xsl:for-each>
+
+	    <xsl:apply-templates select="code[@section='class-destructor']"/>
+
 			}
     
 		virtual const char* program_version() {
@@ -215,6 +280,8 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
 		virtual std::ostream&amp; usage(std::ostream&amp; out) {
                 out &lt;&lt; program_name() &lt;&lt; std::endl;
 		out &lt;&lt; "Version: " &lt;&lt; program_version() &lt;&lt; std::endl;
+		out &lt;&lt; "git: " &lt;&lt; GIT_VERSION &lt;&lt; std::endl;
+		out &lt;&lt; "Author: Pierre Lindenbaum PhD" &lt;&lt; std::endl;
 		out &lt;&lt; "Compilation: " &lt;&lt; __DATE__ &lt;&lt; " at " &lt;&lt; __TIME__ &lt;&lt; std::endl;
 
 		out &lt;&lt; "Option: " &lt;&lt; std::endl;
@@ -249,11 +316,15 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
 				out &lt;&lt; std::endl;
 			</xsl:for-each>
 			out &lt;&lt; std::endl;
+
+	    <xsl:apply-templates select="code[@section='usage']"/>
+
+
 	            return out;
 			}
 
 		/** parse arguments */
-		virtual int parse(int argc,char** argv) {
+		virtual bool parse(int argc,char** argv) {
   for(;;)  {
       option long_options[] = {
 	<xsl:for-each select="option">
@@ -301,6 +372,9 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
       /* Detect the end of the options. */
       if (c == -1)
         break;
+      /** this is a long option */
+      if (c==0) c= long_options[option_index].val;
+
 
       switch (c)
         {
@@ -337,9 +411,9 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
 		<xsl:value-of select="@parser"/>
 		<xsl:text>(optarg); }
 		catch(...) {
-			std::cerr &lt;&lt; "Cannot parse \"" &lt;&lt; optarg &lt;&lt; " for </xsl:text>
+			THROW_PROGRAM_ERROR("Cannot parse \"" &lt;&lt; optarg &lt;&lt; " for </xsl:text>
 			<xsl:apply-templates select="." mode="usage"/>
-			<xsl:text>" &lt;&lt; std::endl;
+			<xsl:text>");
 			std::exit(EXIT_FAILURE);
 			}
 		break;
@@ -364,19 +438,60 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
 		<xsl:text>break;
         </xsl:text>
         </xsl:for-each>
-        case '?':
-          /* getopt_long already printed an error message. */
+	case ':' : {
+		if(std::isprint(optopt)) {
+			THROW_PROGRAM_ERROR("missing argument for option -" &lt;&lt; (char)optopt &lt;&lt;"'.");
+			}
+		else
+			{
+			THROW_PROGRAM_ERROR("missing arggument for " &lt;&lt; (int)optopt  &lt;&lt; ").");
+			}
+		return false;
+		};
+        case '?': {
+		if(std::isprint(optopt)) {
+			THROW_PROGRAM_ERROR("unknown option '" &lt;&lt; (char)optopt &lt;&lt;"'.");
+			}
+		else
+			{
+			THROW_PROGRAM_ERROR("unknown option (" &lt;&lt; (int)optopt  &lt;&lt; ").");
+			}
+		return false;
+		}
           break;
         default:
-          abort ();
+          	THROW_PROGRAM_ERROR("strange option state.");
+		return false;
         }
+    while(optind &lt; argc) {
+		this-&gt;program_files.push_back(argv[optind]);
+		optind++;
+		}
     }			
-return 0;
-			}
-        int validate() {
+return true;	
+}
+
+       virtual bool validate() {
+		bool ok=true;
             <xsl:for-each select="option">
+			<xsl:if test="@type='string' and @required='true'">
+			if(this-&gt;<xsl:value-of select="@name"/>==NULL) {
+				ok = false;
+				std::cerr &lt;&lt; program_name() &lt;&lt; " :<xsl:apply-templates select="." mode="usage"/> is required." &lt;&lt; std::endl;
+				}
+			</xsl:if>
+			<xsl:if test="(@type='int' or @type='long') and @min-inclusive">
+			if(this-&gt;<xsl:value-of select="@name"/> &lt; (<xsl:value-of select="@type"/>)<xsl:value-of select="@min-inclusive"/>) {
+				ok = false;
+				std::cerr &lt;&lt; program_name() &lt;&lt; " :<xsl:apply-templates select="." mode="usage"/> =" &lt;&lt; 
+					this-&gt;<xsl:value-of select="@name"/>  &lt;&lt; 
+					" should be greater or equal to <xsl:value-of select="@min-inclusive"/>." &lt;&lt; 
+					std::endl;
+				}
+			</xsl:if>
             </xsl:for-each>
-            return 0;
+	    <xsl:apply-templates select="code[@section='validation']"/>
+            return ok;
             }
 	};
 
@@ -406,11 +521,22 @@ return 0;
 	</xsl:choose>
 </xsl:template>
 
+<xsl:template match="code">
+
+/* BEGIN CUSTOM USER CODE */
+<xsl:copy>
+<xsl:apply-templates select="text()"/>
+</xsl:copy>
+/* END CUSTOM USER CODE */
+
+</xsl:template>
+
 <xsl:template name="escapeC">
 <xsl:param name="s"/>
-<xsl:text>#############</xsl:text>
 <xsl:value-of select="$s"/>
 </xsl:template>
+
+
 
 
 </xsl:stylesheet>

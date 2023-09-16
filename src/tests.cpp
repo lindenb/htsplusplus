@@ -1,0 +1,78 @@
+#include <string>
+#include "programs.hh"
+#include "utils.hh"
+#include "debug.hh"
+#include "RegIdx.hh"
+using namespace std;
+
+#define ASSERT_EQUALS(a,b) if((a)!=(b)) {THROW_ERROR("assert " #a "==" #b " Failed. a=" << a << " b=" << b);} else {DEBUG("EQUALS "#a" ==" #b);}
+#define ASSERT_TRUE(a) if(!(a))  {THROW_ERROR("assert true " #a " Failed");} else {DEBUG("ASSERT_TRUE "#a);}
+#define ASSERT_FALSE(a) if((a))  {THROW_ERROR("assert false " #a " Failed");} else {DEBUG("ASSERT_FALSE "#a);}
+
+ static int callback2(const char* chr, int beg, int end,void* usr) {
+ 	int* n=(int*)usr;
+ 	DEBUG(chr<< " " << beg << " " << end);
+ 	switch(*n) {
+ 		case 0:
+	 		ASSERT_TRUE(strcmp(chr,"chr1")==0)
+	 		ASSERT_EQUALS(beg,11)
+	 		ASSERT_EQUALS(end,20)
+	 		break;
+	 	case 1:
+	 		ASSERT_TRUE(strcmp(chr,"chr1")==0)
+	 		ASSERT_EQUALS(beg,101)
+	 		ASSERT_EQUALS(end,200)
+	 		break;
+	 	case 2:
+	 		ASSERT_TRUE(strcmp(chr,"chr1")==0)
+	 		ASSERT_EQUALS(beg,1001)
+	 		ASSERT_EQUALS(end,2000)
+	 		break;
+	 	default: return -1; break;
+ 		}
+ 	++*n;
+ 	return 0;
+ 	}
+
+static void test_bed_01(string datadir) {
+	DEBUG(__FUNCTION__);
+	string fname;
+	fname.assign(datadir).append( IoUtils::separator() ).append("test.01.bed");
+	IoUtils::assertFileExist(fname.c_str());
+	std::unique_ptr<RegIdx> idx = RegIdx::load_file(fname.c_str());
+	ASSERT_EQUALS(idx->count(),6L);
+	int n=0;
+	idx->for_each(callback2,(void*)&n);
+	ASSERT_EQUALS(n,3);
+	ASSERT_FALSE(idx->overlaps("chrX",10,10))
+	ASSERT_TRUE(idx->overlaps("chr1",1,1000))
+	ASSERT_FALSE(idx->overlaps("chr1",1,10))
+	ASSERT_FALSE(idx->overlaps("chr1",10,10))
+	ASSERT_TRUE(idx->overlaps("chr1",1,11))
+	ASSERT_TRUE(idx->overlaps("chr1",11,11))
+	ASSERT_TRUE(idx->overlaps("chr1",20,20))
+	ASSERT_FALSE(idx->overlaps("chr1",21,21))
+	ASSERT_EQUALS(idx->count("chrX",21,21),0)
+	ASSERT_EQUALS(idx->count("chr1",1,100000),3)
+	ASSERT_EQUALS(idx->count("chr1",1,10),0)
+	ASSERT_EQUALS(idx->count("chr1",11,11),1)
+	ASSERT_EQUALS(idx->count("chr1",20,20),1)
+	ASSERT_EQUALS(idx->count("chr1",21,21),0)
+	ASSERT_EQUALS(idx->count("chr1",101,101),1)
+	}
+
+int main_tests(int argc, char**argv) {
+	TestsArgs args;
+	if(!args.parse(argc,argv)) return EXIT_FAILURE;
+	PROGRAM_COMMON(args);
+	string directory(args.datadirectory);
+	try {
+		test_bed_01(directory);
+		cerr << "Done" << endl;
+		}
+	catch(exception& err) {
+	cerr << "ERROR " << err.what() << endl;
+		return -1;
+		}
+	return 0;
+	}

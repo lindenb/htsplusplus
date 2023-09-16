@@ -26,6 +26,9 @@ class SamFileHeader {
 		sam_hdr_t* operator()() {
 			return get();
 			}
+		const char* tid2name(int tid) {
+			return ::sam_hdr_tid2name(get(),tid);
+			}
 
 		static std::unique_ptr<SamFileHeader> read(samFile *fp);
 	};

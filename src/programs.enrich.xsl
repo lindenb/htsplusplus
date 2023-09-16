@@ -27,7 +27,7 @@
 
 
 <xsl:template match="macro[@name='output']">
-                <option name="output" type="string" short-option="o" long-option="output">
+                <option name="output_filename" type="string" short-option="o" long-option="output">
                         <short-description>output or stdout</short-description>
                 </option>
 </xsl:template>
@@ -48,25 +48,40 @@
 		</option>
 </xsl:template>
 
-<xsl:template match="macro[@name='bcf.output.format']">
-	<option name="bcf_output_format" type="char" short-option="O" long-option="vcf-format" arg-name="format" default-value="'v'">
+<xsl:template match="macro[@name='bcf.output']">
+	<macro name="compression_level"/>
+	<option name="bcf_output_format" type="char" short-option="O" long-option="vcf-output-format" arg-name="format" default-value="'v'">
 		<short-description>output format for VCF/BCF: z:gzip vcf v:vcf b:bcf (default v)</short-description>
 	</option>
 </xsl:template>
+
+<xsl:template match="macro[@name='bam.output']">
+	<macro name="compression_level"/>
+	<option name="bam_output_format" type="string" short-option="O" long-option="bam-output-format" arg-name="format" default-value='"SAM"'>
+		<short-description>output format for sam: SAM, BAM, CRAM</short-description>
+	</option>
+</xsl:template>
+
 
 <xsl:template match="macro[@name='version.help']">	
 	<macro name="help"/>
 	<macro name="version"/>
 </xsl:template>
 
-<xsl:template match="*|text()">
+<xsl:template match="*">
 <xsl:copy>
 <xsl:copy-of select="@*"/>
 <xsl:choose>
 	<xsl:when test="@type='int' and not(@parser)"><xsl:attribute name="parser">this-&gt;parseInt</xsl:attribute></xsl:when>
 	<xsl:when test="@type='char' and not(@parser)"><xsl:attribute name="parser">this-&gt;parseChar</xsl:attribute></xsl:when>
 </xsl:choose>
-<xsl:apply-templates select="*"/>
+<xsl:apply-templates select="*|text()"/>
+</xsl:copy>
+</xsl:template>
+
+<xsl:template match="text()">
+<xsl:copy>
+<xsl:apply-templates select="*|text()"/>
 </xsl:copy>
 </xsl:template>
 
