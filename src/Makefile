@@ -7,11 +7,11 @@ CC=g++
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 
+hts++: $(sort $(addsuffix .o, bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader utils tests Regex selgt_main selgt.tab selgt.lex.yy)) $(HTSLIB)/libhts.a
+	$(CC) -o $@ $(filter %.o,$^) $(filter %.a,$^) $(LDFLAGS)
+
 tests: hts++
 	./hts++ tests -D ../tests
-
-hts++: $(sort $(addsuffix .o, bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader utils tests)) $(HTSLIB)/libhts.a
-	$(CC) -o $@ $(filter %.o,$^) $(filter %.a,$^) $(LDFLAGS)
 
 
 
@@ -30,6 +30,28 @@ htsplusplus.o: htsplusplus.cpp  programs.hh
 
 programs.hh: programs2C.xsl programs.tmp.xml git.hh
 		xsltproc --output $@ programs2C.xsl programs.tmp.xml
+
+selgt_main : selgt_main.cpp selgt.tab.hpp selgt.hh selgt.lex.yy.hh
+	$(CC) -c -o $@ $(CFLAGS) $<
+
+selgt.tab.o: selgt.tab.cpp selgt.tab.hpp selgt.hh selgt.lex.yy.hh
+	$(CC) $(CFLAGS) -o $@ $<
+
+selgt.lex.yy.o: selgt.lex.yy.cpp selgt.hh
+	$(CC) $(CFLAGS) -o $@ $<
+
+selgt.lex.yy.hh: selgt.lex.yy.cpp
+	touch -c $@
+
+selgt.lex.yy.cpp: selgt.l selgt.hh selgt.tab.hpp
+	flex  --prefix=selgt --header-file=$(addsuffix .hh,$(basename $@)) --outfile=$@  $<
+
+selgt.tab.hpp: selgt.tab.cpp
+	touch -c $@
+
+selgt.tab.cpp :selgt.y selgt.hh
+	bison -Wcounterexamples  --xml=bison.xml --verbose --report-file=bison.report.txt --output=$@ -d $<
+
 
 programs.tmp.xml : programs.xml  programs.enrich.xsl
 	xsltproc programs.enrich.xsl $< |\

@@ -38,6 +38,7 @@ using namespace std;
 int main_bcfprune(int argc,char** argv) {
 BcfpruneArgs args;
 args.parse(argc,argv);
+PROGRAM_COMMON(args);
 if(args.distance<=0)  {
     THROW_ERROR("Bad distance '" << args.distance << " <=0.");
     }

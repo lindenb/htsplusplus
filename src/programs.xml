@@ -3,7 +3,7 @@
 
 
 	<program name="samviewwithmate">
-		<short-description>select read and bams that falls within a region</short-description>
+		<short-description>select read and their mate that falls within a region from a <b>query sorted</b> <b>BAM</b></short-description>
 		<macro name="version.help"/>
 		<macro name="output"/>
 		<macro name="reference"/>
@@ -21,7 +21,7 @@
 
 
 	<program name="bcfprune">
-		<short-description>remove variants that are too close</short-description>
+		<short-description>Select variants with a fixed distance in a <b>VCF</b> file.</short-description>
 		<macro name="version.help"/>
 		<macro name="output"/>
 		<macro name="bcf.output"/>

@@ -23,6 +23,7 @@ THIS FILE WAS AUTO-GENERATED, DO NOT EDIT
 #include &lt;string&gt;
 #include &lt;vector&gt;
 #include &lt;getopt.h&gt;
+#include "Regex.hh"
 #include "git.hh"
 
 <xsl:apply-templates select="programs"/>
@@ -94,6 +95,7 @@ class MainArgs {
 
 		virtual std::ostream&amp; usage(std::ostream&amp; out) {
 	                out &lt;&lt; program_name() &lt;&lt; std::endl;
+	                out &lt;&lt; "Version: " &lt;&lt; program_version() &lt;&lt; std::endl;
 			out &lt;&lt; "Compilation: " &lt;&lt; __DATE__ &lt;&lt; " at " &lt;&lt; __TIME__ &lt;&lt; std::endl;
 			out &lt;&lt; "git: " &lt;&lt; GIT_VERSION &lt;&lt; std::endl;
 			out &lt;&lt; "Author: Pierre Lindenbaum PhD" &lt;&lt; std::endl;
@@ -102,28 +104,9 @@ class MainArgs {
 
 			<xsl:for-each select="program[not(@hidden='false')]">
 				<xsl:sort select="@name"/>
-				out &lt;&lt; "\t<xsl:value-of select="@name"/>\t";
-				<xsl:choose>
-					<xsl:when test="short-description">
-						<xsl:text>out &lt;&lt; "</xsl:text>
-						<xsl:call-template name="escapeC">
-							<xsl:with-param name="s" select="short-description/text()"/>
-						</xsl:call-template>
-						<xsl:text>";</xsl:text>
-					</xsl:when>
-					<xsl:when test="long-description">
-						<xsl:text>out &lt;&lt; "</xsl:text>
-						<xsl:call-template name="escapeC">
-							<xsl:with-param name="s" select="long-description/text()"/>
-						</xsl:call-template>
-						<xsl:text>";</xsl:text>
-					</xsl:when>
-					<xsl:otherwise>
-						<xsl:message terminate="no">description missing for <xsl:value-of select="@name"/></xsl:message>
-					</xsl:otherwise>
-				 </xsl:choose>
-				out &lt;&lt; std::endl;
+				out &lt;&lt; "\t<xsl:value-of select="@name"/>\t" &lt;&lt; <xsl:apply-templates select="." mode="short-desc"/>  &lt;&lt;  std::endl;
 			</xsl:for-each>
+			out &lt;&lt; std::endl;
 			return out;
 			}
 
@@ -233,7 +216,7 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
 		<xsl:value-of select="@name"/>;
 		</xsl:for-each>
 
-	    <xsl:apply-templates select="code[@section='class-declaration']"/>
+	    <xsl:apply-templates select="include[@section='class-declaration']"/>
 
 
         /** constructor for <xsl:value-of select="$className"/>  */
@@ -248,7 +231,7 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
 		</xsl:choose>
 		</xsl:for-each>
 
-	    <xsl:apply-templates select="code[@section='class-constructor']"/>
+	    <xsl:apply-templates select="include[@section='class-constructor']"/>
 			}
 
 		/** destructor for <xsl:value-of select="$className"/> */
@@ -259,7 +242,7 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
             </xsl:choose>
 		    </xsl:for-each>
 
-	    <xsl:apply-templates select="code[@section='class-destructor']"/>
+	    <xsl:apply-templates select="include[@section='class-destructor']"/>
 
 			}
     
@@ -293,31 +276,11 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
 					<xsl:when test="@arg-name">out &lt;&lt; "&lt;<xsl:value-of select="@arg-name"/>&gt;";</xsl:when>
 					<xsl:otherwise>out &lt;&lt; "&lt;ARG&gt;";</xsl:otherwise>
 				</xsl:choose>
-				out &lt;&lt; "  " ;
-				<xsl:choose>
-					<xsl:when test="short-description">
-						<xsl:text>out &lt;&lt; "</xsl:text>
-						<xsl:call-template name="escapeC">
-							<xsl:with-param name="s" select="short-description/text()"/>
-						</xsl:call-template>
-						<xsl:text>";</xsl:text>
-					</xsl:when>
-					<xsl:when test="long-description">
-						<xsl:text>out &lt;&lt; "</xsl:text>
-						<xsl:call-template name="escapeC">
-							<xsl:with-param name="s" select="long-description/text()"/>
-						</xsl:call-template>
-						<xsl:text>";</xsl:text>
-					</xsl:when>
-					<xsl:otherwise>
-						<xsl:message terminate="yes">description missing for <xsl:value-of select="@name"/></xsl:message>
-					</xsl:otherwise>
-				 </xsl:choose>
-				out &lt;&lt; std::endl;
+				out &lt;&lt; "  " &lt;&lt; <xsl:apply-templates select="." mode="short-desc"/> &lt;&lt; std::endl;
 			</xsl:for-each>
 			out &lt;&lt; std::endl;
 
-	    <xsl:apply-templates select="code[@section='usage']"/>
+	    <xsl:apply-templates select="include[@section='usage']"/>
 
 
 	            return out;
@@ -482,6 +445,23 @@ return true;
 				std::cerr &lt;&lt; program_name() &lt;&lt; " :<xsl:apply-templates select="." mode="usage"/> is required." &lt;&lt; std::endl;
 				}
 			</xsl:if>
+			
+			<xsl:if test="@type='string' and @regex">
+			if(this-&gt;<xsl:value-of select="@name"/>!=NULL) {
+				std::unique_ptr&lt;Regex&gt; regex= Regex::compile("<xsl:value-of select="@regex"/>",<xsl:choose>
+						<xsl:when test="@regex-flags"><xsl:value-of select="@regex-flags"/></xsl:when>
+						<xsl:otherwise>0</xsl:otherwise>
+					</xsl:choose>);
+				if(!regex->matches(this-&gt;<xsl:value-of select="@name"/>)) {
+					ok = false;
+					std::cerr &lt;&lt; program_name() &lt;&lt; " :<xsl:apply-templates select="." mode="usage"/> =" &lt;&lt; 
+					this-&gt;<xsl:value-of select="@name"/>  &lt;&lt; 
+					" should match regular expression /<xsl:value-of select="@regex"/>/." &lt;&lt; 
+					std::endl;
+					}
+				}
+			</xsl:if>
+			
 			<xsl:if test="(@type='int' or @type='long') and @min-inclusive">
 			if(this-&gt;<xsl:value-of select="@name"/> &lt; (<xsl:value-of select="@type"/>)<xsl:value-of select="@min-inclusive"/>) {
 				ok = false;
@@ -492,7 +472,7 @@ return true;
 				}
 			</xsl:if>
             </xsl:for-each>
-	    <xsl:apply-templates select="code[@section='validation']"/>
+	    <xsl:apply-templates select="include[@section='validation']"/>
             return ok;
             }
 	};
@@ -533,12 +513,72 @@ return true;
 
 </xsl:template>
 
-<xsl:template name="escapeC">
-<xsl:param name="s"/>
-<xsl:value-of select="$s"/>
+
+<xsl:template match="br">
+<xsl:text>\\n</xsl:text>
 </xsl:template>
 
 
+<xsl:template match="b">
+<xsl:text>**</xsl:text>
+<xsl:apply-templates/>
+<xsl:text>**</xsl:text>
+</xsl:template>
 
+
+<xsl:template match="i">
+<xsl:text>*</xsl:text>
+<xsl:apply-templates/>
+<xsl:text>*</xsl:text>
+</xsl:template>
+
+<xsl:template match="code">
+<xsl:text>`</xsl:text>
+<xsl:apply-templates/>
+<xsl:text>`</xsl:text>
+</xsl:template>
+
+
+<xsl:template match="pre">
+<xsl:text>\\n```\\n</xsl:text>
+<xsl:apply-templates/>
+<xsl:text>\\n```\\n</xsl:text>
+</xsl:template>
+
+<xsl:template match="quote">
+<xsl:text>\"</xsl:text>
+<xsl:apply-templates/>
+<xsl:text>\"</xsl:text>
+</xsl:template>
+
+
+<xsl:template match="a">
+<xsl:value-of select="@href"/>
+</xsl:template>
+
+<xsl:template match="text()">
+<xsl:value-of select="."/>
+</xsl:template>
+
+
+<xsl:template match="program|programs|option" mode="short-desc">
+<xsl:text>"</xsl:text>
+<xsl:choose>
+	<xsl:when test="short-description">
+		<xsl:apply-templates select="short-description"/>
+	</xsl:when>
+	<xsl:when test="description">
+		<xsl:apply-templates select="description"/>
+	</xsl:when>
+	<xsl:when test="long-description">
+		<xsl:apply-templates select="short-description"/>
+	</xsl:when>
+	<xsl:otherwise>
+		<xsl:text>no description available</xsl:text>
+		<xsl:message terminate="no">description missing for <xsl:value-of select="@name"/></xsl:message>
+	</xsl:otherwise>
+</xsl:choose>
+<xsl:text>"</xsl:text>
+</xsl:template>
 
 </xsl:stylesheet>

@@ -34,7 +34,19 @@ class BcfHeader {
 		std::unique_ptr<BcfHeader> clone() {
 			return std::unique_ptr<BcfHeader>(new BcfHeader(*this));
 			}
-
+		virtual int nsamples() {
+			return bcf_hdr_nsamples(get());
+			}
+		virtual bool has_samples() {
+			return nsamples() > 0;
+			}
+		 virtual int sample_index(const char* sn) {
+		 	return ::bcf_hdr_id2int(get(),BCF_DT_SAMPLE,sn);
+			}
+		virtual const char* sample(int idx) {
+			return get()->samples[idx];
+			}
+		
 		static std::unique_ptr<BcfHeader> read(htsFile *fp);
 	};
 

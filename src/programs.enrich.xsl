@@ -33,8 +33,8 @@
 </xsl:template>
 
 <xsl:template match="macro[@name='compression_level']">
-                <option name="compression_level" type="int" long-option="compression-level" default-value="5">
-                        <short-description>compression-level</short-description>
+                <option name="compression_level" type="int" long-option="compression-level" default-value="5" arg-name="0-9">
+                        <short-description>compression-level 0 (low compression) to 9 (best compression)</short-description>
                 </option>
 </xsl:template>
 
