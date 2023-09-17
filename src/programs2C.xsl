@@ -325,6 +325,8 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
 
 		/** parse arguments */
 		virtual bool parse(int argc,char** argv) {
+			/** https://stackoverflow.com/questions/19940100 */
+			optind = 1;
   for(;;)  {
       option long_options[] = {
 	<xsl:for-each select="option">
@@ -463,11 +465,11 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
           	THROW_PROGRAM_ERROR("strange option state.");
 		return false;
         }
+    }			
     while(optind &lt; argc) {
 		this-&gt;program_files.push_back(argv[optind]);
 		optind++;
 		}
-    }			
 return true;	
 }
 

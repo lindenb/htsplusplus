@@ -55,7 +55,7 @@ class SamRecord : public AbstractSamRecord {
 				THROW_ERROR("Out of memory.");
 				}
 			}
-		bam1_t* get() {
+		virtual bam1_t* get() {
 			return b;
 			}
 		virtual ~SamRecord() {
@@ -71,14 +71,14 @@ class SamFile{
 		samFile* fp;
 		SamFile(samFile* fp):fp(fp) {
 			}
-		void close() {
+		virtual void close() {
 			if(fp!=NULL) sam_close(fp);
 			fp=NULL;
 			}
 		virtual ~SamFile(){
 			close();
 			}
-		samFile* get() {
+		virtual samFile* get() {
 			return fp;
 			}
 		};

@@ -3,6 +3,7 @@
 #include <htslib/hts.h>
 #include <htslib/sam.h>
 #include "HtsFile.hh"
+#include "utils.hh"
 #include "debug.hh"
 
 class SamFileHeader {
@@ -29,7 +30,43 @@ class SamFileHeader {
 		const char* tid2name(int tid) {
 			return ::sam_hdr_tid2name(get(),tid);
 			}
-
+		/*  Returns the value associated with a given '@HD' line tag */
+		virtual std::unique_ptr<std::string> find_tag_hd(const char* tag)
+			{
+			std::string* ret = NULL;
+			ASSERT_NOT_NULL(tag);
+			kstring_t str = KS_INITIALIZE;
+			if(sam_hdr_find_tag_hd(get(),tag,&str) == 0 && str.s!=0) {
+				ret = new std::string(str.s);
+				}
+    		ks_free(&str);
+    		return std::unique_ptr<std::string>(ret);
+    		}
+    	/** retrieve sort order */
+		virtual std::unique_ptr<std::string> sort_order() {
+			return find_tag_hd("SO");
+			}
+		virtual bool has_sort_order(const char* s) {
+			std::unique_ptr<std::string> p = sort_order();
+			if(!p) return false;
+			return p->compare(s)==0;
+			}
+		virtual void assert_sort_order(const char* s) {
+			ASSERT_NOT_NULL(s);
+			std::unique_ptr<std::string> p = sort_order();
+			if(!p) THROW_ERROR("cannot get SO (sort order) in SAM header");
+			if(p->compare(s)!=0) {
+				THROW_ERROR("expected sort order SO="<< s << "but got SO=" << *(p) << " in SAM header");
+				}
+			}
+		virtual bool is_coordinate_sorted() {
+			return has_sort_order("coordinate");
+			}
+		virtual void assert_coordinate_sorted() {
+			assert_sort_order("coordinate");
+			}
+	
+	
 		static std::unique_ptr<SamFileHeader> read(samFile *fp);
 	};
 

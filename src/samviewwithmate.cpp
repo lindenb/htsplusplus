@@ -7,6 +7,7 @@
 
 using namespace std;
 
+/*
 template <class T>
 class ProgramBamFilter : public T {
 public:
@@ -18,20 +19,26 @@ public:
 			return swf.open(this->output_filename);
 			}
 	
-};
+};*/
 
 
 int main_samviewwithmate(int argc, char** argv) {
-	ProgramBamFilter<SamviewwithmateArgs> args;
+	SamviewwithmateArgs args;
 	if(!args.parse(argc,argv)) return EXIT_FAILURE;
 	PROGRAM_COMMON(args);
 	SamFileReaderFactory srf;
 	const char* input = args.oneFileOrNull();
 	std::unique_ptr<SamFileReader> r=srf.open(input==NULL?"-":input);
+	if(r->header->is_coordinate_sorted()) {
+		THROW_ERROR("input should not be coordinate sorted");
+		}
 	SamFileWriterFactory swf;
 	std::unique_ptr<RegIdx> regidx = RegIdx::load_file(args.bed_file);
 
-	std::unique_ptr<SamFileWriter> w=swf.open("-");
+	std::unique_ptr<SamFileWriter> w=swf.
+		compression(args.compression_level).
+		format(args.bam_output_format).
+		open("-");
 
 	w->write_header(r->header->get());
 	std::vector<SamRecord*> pool;
@@ -47,6 +54,7 @@ int main_samviewwithmate(int argc, char** argv) {
 			rec=NULL;
 			}
 		if(rec==NULL ||  (!buffer.empty() && strcmp(buffer[0]->read_name(),rec->read_name())!=0)) {
+			if(args.inverse) in_bed=!in_bed;
 			if(in_bed) {
 				for(unsigned int i=0;i< buffer.size();i++) {
 					w->write2(buffer[i]);

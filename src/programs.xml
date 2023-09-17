@@ -8,6 +8,9 @@
 		<macro name="output"/>
 		<macro name="reference"/>
 		<macro name="bam.output"/>
+		<option name="inverse" type="bool" short-option='i' long-option="inverse">
+			<short-description>inverse logic: keep read where no read in the pair overlap the BED file</short-description>
+		</option>
 		<option name="bed_file" type="string" short-option='B' long-option="bed" arg-name="BED" required="true">
 			<short-description><macro name="what.is.bed"/></short-description>
 		</option>

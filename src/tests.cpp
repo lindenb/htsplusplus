@@ -9,7 +9,43 @@ using namespace std;
 #define ASSERT_TRUE(a) if(!(a))  {THROW_ERROR("assert true " #a " Failed");} else {DEBUG("ASSERT_TRUE "#a);}
 #define ASSERT_FALSE(a) if((a))  {THROW_ERROR("assert false " #a " Failed");} else {DEBUG("ASSERT_FALSE "#a);}
 
- static int callback2(const char* chr, int beg, int end,void* usr) {
+struct Command{
+	unsigned int n;
+	char** array;
+	char** cmd;
+	};
+	
+static Command* create_array(vector<string>& v) {
+Command* ptr = (Command*)malloc(sizeof(Command));
+ASSERT_NOT_NULL(ptr);
+ptr->n = v.size();
+ptr->array=(char**)malloc(sizeof(char*)*(v.size()+1));
+ASSERT_NOT_NULL(ptr->array);
+ptr->cmd=(char**)malloc(sizeof(char*)*(v.size()+1));
+ASSERT_NOT_NULL(ptr->cmd);
+for(unsigned int i=0;i< v.size();i++) {
+	ptr->array[i] = strdup(v[i].c_str());
+	cerr << ptr->array[i]  << " ";
+	ASSERT_NOT_NULL(ptr->array[i]);
+	ptr->cmd[i] = ptr->array[i];
+	}
+ptr->array[v.size()]=0;
+ptr->cmd[v.size()]=0;
+cerr << endl;
+return ptr;
+}
+
+static void dispose_array(Command* ptr) {
+	ASSERT_NOT_NULL(ptr);
+	for(unsigned int i=0;i< ptr->n;i++) {
+		free(ptr->array[i]);
+		}
+	free(ptr->array);
+	free(ptr->cmd);
+	free(ptr);
+	}
+
+static int callback2(const char* chr, int beg, int end,void* usr) {
  	int* n=(int*)usr;
  	DEBUG(chr<< " " << beg << " " << end);
  	switch(*n) {
@@ -61,6 +97,26 @@ static void test_bed_01(string datadir) {
 	ASSERT_EQUALS(idx->count("chr1",101,101),1)
 	}
 
+static void test_samviewwithmate_01(string datadir) {
+	DEBUG(__FUNCTION__);
+	string bedname;
+	string samname;
+	bedname.assign(datadir).append( IoUtils::separator() ).append("viewwithmate.01.bed");
+	samname.assign(datadir).append( IoUtils::separator() ).append("viewwithmate.01.sam");
+	vector<string> cmd;
+	cmd.push_back("samviewwithmate");
+	cmd.push_back("-O");
+	cmd.push_back("SAM");
+	cmd.push_back("-B"); cmd.push_back(bedname);
+	cmd.push_back(samname);
+	Command* args = create_array(cmd);
+	ASSERT_EQUALS(main_samviewwithmate(args->n,args->cmd),0);
+	dispose_array(args);
+	}
+
+
+
+
 int main_tests(int argc, char**argv) {
 	TestsArgs args;
 	if(!args.parse(argc,argv)) return EXIT_FAILURE;
@@ -68,6 +124,7 @@ int main_tests(int argc, char**argv) {
 	string directory(args.datadirectory);
 	try {
 		test_bed_01(directory);
+		test_samviewwithmate_01(directory);
 		cerr << "Done" << endl;
 		}
 	catch(exception& err) {

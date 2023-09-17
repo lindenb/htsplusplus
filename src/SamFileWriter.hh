@@ -67,8 +67,9 @@ class SamFileWriterFactory {
 			}
 		std::unique_ptr<SamFileWriter> open(const char* filename) {
 			char mode[12];
-		    	std::strcpy(mode, "wb");
-			::sam_open_mode(mode+1, filename, NULL);
+		    std::strcpy(mode, "wb");
+			::sam_open_mode(&mode[1], filename, output_format.empty()?NULL:output_format.c_str());
+			
 			if (level >= 0) std::sprintf(std::strchr(mode, '\0'), "%d", level < 9? level : 9);
 			std::unique_ptr<HtsFile> fp = HtsFile::open(filename, mode);
 			std::unique_ptr<SamFileWriter> w = std::unique_ptr<SamFileWriter>(new SamFileWriter());
