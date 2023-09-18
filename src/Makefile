@@ -10,10 +10,9 @@ CC=g++
 hts++: $(sort $(addsuffix .o, bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader utils tests Regex selgt_main selgt.tab selgt.lex.yy)) $(HTSLIB)/libhts.a
 	$(CC) -o $@ $(filter %.o,$^) $(filter %.a,$^) $(LDFLAGS)
 
-tests: hts++
-	./hts++ tests -D ../tests
 
 
+samviewwithmate.cpp: SamFileHeader.hh SamFileReader.hh SamFileWriter.hh programs.hh debug.hh
 
 bcfprune.o: bcfprune.cpp programs.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
@@ -31,7 +30,7 @@ htsplusplus.o: htsplusplus.cpp  programs.hh
 programs.hh: programs2C.xsl programs.tmp.xml git.hh
 		xsltproc --output $@ programs2C.xsl programs.tmp.xml
 
-selgt_main : selgt_main.cpp selgt.tab.hpp selgt.hh selgt.lex.yy.hh
+selgt_main : selgt_main.cpp selgt.tab.hpp selgt.hh selgt.lex.yy.hh BcfReader.hh BcfWriter.hh programs.hh debug.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 selgt.tab.o: selgt.tab.cpp selgt.tab.hpp selgt.hh selgt.lex.yy.hh
@@ -68,3 +67,6 @@ git.hh:
 
 clean:
 	rm -f *.o hts++ git.hh programs.tmp.xml
+	
+tests: hts++
+	./hts++ samviewwithmate -B ../tests/viewwithmate.01.bed  ../tests/viewwithmate.01.sam

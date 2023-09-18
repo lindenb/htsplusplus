@@ -75,7 +75,7 @@ class ProgramArgs {
 			}
 	};
 
-<xsl:apply-templates select="program"/>
+<xsl:apply-templates select="program[not(@enabled='false')]"/>
 
 
 class MainArgs {
@@ -124,7 +124,7 @@ class MainArgs {
 				return EXIT_SUCCESS;
 				}
 
-<xsl:for-each select="program">
+<xsl:for-each select="program[not(@enabled='false')]">
 	<xsl:if test="position()!=1">else </xsl:if>
 	<xsl:text>if(std::strcmp(argv[1],"</xsl:text>
 	<xsl:value-of select="@name"/>
@@ -475,6 +475,9 @@ return true;
 	    <xsl:apply-templates select="include[@section='validation']"/>
             return ok;
             }
+        
+        <xsl:apply-templates select="include[@section='class-body']"/>
+        
 	};
 
 

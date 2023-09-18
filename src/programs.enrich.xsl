@@ -68,6 +68,8 @@
 	<macro name="version"/>
 </xsl:template>
 
+
+
 <xsl:template match="*">
 <xsl:copy>
 <xsl:copy-of select="@*"/>

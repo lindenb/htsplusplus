@@ -113,7 +113,7 @@ class SamFileReaderFactory {
 		int _nthreads;
 		std::string reference;
 	public:
-		SamFileReaderFactory(){
+		SamFileReaderFactory():_nthreads(0){
 			}
 		SamFileReaderFactory& nthreads(int nt) {
 			this->_nthreads = nt;

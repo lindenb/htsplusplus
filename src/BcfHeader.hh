@@ -7,7 +7,9 @@
 
 class BcfHeader {
 	public:
+		typedef int filter_type;
 		bcf_hdr_t *header;
+
 
 		BcfHeader( bcf_hdr_t *header):header(header) {
 			}
@@ -41,11 +43,60 @@ class BcfHeader {
 			return nsamples() > 0;
 			}
 		 virtual int sample_index(const char* sn) {
+		 	ASSERT_NOT_NULL(sn);
 		 	return ::bcf_hdr_id2int(get(),BCF_DT_SAMPLE,sn);
 			}
 		virtual const char* sample(int idx) {
 			return get()->samples[idx];
 			}
+		virtual void append(const char* s) {
+			ASSERT_NOT_NULL(s);
+			if(::bcf_hdr_append(get(),s)!=0) {
+				THROW_ERROR("cannot insert line \"" << s << "\".");
+				}
+			}
+			
+		virtual void printf(const char *fmt, ...) {
+			va_list ap;
+			//first eval length
+			va_start(ap, fmt);
+			int len = vsnprintf(nullptr,0, fmt, ap);
+			va_end(ap);
+	
+			if (len > 0) {
+				char* line = (char*)::malloc(len+1);
+				ASSERT_NOT_NULL(line);
+
+				va_start(ap, fmt);
+				vsnprintf(line, len, fmt, ap);
+				va_end(ap);
+				this->append(line);
+				::free(line);
+				}
+			}
+		
+
+		
+		virtual BcfHeader::filter_type add_filter(const char* filter_id,const char* description) {
+			ASSERT_NOT_NULL(filter_id);
+			ASSERT_NOT_NULL(description);
+			if( bcf_hdr_id2int(get(), BCF_DT_ID, filter_id) >=0 ) {
+				THROW_ERROR("##FILTER=" << filter_id << " already defined in header.");
+				}
+			this->printf("##FILTER=<ID=%s,Description=\"%s\">", filter_id,description);
+    		filter_type filter_id2 = bcf_hdr_id2int(get(), BCF_DT_ID, filter_id);
+  			if(filter_id2 < 0) {
+  				THROW_ERROR("cannot add filter " << filter_id);
+  				}
+  			return filter_id2;
+			}
+		
+		
+		
+		virtual BcfHeader::filter_type add_filter(const char* filter_id) {
+			return add_filter(filter_id,filter_id);
+			}
+		
 		
 		static std::unique_ptr<BcfHeader> read(htsFile *fp);
 	};

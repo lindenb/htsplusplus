@@ -30,6 +30,24 @@
 		</option>
 	</program>
 	
+	
+	<program name="bcffiltergt">
+		<short-description>Select variant using an expression</short-description>
+		<macro name="version.help"/>
+		<macro name="output"/>
+		<macro name="bcf.output"/>
+		<option name="soft_filter_name" type="string" short-option='F' long-option="soft-filter" arg-name='FILTER-ID'>
+			<short-description>soft FILTER name. (default: filter out variants)</short-description>
+		</option>
+		<option name="user_expr_str" type="string" short-option='e' long-option="expression" arg-name='expression' >
+			<short-description>Expression as string</short-description>
+		</option>
+		<option name="script_file" type="string" short-option='f' long-option="file-expression" arg-name='FILE' >
+			<short-description>Expression as file</short-description>
+		</option>
+	
+	</program>
+	
 	<program name="tests">
 		<short-description>peforms some tests</short-description>
 		<macro name="version.help"/>

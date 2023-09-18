@@ -26,11 +26,14 @@ SOFTWARE.
 #include <getopt.h>
 #include <unistd.h>
 #include <cctype>
+#include "programs.hh"
 #include "debug.hh"
 #define YY_DECL int yylex(YYSTYPE * yylval_param, yyscan_t yyscanner, int *pint)
 #include "selgt.hh"
 #include "selgt.tab.hpp"
 #include "selgt.lex.yy.hh"
+#include "BcfReader.hh"
+#include "BcfWriter.hh"
 
 using namespace std;
 
@@ -48,7 +51,7 @@ static int int_compare(int a, int op,int b) {
 		}
 	}
 
-static int eval_variant(vector<int>* gts,Node* node) {
+static bool eval_variant(vector<int>* gts,Node* node) {
 	int matching=0;
 	assert(gts!=NULL);
 	assert(node!=NULL);
@@ -80,204 +83,111 @@ static int eval_variant(vector<int>* gts,Node* node) {
 			return !eval_variant(gts,node->left);
 		default: THROW_ERROR("bad state"); abort(); break;
 		}
-	return 0;
+	return false;
 	}
 
-	
-static void usage(const char* name,FILE* out) {
-    fprintf(out,"%s: Compiled %s %s. Pierre Lindenbaum\n",name,__DATE__,__TIME__);
-    fprintf(out,"version: %s\n", "TODO");
-    fprintf(out,"htslib: %s\n",hts_version());
-    fprintf(out,"Usage: %s [ -O (o|v|z) ] [ -F <FILTER> ] [-o fileout] (-e <expression> | -f <file> ) (stdin|bcf|vcf)\n",name);
-    fprintf(out,"Options:\n");
-    fprintf(out,"  -h print help\n");
-    fprintf(out,"  -F (string) soft FILTER name. (default: filter out variants)\n");
-    fprintf(out,"  -e (string) expression. See manual. Required or use -f.\n");
-    fprintf(out,"  -f (file) script file. See manual. Required or use -e.\n");
-    fprintf(out,"  -o (file) output file (default stdout)\n");
-    fprintf(out,"  -O (char) output format z:bgzip v:vcf b:bcf (default v)\n");
-    fprintf(out,"\n");
-    }
     
-int mainxxxx(int argc,char** argv) {
- int c;
- int ret=0;
- unsigned int i;
- int filter_id=-1;
- char* script_file = NULL;
- char* filter=NULL;
- char* fileout=NULL;
- char format[3]={'v','w',0};
- char* user_expr_str = NULL;
- while ((c = getopt (argc, argv, "o:O:e:F:f:h")) != -1)
-    switch (c)
-      {
-      case 'f':
-      	script_file = optarg;
-      	break;
-      case 'F': filter=optarg; 
-      	if(strlen(filter)==0) THROW_ERROR("empty filter name");
-      	break;
-      case 'O':
-            if(strlen(optarg)!=1) {
-                usage(argv[0],stderr);
-                THROW_ERROR("Bad format "<< optarg);
-                return EXIT_FAILURE;                
-                }
-            format[0]=optarg[0];
-            break;
-      case 'o': fileout=strdup(optarg);break;
-      case 'h':
-            usage(argv[0],stdout);
-            return EXIT_SUCCESS;
-      case 'e':
-            user_expr_str = strdup(optarg);
-            break;
-      default:
-          usage(argv[0],stderr);
-          THROW_ERROR("Argument error.");
-          return EXIT_FAILURE;
-      }
+int main_bcffiltergt(int argc,char** argv) {
+BcffiltergtArgs args;
+if(!args.parse(argc,argv)) {
+	return EXIT_FAILURE;
+	}
+PROGRAM_COMMON(args);
 
-if( user_expr_str !=NULL &&  script_file !=NULL) {
+std::string script;
+
+if( args.user_expr_str !=NULL &&  args.script_file !=NULL) {
     THROW_ERROR("both option -e and -f were used");
     return EXIT_FAILURE;    
 	}
-else if( user_expr_str ==NULL &&  script_file ==NULL ) {
+else if( args.user_expr_str ==NULL &&  args.script_file ==NULL ) {
     THROW_ERROR("expression (or script file) is missing");
     return EXIT_FAILURE;    
 	}
-else if(script_file!=NULL)
+else if(args.script_file!=NULL)
 	{
-	FILE * fp = fopen (script_file, "rb");
-	if(fp==NULL) THROW_ERROR("Cannot open script fils");
-	fseek (fp, 0, SEEK_END);
-	long length = ftell (fp);
-	fseek (fp, 0, SEEK_SET);
-	user_expr_str  = (char*)malloc (length+1);
-	if(user_expr_str==NULL) ERROR("Cannot read script file");
-	if( (long)fread (user_expr_str, sizeof(char), length, fp) != length) {
-		ERROR("Cannot read script file");
-		}
-	fclose (fp);
-	user_expr_str[length]=0;
+	script.assign(IoUtils::slurpFile(args.script_file));
+	}
+else
+	{
+	script.assign(args.user_expr_str);
 	}
 	
 //cleanup script
-i=0;
-while(user_expr_str[i]!=0) {
-	if(isspace(user_expr_str[i])) user_expr_str[i]=' ';
+for(unsigned int i=0;i< script.size();i++) {
+	if(isspace(script[i])) script[i]=' ';
 	i++;
 	}
-	
-if(!(optind==argc || optind+1==argc)) {
-    THROW_ERROR("Illegal number of arguments");
-    return EXIT_FAILURE;    
-    }
-htsFile *in = hts_open(optind==argc ?"-":argv[optind],"r");
-if(in==NULL) {
-    THROW_ERROR("Cannot open input vcf ");
-    return EXIT_FAILURE;    
-    }
-bcf_hdr_t *header = bcf_hdr_read(in);
-if(header==NULL) {
-    THROW_ERROR("Cannot read header for input vcf");
-    return EXIT_FAILURE;    
-    }
 
-unsigned int nsmpl = bcf_hdr_nsamples(header);
-if( nsmpl ==0) {
+std::unique_ptr<BcfReader> in = BcfReader::open(optind==argc ?"-":argv[optind]);
+BcfWriterFactory writer_factory;
+std::unique_ptr<BcfWriter> out = writer_factory.format(args.bcf_output_format).open(args.output_filename);
+
+BcfHeader::filter_type filter_id=-1;
+std::unique_ptr<BcfHeader> out_header =  in->header->clone();
+if(!StringUtils::isBlank(args.soft_filter_name)) {
+	filter_id = out_header->add_filter(args.soft_filter_name);
+	}
+
+out_header->printf("##%s.command=%s (version:%s)",
+	args.program_name(),
+	script.c_str(),
+	args.program_version()
+	);
+
+unsigned int nsmpl = in->header->nsamples();
+if( nsmpl ==0UL ) {
 	THROW_ERROR("No Genotypes in input.");
 	return EXIT_FAILURE;
 	}
 
+out->write_header(in->header->get());
+
+
+
+
 SelectGTYYParam myparam;
-myparam.vcf_header = header;
+myparam.vcf_header = in->header->get();
 myparam.returned_node = NULL; 
-YY_BUFFER_STATE buffer_state = selgt_scan_string(user_expr_str);
+YY_BUFFER_STATE buffer_state = selgt_scan_string(args.user_expr_str);
 selgtparse(&myparam);
 selgt_delete_buffer(buffer_state);
 if( myparam.returned_node == NULL) {
- 	THROW_ERROR("Illegal state.");
+ 	THROW_ERROR("Illegal state. Node is null");
     return EXIT_FAILURE;   
 	}
 
-
-htsFile *out = hts_open((fileout==NULL?"-":fileout),format);
-if(out==NULL) {
-    THROW_ERROR("Cannot open output vcf ");
-    return EXIT_FAILURE;    
-    }
-kstring_t xheader = {0,0,0};
-ksprintf(&xheader, "##gtselect.command=%s (version:%s)\n",user_expr_str,"dd");
-bcf_hdr_append(header, xheader.s);
-free(xheader.s);
-
-if(filter!=NULL) {
-	if( bcf_hdr_id2int(header, BCF_DT_ID, filter) >=0 ) {
-		THROW_ERROR("##FILTER=%s already defined in header.");
-		}
-	bcf_hdr_printf(header, "##FILTER=<ID=%s,Description=\"filtered with %s>", filter,argv[0]);
-    filter_id = bcf_hdr_id2int(header, BCF_DT_ID, filter);
-    assert( filter_id >=0);
-	}
-if ( bcf_hdr_write(out, header)!=0 ) {
-    THROW_ERROR("Cannot write header.");
-    return EXIT_FAILURE;      
-    }
-
-bcf1_t* bcf = bcf_init();
-if(bcf==NULL) {
-    THROW_ERROR("Out of memory.");
-    return EXIT_FAILURE;    
-    }
-
+BcfRecordHeader* bcf = new BcfRecordHeader;
 
 
 vector<int>* genotype_types  = new vector<int>;
-for(i=0;i< nsmpl ;i++) {
+for(unsigned int i=0;i< nsmpl ;i++) {
 	genotype_types->push_back(-1);
 	}
 assert(genotype_types->size() == nsmpl);
 	    
-while((ret=bcf_read(in, header, bcf))==0) {
-	bcf_fmt_t *gt_fmt;
-	if(bcf->errcode!=0) {
-		//WARNING("Skipping Error in VCF record at tid %d:%"PRIhts_pos,bcf->rid, bcf->pos+1);
-		continue;
-		}
-        
-   	bcf_unpack(bcf,BCF_UN_IND);
-	
-    if ( (gt_fmt=bcf_get_fmt(header,bcf,"GT")) ==NULL ) continue;
-    
+while(in->read2(bcf)) {
+	bcf_fmt_t *gt_fmt = NULL;
 
-    for(i=0;i< nsmpl ;i++) {
+   	bcf->unpack_genotypes();
+    if ( (gt_fmt=( bcf->get_fmt("GT"))) ==NULL ) continue;
+
+    for(unsigned int i=0;i< nsmpl ;i++) {
 		int type = bcf_gt_type(gt_fmt,i,NULL,NULL);
 		genotype_types->at(i)=type;
 		}
-	int keep =  eval_variant(genotype_types,myparam.returned_node);
+	bool keep =  eval_variant(genotype_types,myparam.returned_node);
 	
-	
-	
-	if(keep==0) {
-		if(filter==NULL) continue;
-		 bcf_add_filter(header,bcf,filter_id);
+
+	if(!keep) {
+		if(filter_id<0) continue;
+		bcf->add_filter(filter_id);
 		}
-	
-    if(bcf_write1(out, header, bcf)!=0) {
-        THROW_ERROR("IO error. Cannot write record.");
-        return EXIT_FAILURE;
-        }
+	out->write2(bcf);
   	}
 
-delete genotype_types;
-if(fileout) free(fileout);
-bcf_destroy(bcf);
-bcf_hdr_destroy(header);
-hts_close(in);
-hts_close(out);
+delete bcf;
 delete (myparam.returned_node);
-free(user_expr_str);
-  return EXIT_SUCCESS;
+
+return EXIT_SUCCESS;
 }
