@@ -1,5 +1,5 @@
 HTSLIB?=../../htslib
-CFLAGS=-I$(HTSLIB) -c -Wall -g
+CFLAGS=-I$(HTSLIB) -c -Wall -g -std=gnu++0x
 LDFLAGS=-L$(HTSLIB)  -lz -lm -lbz2 -llzma -lcurl -lpthread
 CC=g++
 
@@ -50,7 +50,7 @@ selgt.tab.hpp: selgt.tab.cpp
 	touch -c $@
 
 selgt.tab.cpp :selgt.y selgt.hh
-	bison -Wcounterexamples  --xml=bison.xml --verbose --report-file=bison.report.txt --output=$@ -d $<
+	bison  --xml=bison.xml --verbose --report-file=bison.report.txt --output=$@ -d $<
 
 
 programs.tmp.xml : programs.xml  programs.enrich.xsl

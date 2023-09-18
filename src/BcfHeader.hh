@@ -1,6 +1,7 @@
 #ifndef BCF_HEADER_HH
 #define BCF_HEADER_HH
 #include <htslib/hts.h>
+#include <memory>
 #include <htslib/vcf.h>
 #include "HtsFile.hh"
 #include "debug.hh"
