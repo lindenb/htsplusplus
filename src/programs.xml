@@ -8,6 +8,7 @@
 		<macro name="output"/>
 		<macro name="reference"/>
 		<macro name="bam.output"/>
+		<macro name="nthreads"/>
 		<option name="inverse" type="bool" short-option='i' long-option="inverse">
 			<short-description>inverse logic: keep read where no read in the pair overlap the BED file</short-description>
 		</option>

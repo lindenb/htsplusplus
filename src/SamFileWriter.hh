@@ -42,13 +42,18 @@ class SamFileWriterFactory {
 		int level;
 		std::string output_format;
 		std::string output_filename;
+		HtsThreadPool* threadPool;
 	public:
-		SamFileWriterFactory():level(5),output_format("SAM") {
+		SamFileWriterFactory():level(5),output_format("SAM"),threadPool(NULL) {
 			}
 		SamFileWriterFactory& compression(int level) {
 			if(level>9) level=9;
 			if(level<0) level=0;
 			this->level = level;
+			return *this;
+			}
+		SamFileWriterFactory& threads(HtsThreadPool* threadPool) {
+			this->threadPool = threadPool;
 			return *this;
 			}
 		SamFileWriterFactory& format(char* fmt) {
@@ -72,6 +77,9 @@ class SamFileWriterFactory {
 			
 			if (level >= 0) std::sprintf(std::strchr(mode, '\0'), "%d", level < 9? level : 9);
 			std::unique_ptr<HtsFile> fp = HtsFile::open(filename, mode);
+			
+			if(threadPool!=NULL) threadPool->bind(fp->get());
+			
 			std::unique_ptr<SamFileWriter> w = std::unique_ptr<SamFileWriter>(new SamFileWriter());
 			w->fp.swap(fp);
 			return w;

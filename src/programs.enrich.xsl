@@ -48,6 +48,12 @@
 		</option>
 </xsl:template>
 
+<xsl:template match="macro[@name='nthreads']">
+		<option name="nthreads" type="int" short-option="@" long-option="nthreads" arg-name="nthreads" default="-1">
+			<short-description>Number of threads</short-description>
+		</option>
+</xsl:template>
+
 <xsl:template match="macro[@name='bcf.output']">
 	<macro name="compression_level"/>
 	<option name="bcf_output_format" type="char" short-option="O" long-option="vcf-output-format" arg-name="format" default-value="'v'">

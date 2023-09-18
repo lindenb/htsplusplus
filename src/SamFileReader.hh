@@ -3,6 +3,7 @@
 
 #include <cerrno>
 #include "debug.hh"
+#include "HtsThreadPool.hh"
 #include "SamFileHeader.hh"
 
 class AbstractSamRecord {
@@ -110,13 +111,13 @@ class SamFileReader {
 
 class SamFileReaderFactory {
 	private:
-		int _nthreads;
+		HtsThreadPool* threadPool;
 		std::string reference;
 	public:
-		SamFileReaderFactory():_nthreads(0){
+		SamFileReaderFactory():threadPool(NULL){
 			}
-		SamFileReaderFactory& nthreads(int nt) {
-			this->_nthreads = nt;
+		SamFileReaderFactory& threads(HtsThreadPool* threadPool) {
+			this->threadPool = threadPool;
 			return *this;
 			}
 		std::unique_ptr<SamFileReader> open(const char* filename) {
@@ -124,20 +125,19 @@ class SamFileReaderFactory {
 		    if (fp== NULL) {
 		       THROW_ERROR("Cannot open " << filename);
 		    	}
-
-		    if (_nthreads > 0) {
-		        ::hts_set_threads(fp, _nthreads);
-		        }
 		   
 		    if (!!hts_set_opt(fp, CRAM_OPT_DECODE_MD, 0)) {
 		        THROW_ERROR("Failed to set CRAM_OPT_DECODE_MD value.");
 		   		}
-
+			if(threadPool!=NULL) threadPool->bind(fp);
+			
 		    std::unique_ptr<SamFileHeader> header= SamFileHeader::read(fp);
-	
+		
 			SamFileReader* sfr=new SamFileReader;
 			sfr->fp.reset(new SamFile(fp));
 			sfr->header.swap(header);
+			
+			
 			
 			std::unique_ptr<SamFileReader> r(sfr);
 			

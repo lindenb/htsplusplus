@@ -26,9 +26,12 @@ int main_samviewwithmate(int argc, char** argv) {
 	SamviewwithmateArgs args;
 	if(!args.parse(argc,argv)) return EXIT_FAILURE;
 	PROGRAM_COMMON(args);
+	std::unique_ptr<HtsThreadPool> thread_pool  =  HtsThreadPool::create(args.nthreads);
 	SamFileReaderFactory srf;
 	const char* input = args.oneFileOrNull();
-	std::unique_ptr<SamFileReader> r=srf.open(input==NULL?"-":input);
+	std::unique_ptr<SamFileReader> r=srf.
+		threads(thread_pool.get()).
+		open(input==NULL?"-":input);
 	if(r->header->is_coordinate_sorted()) {
 		THROW_ERROR("input should not be coordinate sorted");
 		}
@@ -36,6 +39,7 @@ int main_samviewwithmate(int argc, char** argv) {
 	std::unique_ptr<RegIdx> regidx = RegIdx::load_file(args.bed_file);
 
 	std::unique_ptr<SamFileWriter> w=swf.
+		threads(thread_pool.get()).
 		compression(args.compression_level).
 		format(args.bam_output_format).
 		open("-");

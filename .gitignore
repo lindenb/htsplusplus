@@ -2,3 +2,14 @@
 hts++
 src/programs.hh
 src/git.hh
+src/bison.report.txt
+src/bison.xml
+err
+src/lex.selgt.c
+
+
+*.tmp.xml
+*.yy.cpp
+*.lex.yy.hh
+*.tab.cpp
+*.tab.hpp

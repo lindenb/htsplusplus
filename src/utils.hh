@@ -50,7 +50,7 @@ class IoUtils {
 		/* The system-dependent default name-separator character. */
 		static char separatorChar();
 		static const bool assertFileExist(const char* f);
-		static std::FILE* fopen(const char* f, const char* mode);
+		static FILE* fopen(const char* f, const char* mode);
 		static std::string slurpFile(const char* filename);
 	};
 

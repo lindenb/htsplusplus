@@ -7,12 +7,13 @@ CC=g++
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 
-hts++: $(sort $(addsuffix .o, bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader utils tests Regex selgt_main selgt.tab selgt.lex.yy)) $(HTSLIB)/libhts.a
+hts++: $(sort $(addsuffix .o, bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader HtsThreadPool utils tests Regex selgt_main selgt.tab selgt.lex.yy)) $(HTSLIB)/libhts.a
 	$(CC) -o $@ $(filter %.o,$^) $(filter %.a,$^) $(LDFLAGS)
 
 
 
 samviewwithmate.cpp: SamFileHeader.hh SamFileReader.hh SamFileWriter.hh programs.hh debug.hh
+SamFileReader.hh: HtsThreadPool.hh
 
 bcfprune.o: bcfprune.cpp programs.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
