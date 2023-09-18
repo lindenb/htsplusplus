@@ -1,6 +1,28 @@
 #ifndef UTILS_HH
 #define UTILS_HH
+#include <cstdlib>
+#include <cstdio>
 #include <memory>
+
+struct stdio_file_closer
+	{
+    void operator()(std::FILE* fp) const {
+    	if(fp!=NULL) {
+    		std::fclose(fp);
+    		}
+    	}
+	};
+
+template<typename T>
+struct stdlib_free
+	{
+    void operator()(T* fp) const {
+    	if(fp!=NULL) {
+    		std::free((void*)fp);
+    		}
+    	}
+	};
+
 
 template<typename T>
 class Pointer {
@@ -70,6 +92,8 @@ class StringUtils {
 		static bool isBlank(const char* s);
 	};
 
+
+
 class IoUtils {
 	public:
 		/* The system-dependent default name-separator character, represented as a string for convenience. */
@@ -77,7 +101,7 @@ class IoUtils {
 		/* The system-dependent default name-separator character. */
 		static char separatorChar();
 		static const bool assertFileExist(const char* f);
-		static FILE* fopen(const char* f, const char* mode);
+		static std::unique_ptr<FILE,stdio_file_closer> fopen(const char* f, const char* mode);
 		static std::string slurpFile(const char* filename);
 	};
 

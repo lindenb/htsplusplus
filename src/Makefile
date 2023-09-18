@@ -4,7 +4,8 @@ LDFLAGS=-L$(HTSLIB)  -lz -lm -lbz2 -llzma -lcurl -lpthread
 CC=g++
 
 OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader HtsThreadPool utils tests Regex selgt_main selgt.tab selgt.lex.yy \
-	SamSequenceDictionary
+	SamSequenceDictionary \
+	Faidx
 
 
 %.o: %.cpp
