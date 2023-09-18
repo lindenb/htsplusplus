@@ -3,11 +3,15 @@ CFLAGS=-I$(HTSLIB) -c -Wall -g -std=gnu++0x
 LDFLAGS=-L$(HTSLIB)  -lz -lm -lbz2 -llzma -lcurl -lpthread
 CC=g++
 
+OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader HtsThreadPool utils tests Regex selgt_main selgt.tab selgt.lex.yy \
+	SamSequenceDictionary
+
+
 %.o: %.cpp
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 
-hts++: $(sort $(addsuffix .o, bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader HtsThreadPool utils tests Regex selgt_main selgt.tab selgt.lex.yy)) $(HTSLIB)/libhts.a
+hts++: $(sort $(addsuffix .o,$(OBJECTS))) $(realpath $(HTSLIB)/libhts.a)
 	$(CC) -o $@ $(filter %.o,$^) $(filter %.a,$^) $(LDFLAGS)
 
 

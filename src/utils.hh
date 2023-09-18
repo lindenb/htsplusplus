@@ -1,5 +1,6 @@
 #ifndef UTILS_HH
 #define UTILS_HH
+#include <memory>
 
 template<typename T>
 class Pointer {
@@ -37,6 +38,32 @@ class Iterator {
 			return n;
 			}
 	};
+
+template<typename T>
+class AbstractList {
+	public:
+		typedef unsigned int size_type;
+		AbstractList<T>() {}
+		virtual ~AbstractList() {}
+		virtual AbstractList::size_type size()=0;
+		virtual T get( AbstractList::size_type idx)=0;
+	private:
+		class MyIterator:public Iterator<T> {
+			private:
+				AbstractList<T>* owner;
+				AbstractList<T>::size_type idx;
+			public:
+				MyIterator(AbstractList<T>* owner):owner(owner),idx(0UL) {}
+				virtual ~MyIterator() {}
+				bool hasNext() { return idx < owner->size();}
+				T next() {  return owner->get(idx++);}
+			};
+	public:
+		std::unique_ptr<Iterator<T> > iterator() {
+			return std::unique_ptr<Iterator<T> >(new MyIterator(this));
+			}
+	};
+
 
 class StringUtils {
 	public:

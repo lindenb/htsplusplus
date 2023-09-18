@@ -1,9 +1,13 @@
 #ifndef BCF_HEADER_HH
 #define BCF_HEADER_HH
-#include <htslib/hts.h>
+#include <iostream>
+#include <vector>
 #include <memory>
+#include <htslib/hts.h>
 #include <htslib/vcf.h>
+#include "SamSequenceDictionary.hh"
 #include "HtsFile.hh"
+#include "utils.hh"
 #include "debug.hh"
 
 class BcfHeader {
@@ -11,10 +15,10 @@ class BcfHeader {
 		typedef int filter_type;
 		bcf_hdr_t *header;
 
-
-		BcfHeader( bcf_hdr_t *header):header(header) {
+	public:
+		BcfHeader( bcf_hdr_t *header):header(header),dict(NULL) {
 			}
-		BcfHeader(const BcfHeader& cp):header(cp.header==NULL?NULL: ::bcf_hdr_dup(cp.header)) {
+		BcfHeader(const BcfHeader& cp):header(cp.header==NULL?NULL: ::bcf_hdr_dup(cp.header)),dict(NULL) {
 			if (cp.header!=NULL && header==NULL) {
 				THROW_ERROR("Cannot copy VCF header");
 				}
@@ -22,7 +26,10 @@ class BcfHeader {
 
 		virtual ~BcfHeader() {
 			if(header!=NULL) ::bcf_hdr_destroy(header);
+			if(dict!=NULL) delete dict;
 			}
+
+
 		void write(htsFile* fp) {
 			if ( fp==NULL || header==NULL || ::bcf_hdr_write(fp, header)!=0 ) {
 				THROW_ERROR("Cannot write VCF header");
@@ -98,7 +105,19 @@ class BcfHeader {
 			return add_filter(filter_id,filter_id);
 			}
 		
-		
+		virtual std:ostream& write(std::ostream& out) {
+    			kstring_t htxt = {0,0,0};
+			    if (bcf_hdr_format(h, 0, &htxt) < 0) {
+			        free(htxt.s);
+				THROW_ERROR("Cannot write header");
+    				}
+			while (htxt.l && htxt.s[htxt.l-1] == '\0') --htxt.l; // kill trailing zeros
+			out.write(htxt.s, htxt.l);
+			free(htxt.s);
+			return out;
+			}
+
+
 		static std::unique_ptr<BcfHeader> read(htsFile *fp);
 	};
 
