@@ -25,20 +25,22 @@ char IoUtils::separatorChar() {
 		return '/';
 		}
 const bool IoUtils::assertFileExist(const char* filename) {
-	FILE* fp = fopen(filename,"r");
+	FILE* fp = std::fopen(filename,"r");
 	if(fp==NULL) {
 		THROW_ERROR("Cannot open file \"" << filename << "\". "<< strerror(errno));
 		}
 	fclose(fp);
 	return true;
 	}
+	
 
-std::FILE* IoUtils::fopen(const char* filename, const char* mode) {
+
+std::unique_ptr<std::FILE, stdio_file_closer> IoUtils::fopen(const char* filename, const char* mode) {
 	ASSERT_NOT_NULL(filename);
 	ASSERT_NOT_NULL(mode);
-	std::FILE * fp = fopen (filename, mode);
+	std::FILE * fp = std::fopen (filename, mode);
 	if(fp==NULL) THROW_ERROR("Cannot open \""<< filename<<"\". " << strerror(errno));
-	return fp;
+	return std::unique_ptr<std::FILE, stdio_file_closer>(fp);
 	}
 
 std::string IoUtils::slurpFile(const char* filename) {
