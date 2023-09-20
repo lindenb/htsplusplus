@@ -1,8 +1,7 @@
 #include "RegIdx.hh"
 
-#include "SamFileReader.hh"
-#include "SamFileWriter.hh"
 
+#include "SamFilterApp.hh"
 #include "programs.hh"
 
 using namespace std;

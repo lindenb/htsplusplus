@@ -19,10 +19,18 @@ all: ../bin/hts++ ../README.md
 	mkdir -p $(dir $@)
 	$(CC) -o $@ $(filter %.o,$^) $(filter %.a,$^) $(LDFLAGS)
 
+tests.o: tests.cpp SamFilterApp.hh programs.hh debug.hh utils.hh
+	$(CC) -c -o $@ $(CFLAGS) $<
 
+samviewwithmate.o: samviewwithmate.cpp SamFilterApp.hh programs.hh debug.hh
+	$(CC) -c -o $@ $(CFLAGS) $<
 
-samviewwithmate.cpp: SamFileHeader.hh SamFileReader.hh SamFileWriter.hh programs.hh debug.hh
+SamFilterApp.hh: SamFileReader.hh SamFileWriter.hh HtsThreadPool.hh
 SamFileReader.hh: HtsThreadPool.hh
+SamFileWriter.hh: HtsThreadPool.hh
+
+Regex.o : Regex.cpp Regex.hh debug.hh utils.hh
+	$(CC) -c -o $@ $(CFLAGS) $<
 
 bcfprune.o: bcfprune.cpp programs.hh
 	$(CC) -c -o $@ $(CFLAGS) $<

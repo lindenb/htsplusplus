@@ -136,7 +136,19 @@ static void test_sequence_ontology() {
 	 ASSERT_TRUE(L.find(t1)!=L.end());
 	 ASSERT_TRUE(L.find(t3)!=L.end());
 	}
-
+static void test_splitter() {
+	CharSplitter t(',');
+	std::vector<string> v = t.split("12345,,123,,,,");
+	ASSERT_EQUALS(v.size(),3);
+	ASSERT_TRUE(v[0].compare("12345")==0);
+	ASSERT_TRUE(v[1].compare("")==0);
+	ASSERT_TRUE(v[2].compare("123")==0);
+	
+	v = t.split("A,B,C,D,,,,",2);
+	ASSERT_EQUALS(v.size(),2);
+	ASSERT_TRUE(v[0].compare("A")==0);
+	ASSERT_TRUE(v[1].compare("B,C,D")==0);
+	}
 
 int main_tests(int argc, char**argv) {
 	TestsArgs args;
@@ -147,6 +159,7 @@ int main_tests(int argc, char**argv) {
 		test_bed_01(directory);
 		test_samviewwithmate_01(directory);
 		test_sequence_ontology();
+		test_splitter();
 		cerr << "Done" << endl;
 		}
 	catch(exception& err) {

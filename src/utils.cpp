@@ -8,6 +8,9 @@
 
 using namespace std;
 
+CharSplitter CharSplitter::TAB('\t');
+CharSplitter CharSplitter::COMMA(',');
+
 bool StringUtils::isBlank(const char* s) {
 	if(s==NULL) return true;
 	unsigned int i=0;
