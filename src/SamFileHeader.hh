@@ -66,6 +66,22 @@ class SamFileHeader {
 			assert_sort_order("coordinate");
 			}
 	
+		virtual std::set<std::string> samples() {
+				std::set<std::string> _samples;
+				/* get the RG lines */
+				int n_rg = ::sam_hdr_count_lines(get(), "RG");
+				kstring_t sm_val = KS_INITIALIZE;
+				for (int i = 0; i < n_rg; i++) {
+				    int r = ::sam_hdr_find_tag_pos(get(), "RG", i, "SM", &sm_val);
+				    if (r < 0) continue;
+				    std::string sample(ks_str(&sm_val));
+				    _samples.insert(sample);    
+					}
+				ks_free(&sm_val);
+				return _samples;
+				}
+
+	
 	
 		static std::unique_ptr<SamFileHeader> read(samFile *fp);
 	};
