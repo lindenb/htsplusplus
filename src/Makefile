@@ -5,14 +5,18 @@ CC=g++
 
 OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader HtsThreadPool utils tests Regex selgt_main selgt.tab selgt.lex.yy \
 	SamSequenceDictionary \
-	Faidx
+	Faidx \
+	SequenceOntology
 
 
 %.o: %.cpp
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 
-hts++: $(sort $(addsuffix .o,$(OBJECTS))) $(realpath $(HTSLIB)/libhts.a)
+all: ../bin/hts++ ../README.md
+
+../bin/hts++: $(sort $(addsuffix .o,$(OBJECTS))) $(realpath $(HTSLIB)/libhts.a)
+	mkdir -p $(dir $@)
 	$(CC) -o $@ $(filter %.o,$^) $(filter %.a,$^) $(LDFLAGS)
 
 
@@ -57,11 +61,19 @@ selgt.tab.hpp: selgt.tab.cpp
 selgt.tab.cpp :selgt.y selgt.hh
 	bison  --xml=bison.xml --verbose --report-file=bison.report.txt --output=$@ -d $<
 
+../README.md : programs2md.xsl programs.tmp.xml
+	xsltproc --output "$@" $^
 
 programs.tmp.xml : programs.xml  programs.enrich.xsl
 	xsltproc programs.enrich.xsl $< |\
 		xsltproc programs.enrich.xsl - |\
 		xsltproc --output "$@" programs.enrich.xsl -
+
+
+SequenceOntology.cpp : so2c.xsl
+	wget -O so-simple.owl "https://raw.githubusercontent.com/The-Sequence-Ontology/SO-Ontologies/master/Ontology_Files/so-simple.owl"
+	xsltproc so2c.xsl so-simple.owl |  sed  's%,"http://purl.obolibrary.org/obo/%,PURL "%g'  > $@
+	rm so-simple.owl
 
 git.hh:
 	echo  '#ifndef GIT_VERSION' > $@
@@ -71,8 +83,10 @@ git.hh:
 	echo '#endif' >> $@
 
 
-clean:
-	rm -f *.o hts++ git.hh programs.tmp.xml
+tests: ../bin/hts++
+	 ../bin/hts++ tests -D ../tests
 	
-tests: hts++
-	./hts++ samviewwithmate -B ../tests/viewwithmate.01.bed  ../tests/viewwithmate.01.sam
+
+clean:
+	rm -f *.o ../bin/hts++ git.hh programs.tmp.xml \
+			SequenceOntology.cpp so-simple.owl

@@ -49,7 +49,7 @@
 </xsl:template>
 
 <xsl:template match="macro[@name='nthreads']">
-		<option name="nthreads" type="int" short-option="@" long-option="nthreads" arg-name="nthreads" default="-1">
+		<option name="nthreads" type="int" short-option="@" long-option="nthreads" arg-name="nthreads" default-value="-1">
 			<short-description>Number of threads</short-description>
 		</option>
 </xsl:template>

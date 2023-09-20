@@ -16,9 +16,9 @@ class BcfHeader {
 		bcf_hdr_t *header;
 
 	public:
-		BcfHeader( bcf_hdr_t *header):header(header),dict(NULL) {
+		BcfHeader( bcf_hdr_t *header):header(header) {
 			}
-		BcfHeader(const BcfHeader& cp):header(cp.header==NULL?NULL: ::bcf_hdr_dup(cp.header)),dict(NULL) {
+		BcfHeader(const BcfHeader& cp):header(cp.header==NULL?NULL: ::bcf_hdr_dup(cp.header)) {
 			if (cp.header!=NULL && header==NULL) {
 				THROW_ERROR("Cannot copy VCF header");
 				}
@@ -26,7 +26,6 @@ class BcfHeader {
 
 		virtual ~BcfHeader() {
 			if(header!=NULL) ::bcf_hdr_destroy(header);
-			if(dict!=NULL) delete dict;
 			}
 
 
@@ -105,9 +104,9 @@ class BcfHeader {
 			return add_filter(filter_id,filter_id);
 			}
 		
-		virtual std:ostream& write(std::ostream& out) {
+		virtual std::ostream& write(std::ostream& out) {
     			kstring_t htxt = {0,0,0};
-			    if (bcf_hdr_format(h, 0, &htxt) < 0) {
+			    if (bcf_hdr_format(get(), 0, &htxt) < 0) {
 			        free(htxt.s);
 				THROW_ERROR("Cannot write header");
     				}

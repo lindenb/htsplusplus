@@ -11,9 +11,11 @@
 
 # Compilation
 
+compilation requires a C++ compiler and `xsltproc`.
+
 ```
 git clone "https://github.com/lindenb/htsplusplus"
-cd htsplusplus
+cd htsplusplus/src
 # set the path to a compiled C htslib directory
 make HTSLIB=/path/to/htslib
 ```

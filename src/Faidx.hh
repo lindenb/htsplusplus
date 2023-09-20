@@ -6,7 +6,7 @@
 #include "debug.hh"
 #include "utils.hh"
 
-class Faidx
+class Faidx {
 	public:
 		faidx_t *fai;
 	protected:

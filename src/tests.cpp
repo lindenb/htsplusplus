@@ -3,6 +3,7 @@
 #include "utils.hh"
 #include "debug.hh"
 #include "RegIdx.hh"
+#include "SequenceOntology.hh"
 using namespace std;
 
 #define ASSERT_EQUALS(a,b) if((a)!=(b)) {THROW_ERROR("assert " #a "==" #b " Failed. a=" << a << " b=" << b);} else {DEBUG("EQUALS "#a" ==" #b);}
@@ -114,7 +115,27 @@ static void test_samviewwithmate_01(string datadir) {
 	dispose_array(args);
 	}
 
-
+static void test_sequence_ontology() {
+	DEBUG("build SO");
+	 std::unique_ptr<SequenceOntology> so = SequenceOntology::make();
+	 DEBUG("end SO");
+	 const SequenceOntology::Term* t1 = so->find_by_acn("SO:0001818");
+	 ASSERT_NOT_NULL(t1);
+	 ASSERT_TRUE(strcmp(t1->label(),"protein_altering_variant")==0);
+	 
+	 const SequenceOntology::Term* t2 = so->find_by_label("protein_altering_variant");
+	 ASSERT_NOT_NULL(t2);
+	 ASSERT_TRUE(t1==t2);
+	 
+	 const SequenceOntology::Term* t3 = so->find_by_acn("SO:0001591");
+	 ASSERT_NOT_NULL(t3);
+	 ASSERT_TRUE(t1->has_descendant(t3));
+	 
+	 std::set<const SequenceOntology::Term*> L;
+	 t1->collect(L);
+	 ASSERT_TRUE(L.find(t1)!=L.end());
+	 ASSERT_TRUE(L.find(t3)!=L.end());
+	}
 
 
 int main_tests(int argc, char**argv) {
@@ -125,6 +146,7 @@ int main_tests(int argc, char**argv) {
 	try {
 		test_bed_01(directory);
 		test_samviewwithmate_01(directory);
+		test_sequence_ontology();
 		cerr << "Done" << endl;
 		}
 	catch(exception& err) {

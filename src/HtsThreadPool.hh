@@ -13,7 +13,7 @@ class HtsThreadPool  {
 			if(nthreads>0) {
 				pool.pool = ::hts_tpool_init(nthreads);
 				if(pool.pool==NULL) {
-					THROW_ERROR("cannot create "<<nthreads<< "threads");
+					THROW_ERROR("cannot create "<<nthreads<< " threads");
 					}
 				}
 			else

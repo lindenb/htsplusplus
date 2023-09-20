@@ -26,6 +26,7 @@ int main_samviewwithmate(int argc, char** argv) {
 	SamviewwithmateArgs args;
 	if(!args.parse(argc,argv)) return EXIT_FAILURE;
 	PROGRAM_COMMON(args);
+	DEBUG(args.nthreads);
 	std::unique_ptr<HtsThreadPool> thread_pool  =  HtsThreadPool::create(args.nthreads);
 	SamFileReaderFactory srf;
 	const char* input = args.oneFileOrNull();
