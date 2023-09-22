@@ -8,6 +8,17 @@
 
 using namespace std;
 
+hts_pos_t CoordMath::getLength(hts_pos_t start, hts_pos_t end) {
+	return (end - start) + 1;
+	}
+
+
+bool CoordMath::overlaps(hts_pos_t start, hts_pos_t end, hts_pos_t start2,hts_pos_t end2) {
+    return !(end < start2 || start > end2);
+	}
+
+
+
 CharSplitter CharSplitter::TAB('\t');
 CharSplitter CharSplitter::COMMA(',');
 
@@ -20,6 +31,9 @@ bool StringUtils::isBlank(const char* s) {
 		}
 	return true;
 	}
+
+
+
 
 bool StringUtils::startsWith(const char* str, const char* prefix) {
     ASSERT_NOT_NULL(str);
@@ -51,15 +65,22 @@ const bool IoUtils::assertFileExist(const char* filename) {
 	fclose(fp);
 	return true;
 	}
-	
+/*
+std::unique_ptr<std::ostream> IoUtils::output_or_stdout(const char* filename) {
+	if(filename==NULL || strcmp(filename,"-")==0) return cout;
+	ofstream out(filename,ios::out);
+	if(!out.is_open()) {
+		THROW_ERROR("Cannot open \""<< filename<<"\". " << strerror(errno));
+		}
+	return out;
+	}*/
 
-
-std::unique_ptr<std::FILE, stdio_file_closer> IoUtils::fopen(const char* filename, const char* mode) {
+std::FILE* IoUtils::fopen(const char* filename, const char* mode) {
 	ASSERT_NOT_NULL(filename);
 	ASSERT_NOT_NULL(mode);
 	std::FILE * fp = std::fopen (filename, mode);
 	if(fp==NULL) THROW_ERROR("Cannot open \""<< filename<<"\". " << strerror(errno));
-	return std::unique_ptr<std::FILE, stdio_file_closer>(fp);
+	return fp;
 	}
 
 std::string IoUtils::slurpFile(const char* filename) {

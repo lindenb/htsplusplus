@@ -126,6 +126,30 @@ hts++ bcffiltergt [options...] (files)
 
 
 
+##  BCF2INTERVALS
+
+convert VCF/BCF to interval of variants that are distant from 'x' bases.
+
+### Usage
+
+```
+hts++ bcf2intervals [options...] (files)
+```
+
+
+### Options
+
+| short-option | long-option | argument | description | default-value |
+|--------------|-------------|----------|-------------|---------------|
+| -h | --help |  | Display help and exit |  |
+| -v | --version |  | Display Version and exit |  |
+| -o | --output |   <ARG>   | output or stdout |  |
+| -d | --distance_per_interval |   <ARG>   | distance |  |
+| -m | --min-distance |   <ARG>   | min distance |  |
+
+
+
+
 ##  TESTS
 
 peforms some tests

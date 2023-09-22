@@ -22,13 +22,13 @@ class Faidx {
 				}
 			virtual ~Contig() {
 				}
-			virtual const char* contig() {
+			virtual const char* contig() const {
 				return owner->name(idx);
 				}
-			virtual hts_pos_t start() {
+			virtual hts_pos_t start() const {
 				return 1;
 				}
-			virtual hts_pos_t end() {
+			virtual hts_pos_t end() const {
 				return 0;
 				}
 			};

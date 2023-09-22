@@ -39,18 +39,19 @@ class BcfReaderPeeker {
         virtual BcfRecordHeader* read() {
             if(read_index==1UL) {
                 read_index=0UL;
-                return pool[0];             
+                return pool[0];
                 }
             else
                 {
                 reserve(1L);
                 if(reader->read2(pool[0])) {
                     read_index++;
+		    return pool[0];
                     }
                 else
                     {
                     return NULL;
-                    }        
+                    }
                 }
             }
     };

@@ -3,6 +3,7 @@
 #include <htslib/hts.h>
 #include <htslib/vcf.h>
 #include "HtsFile.hh"
+#include "Locatable.hh"
 #include "debug.hh"
 
 class BcfRecord {
@@ -25,21 +26,20 @@ class BcfRecord {
 			}
 
 		
-		bcf1_t* get() {
-			return bcf;
-			}
+		bcf1_t* get() {return bcf;}
+		bcf1_t* get() const {return bcf;}
 
-		int tid() {
+		virtual int tid() {
 			return get()->rid;
 			}
 
-		hts_pos_t length_on_reference() {
+		hts_pos_t length_on_reference() const {
 			return get()->rlen;
 			}
-		hts_pos_t start() {
+		virtual hts_pos_t start() const {
 			return get()->pos;
 			}
-		hts_pos_t end() {
+		virtual hts_pos_t end() const {
 			return start() + length_on_reference() - 1 ;
 			}
 		virtual void unpack(int id) {
@@ -48,12 +48,9 @@ class BcfRecord {
 		virtual void unpack_genotypes() {
 			this->unpack(BCF_UN_IND);
 			}
-		
-		
-		
 	};
 
-class BcfRecordHeader :public BcfRecord {
+class BcfRecordHeader :public BcfRecord, public Locatable {
 	public:
 		bcf_hdr_t *header;
 
@@ -61,11 +58,22 @@ class BcfRecordHeader :public BcfRecord {
 			}
 		BcfRecordHeader():header(NULL) {
 			}
-        BcfRecordHeader(const BcfRecordHeader& cp):BcfRecord(cp),header(cp.header) {
+        	BcfRecordHeader(const BcfRecordHeader& cp):BcfRecord(cp),header(cp.header) {
 			}
 		virtual ~BcfRecordHeader() {
 			}
 		
+		virtual const char* contig() const {
+			return bcf_seqname(header,get());
+			}
+
+  		virtual hts_pos_t start() const {
+                        return BcfRecord::start();
+                        }
+                virtual hts_pos_t end() const {
+                        return BcfRecord::end();
+                        }
+
 		void add_filter(int filter_id) {
 			::bcf_add_filter(header,get(),filter_id);
 		 	}

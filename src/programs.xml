@@ -61,6 +61,18 @@ cat bcfs.list | hts++ bcfconcat</usage>
 	
 	</program>
 	
+	<program name="bcf2intervals">
+		 <short-description>convert VCF/BCF to interval of variants that are distant from 'x' bases.</short-description>
+		<macro name="version.help"/>
+		<macro name="output"/>
+		<option name="distance_per_interval" type="int" short-option='d' long-option="distance_per_interval" default-value="1" min-inclusive="1">
+			<short-description>distance</short-description>
+		</option>
+		<option name="min_distance" type="int" short-option='m' long-option="min-distance" default-value="-1">
+			<short-description>min distance</short-description>
+		</option>
+	</program>
+	
 	<program name="tests">
 		<short-description>peforms some tests</short-description>
 		<macro name="version.help"/>

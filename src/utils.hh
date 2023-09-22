@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <htslib/hts.h>
 #include "Path.hh"
 
 struct stdio_file_closer
@@ -155,6 +156,14 @@ class CharSplitter {
 		static CharSplitter COMMA;
 	};
 
+
+
+class CoordMath {
+	public:
+		static hts_pos_t getLength(hts_pos_t start, hts_pos_t end);
+		static bool overlaps(hts_pos_t start, hts_pos_t end, hts_pos_t start2,hts_pos_t end2);
+	};
+
 class StringUtils {
 	public:
 		static bool isBlank(const char* s);
@@ -171,7 +180,8 @@ class IoUtils {
 		/* The system-dependent default name-separator character. */
 		static char separatorChar();
 		static const bool assertFileExist(const char* f);
-		static std::unique_ptr<FILE,stdio_file_closer> fopen(const char* f, const char* mode);
+		static FILE* fopen(const char* f, const char* mode);
+		//static std::unique_ptr<std::ostream> output_or_stdout(const char* f);
 		static std::string slurpFile(const char* filename);
         static std::vector<std::string> unroll(int argc,char** argv,int optind); 
 	};

@@ -1,5 +1,5 @@
 HTSLIB?=../../htslib
-CFLAGS=-I$(HTSLIB) -c -Wall -g -std=gnu++0x
+CFLAGS=-I. -I$(HTSLIB) -c -Wall -g -std=gnu++0x
 LDFLAGS=-L$(HTSLIB)  -lz -lm -lbz2 -llzma -lcurl -lpthread
 CC=g++
 
@@ -7,7 +7,8 @@ OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader
 	SamSequenceDictionary \
 	Faidx \
 	SequenceOntology \
-	bcfconcat
+	bcfconcat \
+	bcf2intervals
 
 
 %.o: %.cpp
@@ -42,6 +43,9 @@ bcfprune.o: bcfprune.cpp programs.hh
 samcount.o: samcount.c
 	$(CC) -c -o $@ $(CFLAGS) $<
 
+bcf2intervals.o: bcf2intervals.cpp programs.hh  BcfReader.hh BcfRecord.hh
+	$(CC) -c -o $@ $(CFLAGS) $<
+
 bcfconcat.o: bcfconcat.cpp programs.hh BcfWriter.hh BcfHeader.hh BcfReader.hh BcfRecord.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
@@ -55,25 +59,25 @@ htsplusplus.o: htsplusplus.cpp  programs.hh
 programs.hh: programs2C.xsl programs.tmp.xml git.hh
 		xsltproc --output $@ programs2C.xsl programs.tmp.xml
 
-selgt_main : selgt_main.cpp selgt.tab.hpp selgt.hh selgt.lex.yy.hh BcfReader.hh BcfWriter.hh programs.hh debug.hh
+selgt_main : selgt_main.cpp grammars/selgt/selgt.tab.hpp grammars/selgt/selgt.hh selgt.lex.yy.hh BcfReader.hh BcfWriter.hh programs.hh debug.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
-selgt.tab.o: selgt.tab.cpp selgt.tab.hpp selgt.hh selgt.lex.yy.hh
+selgt.tab.o: grammars/selgt/selgt.tab.cpp grammars/selgt/selgt.tab.hpp grammars/selgt/selgt.hh grammars/selgt/selgt.lex.yy.hh
 	$(CC) $(CFLAGS) -o $@ $<
 
-selgt.lex.yy.o: selgt.lex.yy.cpp selgt.hh
+selgt.lex.yy.o: grammars/selgt/selgt.lex.yy.cpp grammars/selgt/selgt.hh
 	$(CC) $(CFLAGS) -o $@ $<
 
-selgt.lex.yy.hh: selgt.lex.yy.cpp
+grammars/selgt/selgt.lex.yy.hh: grammars/selgt/selgt.lex.yy.cpp
 	touch -c $@
 
-selgt.lex.yy.cpp: selgt.l selgt.hh selgt.tab.hpp
+grammars/selgt/selgt.lex.yy.cpp: grammars/selgt/selgt.l grammars/selgt/selgt.hh grammars/selgt/selgt.tab.hpp
 	flex  --prefix=selgt --header-file=$(addsuffix .hh,$(basename $@)) --outfile=$@  $<
 
-selgt.tab.hpp: selgt.tab.cpp
+grammars/selgt/selgt.tab.hpp: grammars/selgt/selgt.tab.cpp
 	touch -c $@
 
-selgt.tab.cpp :selgt.y selgt.hh
+grammars/selgt/selgt.tab.cpp :grammars/selgt/selgt.y grammars/selgt/selgt.hh
 	bison  --xml=bison.xml --verbose --report-file=bison.report.txt --output=$@ -d $<
 
 ../README.md : programs2md.xsl programs.tmp.xml

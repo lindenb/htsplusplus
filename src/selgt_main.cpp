@@ -29,9 +29,9 @@ SOFTWARE.
 #include "programs.hh"
 #include "debug.hh"
 #define YY_DECL int yylex(YYSTYPE * yylval_param, yyscan_t yyscanner, int *pint)
-#include "selgt.hh"
-#include "selgt.tab.hpp"
-#include "selgt.lex.yy.hh"
+#include "grammars/selgt/selgt.hh"
+#include "grammars/selgt/selgt.tab.hpp"
+#include "grammars/selgt/selgt.lex.yy.hh"
 #include "BcfReader.hh"
 #include "BcfWriter.hh"
 
