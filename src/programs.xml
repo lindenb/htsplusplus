@@ -31,6 +31,18 @@
 		</option>
 	</program>
 	
+
+	<program name="bcfconcat">
+		<short-description>concatenanate multiple vcf/bcf files</short-description>
+        <usage>hts++ bcfconcat in1.bcf in2.vcf.gz in3.vcf
+hts++ bcfconcat bcfs.list
+cat bcfs.list | hts++ bcfconcat</usage>
+		<macro name="version.help"/>
+		<macro name="output"/>
+		<macro name="bcf.output"/>
+        <long-description>
+        </long-description>
+	</program>
 	
 	<program name="bcffiltergt">
 		<short-description>Select variant using an expression</short-description>

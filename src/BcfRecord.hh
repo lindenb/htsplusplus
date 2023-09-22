@@ -14,14 +14,21 @@ class BcfRecord {
 			    	THROW_ERROR("Out of memory.");
     				}
 			}
-		
-		bcf1_t* get() {
-			return bcf;
-			}
+        BcfRecord(const BcfRecord& cp):bcf(::bcf_dup(cp.bcf)) {
+            if(bcf==NULL) {
+			    	THROW_ERROR("Out of memory.");
+    				}
+            }
 	
 		virtual ~BcfRecord() {
 			::bcf_destroy(bcf);
 			}
+
+		
+		bcf1_t* get() {
+			return bcf;
+			}
+
 		int tid() {
 			return get()->rid;
 			}
@@ -53,6 +60,8 @@ class BcfRecordHeader :public BcfRecord {
 		BcfRecordHeader(bcf_hdr_t *header):header(header) {
 			}
 		BcfRecordHeader():header(NULL) {
+			}
+        BcfRecordHeader(const BcfRecordHeader& cp):BcfRecord(cp),header(cp.header) {
 			}
 		virtual ~BcfRecordHeader() {
 			}

@@ -21,6 +21,22 @@ bool StringUtils::isBlank(const char* s) {
 	return true;
 	}
 
+bool StringUtils::startsWith(const char* str, const char* prefix) {
+    ASSERT_NOT_NULL(str);
+    ASSERT_NOT_NULL(prefix);
+    return strncmp(prefix, str, strlen(prefix)) == 0;
+    }
+
+bool StringUtils::endsWith(const char* str, const char* suffix) {
+    ASSERT_NOT_NULL(str);
+    ASSERT_NOT_NULL(suffix);
+    size_t lenstr = strlen(str);
+    size_t lensuffix = strlen(suffix);
+    if (lensuffix >  lenstr)   return false;
+    return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
+    }
+
+
 const char* IoUtils::separator() {
 		return "/";
 		}
@@ -57,3 +73,28 @@ std::string IoUtils::slurpFile(const char* filename) {
         );
 	return content;
 	}
+
+
+
+std::vector<std::string>  IoUtils::unroll(int argc,char** argv,int optind) {
+    std::vector<std::string> v;
+    if(optind+1==argc && StringUtils::endsWith(argv[optind],".list")) {
+        ifstream in(argv[optind]);
+        if(!in.is_open()) {
+             THROW_ERROR("Cannot open \""<< argv[optind] <<"\". " << strerror(errno));
+            }
+        std::string line;
+        while(getline(in,line)) {
+            if(StringUtils::isBlank(line.c_str())) continue;
+            if(StringUtils::startsWith(line.c_str(),"#")) continue;
+              v.push_back(line);
+            }
+        }
+    else
+        {        
+        while(optind<argc) {
+            v.push_back(argv[optind++]);
+            }
+        }
+    return v;
+    }

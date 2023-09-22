@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include "Path.hh"
 
 struct stdio_file_closer
 	{
@@ -62,6 +63,15 @@ class Iterator {
 			return n;
 			}
 	};
+
+// https://stackoverflow.com/questions/2291802/is-there-a-c-iterator-that-can-iterate-over-a-file-line-by-line
+class IsLineIterator : public std::string 
+    { 
+    friend std::istream & operator>>(std::istream& is, IsLineIterator& line)
+        {   
+            return std::getline(is, line);
+        }
+    };
 
 template<typename T>
 class AbstractList {
@@ -148,6 +158,8 @@ class CharSplitter {
 class StringUtils {
 	public:
 		static bool isBlank(const char* s);
+        static bool startsWith(const char* s,const char* prefix);
+        static bool endsWith(const char* s,const char* suffix);
 	};
 
 
@@ -161,6 +173,7 @@ class IoUtils {
 		static const bool assertFileExist(const char* f);
 		static std::unique_ptr<FILE,stdio_file_closer> fopen(const char* f, const char* mode);
 		static std::string slurpFile(const char* filename);
+        static std::vector<std::string> unroll(int argc,char** argv,int optind); 
 	};
 
 #endif

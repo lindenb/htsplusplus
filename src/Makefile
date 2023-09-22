@@ -6,7 +6,8 @@ CC=g++
 OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader HtsThreadPool utils tests Regex selgt_main selgt.tab selgt.lex.yy \
 	SamSequenceDictionary \
 	Faidx \
-	SequenceOntology
+	SequenceOntology \
+	bcfconcat
 
 
 %.o: %.cpp
@@ -26,8 +27,11 @@ samviewwithmate.o: samviewwithmate.cpp SamFilterApp.hh programs.hh debug.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 SamFilterApp.hh: SamFileReader.hh SamFileWriter.hh HtsThreadPool.hh
-SamFileReader.hh: HtsThreadPool.hh
+
 SamFileWriter.hh: HtsThreadPool.hh
+
+SamFileReader.o : SamFileReader.hh HtsThreadPool.hh
+	$(CC) -c -o $@ $(CFLAGS) $<
 
 Regex.o : Regex.cpp Regex.hh debug.hh utils.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
@@ -36,6 +40,9 @@ bcfprune.o: bcfprune.cpp programs.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 samcount.o: samcount.c
+	$(CC) -c -o $@ $(CFLAGS) $<
+
+bcfconcat.o: bcfconcat.cpp programs.hh BcfWriter.hh BcfHeader.hh BcfReader.hh BcfRecord.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 bcfexludebed.o: bcfexludebed.c

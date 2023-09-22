@@ -83,6 +83,9 @@ hts++ <xsl:value-of select="@name"/> [options...] (files)
 </xsl:text>
 </xsl:for-each>
 
+<xsl:apply-templates select="." mode="long-desc"/>
+
+
 <xsl:text>
 
 </xsl:text>
@@ -136,6 +139,14 @@ hts++ <xsl:value-of select="@name"/> [options...] (files)
 
 <xsl:template match="text()">
 <xsl:value-of select="."/>
+</xsl:template>
+
+<xsl:template match="h1">
+<xsl:text>
+## </xsl:text>
+<xsl:apply-templates/>
+<xsl:text>
+</xsl:text>
 </xsl:template>
 
 <xsl:template match="program|programs|option" mode="short-desc">

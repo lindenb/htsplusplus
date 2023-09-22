@@ -6,6 +6,7 @@
 #include <sstream>
 #include <memory>
 #include <htslib/hts.h>
+#include "debug.hh"
 
 class HtsFile {
 	protected:
@@ -30,6 +31,12 @@ class HtsFile {
 			}
 		htsFile* operator()() {
 			return get();
+			}
+		virtual void set_reference(const char *fn_aux) {
+			ASSERT_NOT_NULL(fn_aux);
+			if(::hts_set_fai_filename(get(),fn_aux)!=0) {
+				THROW_ERROR("Cannot set reference");
+				}
 			}
 
 		static std::unique_ptr<HtsFile> open(const char* fn,const char* mode);

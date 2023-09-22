@@ -267,6 +267,12 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
 		out &lt;&lt; "Author: Pierre Lindenbaum PhD" &lt;&lt; std::endl;
 		out &lt;&lt; "Compilation: " &lt;&lt; __DATE__ &lt;&lt; " at " &lt;&lt; __TIME__ &lt;&lt; std::endl;
 
+        <xsl:if test="usage">
+            out &lt;&lt; "Usage: " &lt;&lt; std::endl;
+            out &lt;&lt; "<xsl:apply-templates select="usage"/>"  &lt;&lt; std::endl;
+        </xsl:if>
+
+
 		out &lt;&lt; "Option: " &lt;&lt; std::endl;
 
 			 <xsl:for-each select="option[not(@hidden) or not(@hidden='false')]">
@@ -428,10 +434,11 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
           	THROW_PROGRAM_ERROR("strange option state.");
 		return false;
         }
-    }			
-    while(optind &lt; argc) {
-		this-&gt;program_files.push_back(argv[optind]);
-		optind++;
+    }		
+    int fidx=optind;	
+    while(fidx &lt; argc) {
+		this-&gt;program_files.push_back(argv[fidx]);
+		fidx++;
 		}
 return true;	
 }
@@ -554,15 +561,29 @@ return true;
 <xsl:text>\"</xsl:text>
 </xsl:template>
 
+<xsl:template match="h1">
+<xsl:text>
+## </xsl:text>
+<xsl:apply-templates/>
+<xsl:text>
+</xsl:text>
+</xsl:template>
+
 
 <xsl:template match="a">
 <xsl:value-of select="@href"/>
 </xsl:template>
 
 <xsl:template match="text()">
-<xsl:value-of select="."/>
+<xsl:call-template name="break">
+    <xsl:with-param name="text" select="."/>
+</xsl:call-template>
 </xsl:template>
 
+
+<xsl:template match="usage">
+<xsl:apply-templates/>
+</xsl:template>
 
 <xsl:template match="program|programs|option" mode="short-desc">
 <xsl:text>"</xsl:text>
@@ -582,6 +603,27 @@ return true;
 	</xsl:otherwise>
 </xsl:choose>
 <xsl:text>"</xsl:text>
+</xsl:template>
+
+
+
+<xsl:template name="break">
+  <xsl:param name="text" select="string(.)"/>
+  <xsl:choose>
+    <xsl:when test="contains($text, '&#xa;')">
+      <xsl:value-of select="substring-before($text, '&#xa;')"/>
+      <xsl:text>\n</xsl:text>
+      <xsl:call-template name="break">
+        <xsl:with-param 
+          name="text" 
+          select="substring-after($text, '&#xa;')"
+        />
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="$text"/>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>

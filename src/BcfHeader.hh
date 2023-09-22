@@ -43,17 +43,27 @@ class BcfHeader {
 		std::unique_ptr<BcfHeader> clone() {
 			return std::unique_ptr<BcfHeader>(new BcfHeader(*this));
 			}
-		virtual int nsamples() {
+		virtual unsigned int nsamples() {
 			return bcf_hdr_nsamples(get());
 			}
 		virtual bool has_samples() {
 			return nsamples() > 0;
 			}
+        virtual std::vector<std::string> samples() {
+            std::vector<std::string> L;
+            L.reserve(nsamples());       
+            for(unsigned i=0;i< nsamples(); i++) {
+                L.push_back( sample(i) );           
+                }
+            return L;
+            }
+
 		 virtual int sample_index(const char* sn) {
 		 	ASSERT_NOT_NULL(sn);
 		 	return ::bcf_hdr_id2int(get(),BCF_DT_SAMPLE,sn);
 			}
-		virtual const char* sample(int idx) {
+		virtual const char* sample(unsigned int idx) {
+            if(idx>=nsamples()) THROW_ERROR("index out of bounds");
 			return get()->samples[idx];
 			}
 		virtual void append(const char* s) {

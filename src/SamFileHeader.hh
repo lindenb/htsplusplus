@@ -1,5 +1,6 @@
 #ifndef SAM_FILE_HEADER_HH
 #define SAM_FILE_HEADER_HH
+#include <set>
 #include <htslib/hts.h>
 #include <htslib/sam.h>
 #include "HtsFile.hh"

@@ -53,4 +53,5 @@ class BcfReader {
 		static std::unique_ptr<BcfReader> open(const char* filename);
 	};
 
+
 #endif

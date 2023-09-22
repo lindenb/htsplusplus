@@ -18,19 +18,28 @@ class BcfWriter {
 		virtual  ~BcfWriter() {
 			close();
 			}
-		void write_header(bcf_hdr_t *header) {
+		virtual void write_header(bcf_hdr_t *header) {
 			this->header = header;
 			if(header==NULL || ::bcf_hdr_write(fp->get(), this->header)!=0 ) {
 				THROW_ERROR("Cannot write VCF header");
 				}
 			}
+        
+       
 
-		void write1(bcf1_t* rec) {
-		      	if(::bcf_write1(fp->get(), this->header, rec)!=0) {
+		virtual void write1(bcf_hdr_t *hdr,bcf1_t* rec) {
+            ASSERT_NOT_NULL(hdr);
+            ASSERT_NOT_NULL(rec);
+		    if(::bcf_write1(fp->get(),hdr, rec)!=0) {
                 		THROW_ERROR("IO error. Cannot write VCF record.");
                 		}
 			}
-		void write2(BcfRecord* rec) {
+
+        virtual void write1(bcf1_t* rec) {
+		    write1(this->header, rec);
+			}
+
+		virtual void write2(BcfRecord* rec) {
 			write1(rec->get());
 			}
 	};
