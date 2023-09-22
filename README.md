@@ -45,22 +45,6 @@ hts++ samviewwithmate [options...] (files)
 | -i | --inverse |  | inverse logic: keep read where no read in the pair overlap the BED file |  |
 | -B | --bed |   <BED>   | A BED file. |  |
 
-		select read and their mate that falls within a region from a query sorted BAM
-		Display help and exitDisplay Version and exit
-		output or stdout
-		FASTA reference
-		compression-level 0 (low compression) to 9 (best compression)output format for sam: SAM, BAM, CRAM
-		Number of threads
-		
-			inverse logic: keep read where no read in the pair overlap the BED file
-		
-		
-			A BED file.
-		
-		
-			/** this is a test */
-		
-	
 
 
 
@@ -86,14 +70,6 @@ hts++ bcfprune [options...] (files)
 | -O | --vcf-output-format |   <format>   | output format for VCF/BCF: z:gzip vcf v:vcf b:bcf (default v) |  |
 | -d | --distance |   <ARG>   | distance |  |
 
-		Select variants with a fixed distance in a VCF file.
-		Display help and exitDisplay Version and exit
-		output or stdout
-		compression-level 0 (low compression) to 9 (best compression)output format for VCF/BCF: z:gzip vcf v:vcf b:bcf (default v)
-		
-			distance
-		
-	
 
 
 
@@ -104,7 +80,9 @@ concatenanate multiple vcf/bcf files
 ### Usage
 
 ```
-hts++ bcfconcat [options...] (files)
+hts++ bcfconcat in1.bcf in2.vcf.gz in3.vcf
+hts++ bcfconcat bcfs.list
+cat bcfs.list | hts++ bcfconcat
 ```
 
 
@@ -118,16 +96,6 @@ hts++ bcfconcat [options...] (files)
 |  | --compression-level |   <0-9>   | compression-level 0 (low compression) to 9 (best compression) |  |
 | -O | --vcf-output-format |   <format>   | output format for VCF/BCF: z:gzip vcf v:vcf b:bcf (default v) |  |
 
-		concatenanate multiple vcf/bcf files
-        hts++ bcfconcat in1.bcf in2.vcf.gz in3.vcf
-hts++ bcfconcat bcfs.list
-cat bcfs.list | hts++ bcfconcat
-		Display help and exitDisplay Version and exit
-		output or stdout
-		compression-level 0 (low compression) to 9 (best compression)output format for VCF/BCF: z:gzip vcf v:vcf b:bcf (default v)
-        
-        
-	
 
 
 
@@ -155,21 +123,6 @@ hts++ bcffiltergt [options...] (files)
 | -e | --expression |   <expression>   | Expression as string |  |
 | -f | --file-expression |   <FILE>   | Expression as file |  |
 
-		Select variant using an expression
-		Display help and exitDisplay Version and exit
-		output or stdout
-		compression-level 0 (low compression) to 9 (best compression)output format for VCF/BCF: z:gzip vcf v:vcf b:bcf (default v)
-		
-			soft FILTER name. (default: filter out variants)
-		
-		
-			Expression as string
-		
-		
-			Expression as file
-		
-	
-	
 
 
 
@@ -192,12 +145,6 @@ hts++ tests [options...] (files)
 | -v | --version |  | Display Version and exit |  |
 | -D | --directory |   <DIR>   | test directory |  |
 
-		peforms some tests
-		Display help and exitDisplay Version and exit
-		
-			test directory
-		
-	
 
 
 

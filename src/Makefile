@@ -14,7 +14,7 @@ OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 
-all: ../bin/hts++ ../README.md
+all: ../bin/hts++ ../README.md tests2
 
 ../bin/hts++: $(sort $(addsuffix .o,$(OBJECTS))) $(realpath $(HTSLIB)/libhts.a)
 	mkdir -p $(dir $@)
@@ -101,6 +101,9 @@ git.hh:
 tests: ../bin/hts++
 	 ../bin/hts++ tests -D ../tests
 	
+tests2 : ../bin/hts++
+	@echo "## RUNNING TESTS ##"
+	../bin/hts++ bcfconcat ../tests/variants.01.bcf ../tests/variants.01.bcf ../tests/variants.01.bcf > /dev/null
 
 clean:
 	rm -f *.o ../bin/hts++ git.hh programs.tmp.xml \

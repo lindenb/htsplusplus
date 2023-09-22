@@ -49,7 +49,10 @@ Pierre Lindenbaum Phd 2022.
 ### Usage
 
 ```
-hts++ <xsl:value-of select="@name"/> [options...] (files)
+<xsl:choose>
+	<xsl:when test="usage"><xsl:value-of select="usage"/></xsl:when>
+	<xsl:otherwise>hts++ <xsl:value-of select="@name"/> [options...] (files)</xsl:otherwise>	
+</xsl:choose>
 ```
 
 
@@ -83,7 +86,6 @@ hts++ <xsl:value-of select="@name"/> [options...] (files)
 </xsl:text>
 </xsl:for-each>
 
-<xsl:apply-templates select="." mode="long-desc"/>
 
 
 <xsl:text>

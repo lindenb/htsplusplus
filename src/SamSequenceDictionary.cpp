@@ -1,49 +1,73 @@
-#include <htslib/vcf.h>
+
 #include <vector>
+#include <unordered_map>
 #include "debug.hh"
 #include "SamSequenceDictionary.hh"
 
 using namespace std;
-/*
-class BcfSamSequenceRecord : public SamSequenceRecord {
-	private:
-		bcf_hdr_t *header;
-		int rid;
-	public:
-		BcfSamSequenceRecord( bcf_hdr_t *header, int rid):header(header),rid(rid)) {}
-		virtual ~BcfSamSequenceRecord() {}
-		virtual const char* name() {
-			return ::bcf_hdr_id2name(header,rid);
-			}
-	};
-		
 
-		class BcfSamSequenceDictionary : public SamSequenceDictionary {
-			private:
-				std::vector<BcfSamSequenceRecord*> array;
-			public:
-				BcfSamSequenceDictionary(  bcf_hdr_t *header) {
-					ASSERT_NOT_NULL(header->dict[BCF_DT_CTG]);
-					for(int i=0;i< header->n[BCF_DT_CTG];i++) {
-						array.push_back(int BcfSamSequenceRecord(header,i));
-						}
-					vdict_t* d = (vdict_t*)(header->dict[BCF_DT_CTG]);
-					unsigned int n= kh_size(d);
-					khint_t k;
-					for (k=kh_begin(d); k<kh_end(d); k++) {
-						
-						}
-					}
-				virtual ~BcfSamSequenceDictionary() {
-					for(unsigned int i=0;i< array.size();i++) delete array[i];
-					}
-				virtual SamSequenceDictionary::size_type size() { return array.size();};
-				virtual SamSequenceRecord* get(unsigned int idx) { return array.at(idx);};
-			};
-*/
+
+class DefaultSamSequenceDictionary : public SamSequenceDictionary{
+	protected:
+        class SamSequenceRecord {
+            public:
+                std::string name;
+                hts_pos_t length;
+            };
+        std::vector<SamSequenceRecord> ssrs;
+        std::unordered_map<std::string,unsigned int> name2tid;
+        unsigned long _len;
+    public:
+        DefaultSamSequenceDictionary():_len(0UL) {
+            }
+        virtual ~DefaultSamSequenceDictionary() {
+            }
+        void put(std::string contig,hts_pos_t ctglentgh) {
+            if(name2tid.find(contig)!=name2tid.end()) THROW_ERROR("duplicate name "<< contig);
+            SamSequenceRecord ssr;
+            ssr.name = contig;
+            ssr.length = ctglentgh;
+            name2tid.insert(make_pair(ssr.name,ssrs.size()));
+            ssrs.push_back(ssr);
+            _len += ctglentgh;
+            }
+		virtual unsigned int nseq() const {
+            return ssrs.size();
+            }
+		virtual const char* name(unsigned int i) const {
+            return ssrs[i].name.c_str();
+            }
+		virtual hts_pos_t length(unsigned int i) const {
+            return ssrs[i].length;
+            }
+      virtual unsigned int tid(const char* ctg) const {
+            auto r=name2tid.find(ctg);
+            if(r==name2tid.end()) return SamSequenceDictionary::npos;
+            return r->second;
+            }
+        virtual unsigned long genome_length() const  {
+            return _len;
+            }
+
+    };
+
+
+
 std::unique_ptr<SamSequenceDictionary> SamSequenceDictionary::of(bcf_hdr_t *header) {
 	ASSERT_NOT_NULL(header);
-	//return std::unique_ptr<SamSequenceDictionary>(new BcfSamSequenceDictionary(header));
-	THROW_ERROR("not implemented");
+    DefaultSamSequenceDictionary* dict = new DefaultSamSequenceDictionary;
+    THROW_ERROR("todo");
+	return std::unique_ptr<SamSequenceDictionary>(dict);
+	}
+
+
+
+std::unique_ptr<SamSequenceDictionary> SamSequenceDictionary::of(faidx_t *fai) {
+	ASSERT_NOT_NULL(fai);
+	 DefaultSamSequenceDictionary* dict = new DefaultSamSequenceDictionary;
+	for(int i=0;i< ::faidx_nseq(fai);i++) {
+		dict->put(  ::faidx_iseq(fai,i),  ::faidx_seq_len64(fai, ::faidx_iseq(fai,i)) );
+		}
+	return std::unique_ptr<SamSequenceDictionary>(dict);
 	}
 
