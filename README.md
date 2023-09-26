@@ -150,6 +150,32 @@ hts++ bcf2intervals [options...] (files)
 
 
 
+##  SAMRMDUPNAMES
+
+remove duplicated names in sorted BAM (prevent graphtyper from failing)
+
+### Usage
+
+```
+hts++ samrmdupnames [options...] (files)
+```
+
+
+### Options
+
+| short-option | long-option | argument | description | default-value |
+|--------------|-------------|----------|-------------|---------------|
+| -h | --help |  | Display help and exit |  |
+| -v | --version |  | Display Version and exit |  |
+| -o | --output |   <ARG>   | output or stdout |  |
+| -R | --reference |   <fasta>   | FASTA reference |  |
+|  | --compression-level |   <0-9>   | compression-level 0 (low compression) to 9 (best compression) |  |
+| -O | --bam-output-format |   <format>   | output format for sam: SAM, BAM, CRAM |  |
+| -@ | --nthreads |   <nthreads>   | Number of threads |  |
+
+
+
+
 ##  TESTS
 
 peforms some tests
