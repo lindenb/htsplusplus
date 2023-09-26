@@ -26,7 +26,7 @@
 		<macro name="version.help"/>
 		<macro name="output"/>
 		<macro name="bcf.output"/>
-		<option name="distance" type="int" short-option='d' long-option="distance" default-value="999">
+		<option name="distance" type="int" short-option='d' long-option="distance" default-value="999" parser="parseDistance">
 			<short-description>distance</short-description>
 		</option>
 	</program>
@@ -65,10 +65,10 @@ cat bcfs.list | hts++ bcfconcat</usage>
 		 <short-description>convert VCF/BCF to interval of variants that are distant from 'x' bases.</short-description>
 		<macro name="version.help"/>
 		<macro name="output"/>
-		<option name="distance_per_interval" type="int" short-option='d' long-option="distance_per_interval" default-value="1" min-inclusive="1">
+		<option name="distance_per_interval" type="int" short-option='d' long-option="distance_per_interval" default-value="1" min-inclusive="1" parser="parseDistance">
 			<short-description>distance</short-description>
 		</option>
-		<option name="min_distance" type="int" short-option='m' long-option="min-distance" default-value="-1">
+		<option name="min_distance" type="int" short-option='m' long-option="min-distance" default-value="-1" parser="parseDistance">
 			<short-description>min distance</short-description>
 		</option>
 	</program>

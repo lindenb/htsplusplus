@@ -1,9 +1,38 @@
 HTSLIB?=../../htslib
 CFLAGS=-I. -I$(HTSLIB) -c -Wall -g -std=gnu++0x
 LDFLAGS=-L$(HTSLIB)  -lz -lm -lbz2 -llzma -lcurl -lpthread
+LEX_YACC_OBJ=_main .tab .lex.yy
 CC=g++
 
-OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader HtsThreadPool utils tests Regex selgt_main selgt.tab selgt.lex.yy \
+
+define LEXYACC
+
+
+$(1).tab.o: grammars/$(1)/$(1).tab.cpp grammars/$(1)/$(1).tab.hpp grammars/$(1)/$(1).hh grammars/$(1)/$(1).lex.yy.hh
+	$(CC) $(CFLAGS) -o $$@ $$<
+
+$(1).lex.yy.o: grammars/$(1)/$(1).lex.yy.cpp grammars/$(1)/$(1).hh
+	$(CC) $(CFLAGS) -o $$@ $$<
+
+grammars/$(1)/$(1).lex.yy.hh: grammars/$(1)/$(1).lex.yy.cpp
+	touch -c $$@
+
+grammars/$(1)/$(1).lex.yy.cpp: grammars/$(1)/$(1).l grammars/$(1)/$(1).hh grammars/$(1)/$(1).tab.hpp
+	flex  --prefix=$(1) --header-file=$$(addsuffix .hh,$$(basename $$@)) --outfile=$$@  $$<
+
+grammars/$(1)/$(1).tab.hpp: grammars/$(1)/$(1).tab.cpp
+	touch -c $$@
+
+grammars/$(1)/$(1).tab.cpp :grammars/$(1)/$(1).y grammars/$(1)/$(1).hh
+	bison  --xml=bison.xml --verbose --report-file=bison.report.txt --output=$$@ -d $$<
+
+
+endef
+
+
+OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader HtsThreadPool utils tests Regex \
+	$(addprefix selgt,$(LEX_YACC_OBJ)) \
+	$(addprefix distance_parser,$(LEX_YACC_OBJ)) \
 	SamSequenceDictionary \
 	Faidx \
 	SequenceOntology \
@@ -49,6 +78,10 @@ bcf2intervals.o: bcf2intervals.cpp programs.hh  BcfReader.hh BcfRecord.hh
 bcfconcat.o: bcfconcat.cpp programs.hh BcfWriter.hh BcfHeader.hh BcfReader.hh BcfRecord.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
+
+selgt_main : selgt_main.cpp grammars/selgt/selgt.tab.hpp grammars/selgt/selgt.hh selgt.lex.yy.hh BcfReader.hh BcfWriter.hh programs.hh debug.hh
+	$(CC) -c -o $@ $(CFLAGS) $<
+
 bcfexludebed.o: bcfexludebed.c
 	$(CC) -c -o $@ $(CFLAGS) $<
 
@@ -59,26 +92,11 @@ htsplusplus.o: htsplusplus.cpp  programs.hh
 programs.hh: programs2C.xsl programs.tmp.xml git.hh
 		xsltproc --output $@ programs2C.xsl programs.tmp.xml
 
-selgt_main : selgt_main.cpp grammars/selgt/selgt.tab.hpp grammars/selgt/selgt.hh selgt.lex.yy.hh BcfReader.hh BcfWriter.hh programs.hh debug.hh
-	$(CC) -c -o $@ $(CFLAGS) $<
 
-selgt.tab.o: grammars/selgt/selgt.tab.cpp grammars/selgt/selgt.tab.hpp grammars/selgt/selgt.hh grammars/selgt/selgt.lex.yy.hh
-	$(CC) $(CFLAGS) -o $@ $<
 
-selgt.lex.yy.o: grammars/selgt/selgt.lex.yy.cpp grammars/selgt/selgt.hh
-	$(CC) $(CFLAGS) -o $@ $<
+$(eval $(call LEXYACC,selgt))
+$(eval $(call LEXYACC,distance_parser))
 
-grammars/selgt/selgt.lex.yy.hh: grammars/selgt/selgt.lex.yy.cpp
-	touch -c $@
-
-grammars/selgt/selgt.lex.yy.cpp: grammars/selgt/selgt.l grammars/selgt/selgt.hh grammars/selgt/selgt.tab.hpp
-	flex  --prefix=selgt --header-file=$(addsuffix .hh,$(basename $@)) --outfile=$@  $<
-
-grammars/selgt/selgt.tab.hpp: grammars/selgt/selgt.tab.cpp
-	touch -c $@
-
-grammars/selgt/selgt.tab.cpp :grammars/selgt/selgt.y grammars/selgt/selgt.hh
-	bison  --xml=bison.xml --verbose --report-file=bison.report.txt --output=$@ -d $<
 
 ../README.md : programs2md.xsl programs.tmp.xml
 	xsltproc --output "$@" $^
@@ -108,6 +126,7 @@ tests: ../bin/hts++
 tests2 : ../bin/hts++
 	@echo "## RUNNING TESTS ##"
 	../bin/hts++ bcfconcat ../tests/variants.01.bcf ../tests/variants.01.bcf ../tests/variants.01.bcf > /dev/null
+	../bin/hts++ bcfprune --distance 100kb ../tests/variants.01.bcf > /dev/null
 
 clean:
 	rm -f *.o ../bin/hts++ git.hh programs.tmp.xml \
