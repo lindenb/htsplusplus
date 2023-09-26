@@ -8,6 +8,10 @@
 #include <htslib/hts.h>
 #include "Path.hh"
 
+/** prevent java syntax from failing ...*/
+#define final
+
+
 struct stdio_file_closer
 	{
     void operator()(std::FILE* fp) const {

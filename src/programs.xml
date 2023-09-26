@@ -72,6 +72,18 @@ cat bcfs.list | hts++ bcfconcat</usage>
 			<short-description>min distance</short-description>
 		</option>
 	</program>
+
+
+        <program name="samrmdupnames">
+                <short-description>remove duplicated names in sorted BAM (prevent graphtyper from failing)</short-description>
+                <macro name="version.help"/>
+                <macro name="output"/>
+                <macro name="reference"/>
+                <macro name="bam.output"/>
+                <macro name="nthreads"/>
+        </program>
+
+
 	
 	<program name="tests">
 		<short-description>peforms some tests</short-description>

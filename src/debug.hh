@@ -12,4 +12,6 @@
 #define THROW_ERROR(...) do {std::ostringstream os; os <<  "[" << __FILE__ << ":" << __LINE__ << "]" << __VA_ARGS__; throw std::runtime_error(os.str());} while(0)
 
 #define ASSERT_NOT_NULL(a) if(a==NULL) THROW_ERROR(#a  " is NULL")
+
+
 #endif

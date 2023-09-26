@@ -8,6 +8,7 @@ OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader
 	Faidx \
 	SequenceOntology \
 	bcfconcat \
+	samrmdupnames \
 	bcf2intervals
 
 
@@ -25,6 +26,8 @@ tests.o: tests.cpp SamFilterApp.hh programs.hh debug.hh utils.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 samviewwithmate.o: samviewwithmate.cpp SamFilterApp.hh programs.hh debug.hh
+	$(CC) -c -o $@ $(CFLAGS) $<
+samrmdupnames.o: samrmdupnames.cpp SamFilterApp.hh programs.hh debug.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 SamFilterApp.hh: SamFileReader.hh SamFileWriter.hh HtsThreadPool.hh
