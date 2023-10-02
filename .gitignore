@@ -15,3 +15,10 @@ src/SequenceOntology.cpp
 *.lex.yy.hh
 *.tab.cpp
 *.tab.hpp
+
+*~
+	
+autom4te.cache/
+config.log
+config.status
+configure~
