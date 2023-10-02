@@ -8,9 +8,11 @@ compilation requires a C++ compiler and `xsltproc`.
 
 ```
 git clone "https://github.com/lindenb/htsplusplus"
-cd htsplusplus/src
-# set the path to a compiled C htslib directory
-make HTSLIB=/path/to/htslib
+
+autoconf -Wno-syntax
+./configure --with-htslib= --with-htslib=${PWD}/../htslib    # see ./configure --help and samtools's INSTALL
+make
+
 ```
 
 
@@ -122,6 +124,31 @@ hts++ bcffiltergt [options...] (files)
 | -F | --soft-filter |   <FILTER-ID>   | soft FILTER name. (default: filter out variants) |  |
 | -e | --expression |   <expression>   | Expression as string |  |
 | -f | --file-expression |   <FILE>   | Expression as file |  |
+
+
+
+
+##  BCFHEAD
+
+Show the first 'N' variants in a VCF
+
+### Usage
+
+```
+hts++ bcfhead [options...] (files)
+```
+
+
+### Options
+
+| short-option | long-option | argument | description | default-value |
+|--------------|-------------|----------|-------------|---------------|
+| -h | --help |  | Display help and exit |  |
+| -v | --version |  | Display Version and exit |  |
+| -o | --output |   <ARG>   | output or stdout |  |
+|  | --compression-level |   <0-9>   | compression-level 0 (low compression) to 9 (best compression) |  |
+| -O | --vcf-output-format |   <format>   | output format for VCF/BCF: z:gzip vcf v:vcf b:bcf (default v) |  |
+| -n | --count |   <COUNT>   | Number of variants |  |
 
 
 

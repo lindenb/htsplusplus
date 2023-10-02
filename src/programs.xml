@@ -61,6 +61,18 @@ cat bcfs.list | hts++ bcfconcat</usage>
 	
 	</program>
 	
+	
+	<program name="bcfhead">
+		<short-description>Show the first 'N' variants in a VCF</short-description>
+		<macro name="version.help"/>
+		<macro name="output"/>
+		<macro name="bcf.output"/>
+		<option name="count" type="long" short-option='n' long-option="count" arg-name='COUNT' default-value="10">
+			<short-description>Number of variants</short-description>
+		</option>
+	</program>
+	
+	
 	<program name="bcf2intervals">
 		 <short-description>convert VCF/BCF to interval of variants that are distant from 'x' bases.</short-description>
 		<macro name="version.help"/>
@@ -82,7 +94,6 @@ cat bcfs.list | hts++ bcfconcat</usage>
                 <macro name="bam.output"/>
                 <macro name="nthreads"/>
         </program>
-
 
 	
 	<program name="tests">

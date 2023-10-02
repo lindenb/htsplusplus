@@ -1,6 +1,5 @@
-HTSLIB?=../../htslib
-CFLAGS=-I. -I$(HTSLIB) -c -Wall -g -std=gnu++0x
-LDFLAGS=-L$(HTSLIB)  -lz -lm -lbz2 -llzma -lcurl -lpthread
+CFLAGS=-I. $(HTSLIB_CPPFLAGS) -c -Wall -g -std=gnu++0x
+LDFLAGS=$(HTSLIB_LDFLAGS)  -lz -lm -lbz2 -llzma -lcurl -lpthread
 LEX_YACC_OBJ=_main .tab .lex.yy
 CC=g++
 
@@ -35,6 +34,7 @@ OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader
 	$(addprefix distance_parser,$(LEX_YACC_OBJ)) \
 	SamSequenceDictionary \
 	Faidx \
+	bcfhead \
 	SequenceOntology \
 	bcfconcat \
 	samrmdupnames \
@@ -47,23 +47,24 @@ OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader
 
 all: ../bin/hts++ ../README.md tests2
 
-../bin/hts++: $(sort $(addsuffix .o,$(OBJECTS))) $(realpath $(HTSLIB)/libhts.a)
+../bin/hts++: $(sort $(addsuffix .o,$(OBJECTS))) $(HTSDIR)/libhts.a
 	mkdir -p $(dir $@)
 	$(CC) -o $@ $(filter %.o,$^) $(filter %.a,$^) $(LDFLAGS)
 
 tests.o: tests.cpp SamFilterApp.hh programs.hh debug.hh utils.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
-samviewwithmate.o: samviewwithmate.cpp SamFilterApp.hh programs.hh debug.hh
+samviewwithmate.o: samviewwithmate.cpp SamFilterApp.hh programs.hh debug.hh SamRecord.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
-samrmdupnames.o: samrmdupnames.cpp SamFilterApp.hh programs.hh debug.hh
+
+samrmdupnames.o: samrmdupnames.cpp SamFilterApp.hh programs.hh debug.hh SamRecord.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 SamFilterApp.hh: SamFileReader.hh SamFileWriter.hh HtsThreadPool.hh
 
 SamFileWriter.hh: HtsThreadPool.hh
 
-SamFileReader.o : SamFileReader.hh HtsThreadPool.hh
+SamFileReader.o : SamFileReader.hh HtsThreadPool.hh SamRecord.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 Regex.o : Regex.cpp Regex.hh debug.hh utils.hh
@@ -71,6 +72,10 @@ Regex.o : Regex.cpp Regex.hh debug.hh utils.hh
 
 bcfprune.o: bcfprune.cpp programs.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
+
+bcfhead.o: bcfhead.cpp programs.hh
+	$(CC) -c -o $@ $(CFLAGS) $<
+
 
 samcount.o: samcount.c
 	$(CC) -c -o $@ $(CFLAGS) $<
@@ -130,7 +135,9 @@ tests2 : ../bin/hts++
 	@echo "## RUNNING TESTS ##"
 	../bin/hts++ bcfconcat ../tests/variants.01.bcf ../tests/variants.01.bcf ../tests/variants.01.bcf > /dev/null
 	../bin/hts++ bcfprune --distance 100kb ../tests/variants.01.bcf > /dev/null
+	#$< samrmdupnames 
 
+clean-all: clean
+	rm -f so-simple.owl SequenceOntology.cpp
 clean:
-	rm -f *.o ../bin/hts++ git.hh programs.tmp.xml \
-			SequenceOntology.cpp so-simple.owl
+	rm -f *.o ../bin/hts++ git.hh programs.tmp.xml

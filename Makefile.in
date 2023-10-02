@@ -1,13 +1,13 @@
 
-CC = gcc
-CPPFLAGS = 
-CFLAGS = -g -O2
-LDFLAGS = 
-LIBS = 
+CC = @CC@
+CPPFLAGS = @CPPFLAGS@
+CFLAGS = @CFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
 
-HTSLIB_CPPFLAGS = -I/home/lindenb/src/htsplusplus/../htslib
-HTSLIB_LDFLAGS = -L/home/lindenb/src/htsplusplus/../htslib
-HTSDIR = /home/lindenb/src/htsplusplus/../htslib
+HTSLIB_CPPFLAGS = @HTSLIB_CPPFLAGS@
+HTSLIB_LDFLAGS = @HTSLIB_LDFLAGS@
+HTSDIR = @HTSDIR@
 
 
 all:

@@ -15,9 +15,11 @@ compilation requires a C++ compiler and `xsltproc`.
 
 ```
 git clone "https://github.com/lindenb/htsplusplus"
-cd htsplusplus/src
-# set the path to a compiled C htslib directory
-make HTSLIB=/path/to/htslib
+
+autoconf -Wno-syntax
+./configure --with-htslib= --with-htslib=${PWD}/../htslib    # see ./configure --help and samtools's INSTALL
+make
+
 ```
 
 

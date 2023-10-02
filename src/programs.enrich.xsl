@@ -81,6 +81,7 @@
 <xsl:copy-of select="@*"/>
 <xsl:choose>
 	<xsl:when test="@type='int' and not(@parser)"><xsl:attribute name="parser">this-&gt;parseInt</xsl:attribute></xsl:when>
+	<xsl:when test="@type='long' and not(@parser)"><xsl:attribute name="parser">this-&gt;parseLong</xsl:attribute></xsl:when>
 	<xsl:when test="@type='char' and not(@parser)"><xsl:attribute name="parser">this-&gt;parseChar</xsl:attribute></xsl:when>
 </xsl:choose>
 <xsl:apply-templates select="*|text()"/>

@@ -23,6 +23,7 @@ THIS FILE WAS AUTO-GENERATED, DO NOT EDIT
 #include &lt;string&gt;
 #include &lt;vector&gt;
 #include &lt;getopt.h&gt;
+#include "grammars/distance_parser/distance_parser.hh"
 #include "Regex.hh"
 #include "git.hh"
 
@@ -43,6 +44,9 @@ class ProgramArgs {
 		int32_t parseInt(const char* s) {
 			return  std::stoi(s);
 			}
+		int64_t parseLong(const char* s) {
+			return  std::stol(s);
+			}
 		char parseChar(const char* s) {
 			if(std::strcmp(s,"\\t")==0) return '\t';
 			if(std::strcmp(s,"\\n")==0) return '\n';
@@ -51,6 +55,10 @@ class ProgramArgs {
 				THROW_PROGRAM_ERROR("Expected only one character");
 				}
 			return s[0];
+			}
+		hts_pos_t parseDistance(const char* s) {
+			DistanceParser dp;
+			return dp.parse(s);
 			}
 	public:
 		/** files after parsing arguments */
@@ -197,7 +205,10 @@ class MainArgs {
 
 extern int main_<xsl:value-of select="@name"/>(int argc,char** argv);
 
-class <xsl:value-of select="$className"/> : public ProgramArgs {
+class <xsl:value-of select="$className"/> : public <xsl:choose>
+	<xsl:when test="@extend"><xsl:value-of select="@extend"/></xsl:when>
+	<xsl:otherwise>ProgramArgs</xsl:otherwise>
+	</xsl:choose> {
 	public:
 		<xsl:for-each select="option">
         <xsl:if test="short-description">
@@ -208,6 +219,7 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
           <xsl:when test="@type='char'">char</xsl:when>
           <xsl:when test="@type='string'">char*</xsl:when>
           <xsl:when test="@type='int'">int32_t</xsl:when>
+          <xsl:when test="@type='long'">int64_t</xsl:when>
 		  <xsl:otherwise>
 				<xsl:message terminate="yes">Class Declaration: Cannot handle <xsl:value-of select="@type"/></xsl:message>
 		  </xsl:otherwise>
@@ -374,7 +386,7 @@ class <xsl:value-of select="$className"/> : public ProgramArgs {
                  <xsl:value-of select="@name"/>
                  <xsl:text> = true;</xsl:text>
 			</xsl:when>
-            <xsl:when test="@type='int' or @type='char'">
+            <xsl:when test="@type='int' or @type='long' or @type='char'">
 			 <xsl:text>try {
 		this-&gt;</xsl:text>
                 <xsl:value-of select="@name"/>
