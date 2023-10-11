@@ -223,7 +223,7 @@ hts++ fastqsplitnfiles [options...] (files)
 | -o | --output |   <ARG>   | output or stdout |  |
 | -p | --prefix |   <ARG>   | output prefix |  |
 | -n | --count-files |   <ARG>   | number of files |  |
-| -l | --compression-level |   <ARG>   | compression level 0-9 |  |
+|  | --compression-level |   <0-9>   | compression-level 0 (low compression) to 9 (best compression) |  |
 
 
 

@@ -41,8 +41,8 @@ int main_fastqsplitnfiles(int argc,char** argv) {
 		cerr << "Bad value for nsplit :"<<  args.nsplits << endl;
 		return EXIT_FAILURE;
         }
-    if(args.level<0 || args.level>9)  {
-		cerr << "Bad compression level:" << args.level << endl;
+    if(args.compression_level<0 || args.compression_level>9)  {
+		cerr << "Bad compression level:" << args.compression_level << endl;
 		return EXIT_FAILURE;
         }
     vector<SplitFile*> splitFiles;
@@ -61,7 +61,7 @@ int main_fastqsplitnfiles(int argc,char** argv) {
 		
 		string filename(args.prefix);
 		filename.append(tmp);
-		SplitFile* sp = new SplitFile(filename,args.level);
+		SplitFile* sp = new SplitFile(filename,args.compression_level);
 		
 		splitFiles.push_back(sp);
 		}

@@ -105,9 +105,7 @@ cat bcfs.list | hts++ bcfconcat</usage>
 				<option name="nsplits" type="int" short-option='n' long-option="count-files" default-value="-1">
 					<short-description>number of files</short-description>
 				</option>
-				<option name="level" type="int" short-option='l' long-option="compression-level" default-value="5">
-					<short-description>compression level 0-9</short-description>
-				</option>
+				<macro name="compression_level"/>
      </program>
 
 	
