@@ -95,6 +95,21 @@ cat bcfs.list | hts++ bcfconcat</usage>
                 <macro name="nthreads"/>
         </program>
 
+ 	 <program name="fastqsplitnfiles">
+                <short-description>Split FASTQ to N files</short-description>
+                <macro name="version.help"/>
+                <macro name="output"/>
+                <option name="prefix" type="string" short-option='p' long-option="prefix" default-value='"PREFIX"'>
+					<short-description>output prefix</short-description>
+				</option>
+				<option name="nsplits" type="int" short-option='n' long-option="count-files" default-value="-1">
+					<short-description>number of files</short-description>
+				</option>
+				<option name="level" type="int" short-option='l' long-option="compression-level" default-value="5">
+					<short-description>compression level 0-9</short-description>
+				</option>
+     </program>
+
 	
 	<program name="tests">
 		<short-description>peforms some tests</short-description>

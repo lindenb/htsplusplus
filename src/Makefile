@@ -1,3 +1,5 @@
+HTSDIR?=../../htslib
+HTSLIB_CPPFLAGS?= -I$(HTSDIR)
 CFLAGS=-I. $(HTSLIB_CPPFLAGS) -c -Wall -g -std=gnu++0x
 LDFLAGS=$(HTSLIB_LDFLAGS)  -lz -lm -lbz2 -llzma -lcurl -lpthread
 LEX_YACC_OBJ=_main .tab .lex.yy
@@ -38,7 +40,8 @@ OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader
 	SequenceOntology \
 	bcfconcat \
 	samrmdupnames \
-	bcf2intervals
+	bcf2intervals \
+	fastqsplitnfiles
 
 
 %.o: %.cpp
@@ -86,6 +89,8 @@ bcf2intervals.o: bcf2intervals.cpp programs.hh  BcfReader.hh BcfRecord.hh
 bcfconcat.o: bcfconcat.cpp programs.hh BcfWriter.hh BcfHeader.hh BcfReader.hh BcfRecord.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
+fastqsplitnfiles.o: fastqsplitnfiles.cpp programs.hh KSeq.hh
+	$(CC) -c -o $@ $(CFLAGS) $<
 
 selgt_main : selgt_main.cpp grammars/selgt/selgt.tab.hpp grammars/selgt/selgt.hh selgt.lex.yy.hh BcfReader.hh BcfWriter.hh programs.hh debug.hh
 	$(CC) -c -o $@ $(CFLAGS) $<

@@ -203,6 +203,31 @@ hts++ samrmdupnames [options...] (files)
 
 
 
+##  FASTQSPLITNFILES
+
+Split FASTQ to N files
+
+### Usage
+
+```
+hts++ fastqsplitnfiles [options...] (files)
+```
+
+
+### Options
+
+| short-option | long-option | argument | description | default-value |
+|--------------|-------------|----------|-------------|---------------|
+| -h | --help |  | Display help and exit |  |
+| -v | --version |  | Display Version and exit |  |
+| -o | --output |   <ARG>   | output or stdout |  |
+| -p | --prefix |   <ARG>   | output prefix |  |
+| -n | --count-files |   <ARG>   | number of files |  |
+| -l | --compression-level |   <ARG>   | compression level 0-9 |  |
+
+
+
+
 ##  TESTS
 
 peforms some tests
