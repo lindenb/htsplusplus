@@ -5,6 +5,17 @@
 #include "debug.hh"
 #include "HtsThreadPool.hh"
 #include "SamFileHeader.hh"
+#include "Cigar.hh"
+
+
+struct AlignmentBlock {
+    hts_pos_t readStart;
+    hts_pos_t referenceStart;
+    hts_pos_t length;
+    };
+
+
+
 
 class AbstractSamRecord {
 	public:
@@ -39,6 +50,7 @@ class AbstractSamRecord {
 		virtual const char* read_name() {
 			return bam_get_qname(get());
 			}
+		
 		virtual bool is_unmapped() {
 			return has_flag(BAM_FUNMAP);
 			}
@@ -62,6 +74,65 @@ class AbstractSamRecord {
         virtual bool is_secondary() { return has_flag(BAM_FSECONDARY);}
         virtual bool is_supplementary() { return has_flag(BAM_FSUPPLEMENTARY);}
         virtual bool is_secondary_or_supplementary() { return is_secondary() || is_supplementary() ;}
+
+
+		virtual int num_cigar_elements() {
+			return get()->core.n_cigar;
+			}
+
+		virtual bool has_cigar() {
+			return num_cigar_elements() >0;
+			}
+		std::unique_ptr<Cigar> cigar() {
+			return std::unique_ptr<Cigar>(new Cigar(get()));
+			}
+
+		virtual std::vector<AlignmentBlock> alignment_blocks() {
+			CigarIterator iter(get()); 
+		    std::vector<AlignmentBlock> alignmentBlocks;
+		    int readBase = 1;
+		    int refBase = start();
+
+		    while (iter.next()) {
+		        switch (iter.letter) {
+		            case 'H':
+		                break; // ignore hard clips
+		            case 'P':
+		                break; // ignore pads
+		            case 'S':
+		                readBase += iter.length;
+		                break; // soft clip read bases
+		            case 'N':
+		                refBase += iter.length;
+		                break;  // reference skip
+		            case 'D':
+		                refBase += iter.length;
+		                break;
+		            case 'I':
+		                readBase += iter.length;
+		                break;
+		            case 'M':
+		            case '=':
+		            case 'X': {
+		                int n = iter.length;
+		                AlignmentBlock ab;
+		                ab.readStart = readBase;
+						ab.referenceStart = refBase;
+						ab.length = n;
+						alignmentBlocks.push_back(ab);
+		                readBase += n;
+		                refBase += n;
+		                break;
+		                }
+		            default:
+		                THROW_ERROR("cigar not handled");
+		                break;
+		        	}
+		    }
+        	return alignmentBlocks;
+        	}
+
+
 
         /** java htsdk functions */
         bool getReadUnmappedFlag() {return is_unmapped();}

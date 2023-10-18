@@ -35,6 +35,8 @@ OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader
 	$(addprefix selgt,$(LEX_YACC_OBJ)) \
 	$(addprefix distance_parser,$(LEX_YACC_OBJ)) \
 	SamSequenceDictionary \
+	SamFileReader \
+	Cigar \
 	Faidx \
 	bcfhead \
 	SequenceOntology \
@@ -67,7 +69,10 @@ SamFilterApp.hh: SamFileReader.hh SamFileWriter.hh HtsThreadPool.hh
 
 SamFileWriter.hh: HtsThreadPool.hh
 
-SamFileReader.o : SamFileReader.hh HtsThreadPool.hh SamRecord.hh
+SamFileReader.o : SamFileReader.cpp SamFileReader.hh HtsThreadPool.hh SamRecord.hh
+	$(CC) -c -o $@ $(CFLAGS) $<
+
+Cigar.o: Cigar.cpp Cigar.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 Regex.o : Regex.cpp Regex.hh debug.hh utils.hh
