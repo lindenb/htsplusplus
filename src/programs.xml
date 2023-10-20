@@ -108,6 +108,17 @@ cat bcfs.list | hts++ bcfconcat</usage>
 				<macro name="compression_level"/>
      </program>
 
+    <program name="bcfstreamuntil">
+                <short-description>Stream a VCF until a position is found.</short-description>
+                 <long-description>Useful if there is no index (e.g:downloading from the web) and you want to stop the scan without error after position CHR:POS</long-description>
+                <macro name="version.help"/>
+                <macro name="bcf.output"/>
+                <macro name="output"/>
+                <option name="position" type="string" short-option='p' long-option="position" required="true" >
+					<short-description>stop after this position. syntax 'CHROM:POS'</short-description>
+				</option>
+     </program>
+
 	
 	<program name="tests">
 		<short-description>peforms some tests</short-description>

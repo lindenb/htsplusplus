@@ -228,6 +228,31 @@ hts++ fastqsplitnfiles [options...] (files)
 
 
 
+##  BCFSTREAMUNTIL
+
+Stream a VCF until a position is found.
+
+### Usage
+
+```
+hts++ bcfstreamuntil [options...] (files)
+```
+
+
+### Options
+
+| short-option | long-option | argument | description | default-value |
+|--------------|-------------|----------|-------------|---------------|
+| -h | --help |  | Display help and exit |  |
+| -v | --version |  | Display Version and exit |  |
+|  | --compression-level |   <0-9>   | compression-level 0 (low compression) to 9 (best compression) |  |
+| -O | --vcf-output-format |   <format>   | output format for VCF/BCF: z:gzip vcf v:vcf b:bcf (default v) |  |
+| -o | --output |   <ARG>   | output or stdout |  |
+| -p | --position |   <ARG>   | stop after this position. syntax 'CHROM:POS' |  |
+
+
+
+
 ##  TESTS
 
 peforms some tests

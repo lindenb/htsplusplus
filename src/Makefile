@@ -39,10 +39,12 @@ OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader
 	Cigar \
 	Faidx \
 	bcfhead \
+    ContigPos \
 	SequenceOntology \
 	bcfconcat \
 	samrmdupnames \
 	bcf2intervals \
+	bcfstreamuntil \
 	fastqsplitnfiles
 
 
@@ -78,6 +80,9 @@ Cigar.o: Cigar.cpp Cigar.hh
 Regex.o : Regex.cpp Regex.hh debug.hh utils.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
+ContigPos.o: ContigPos.cpp ContigPos.hh Locatable.hh
+	$(CC) -c -o $@ $(CFLAGS) $<
+
 bcfprune.o: bcfprune.cpp programs.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
@@ -89,6 +94,9 @@ samcount.o: samcount.c
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 bcf2intervals.o: bcf2intervals.cpp programs.hh  BcfReader.hh BcfRecord.hh
+	$(CC) -c -o $@ $(CFLAGS) $<
+
+bcfstreamuntil.o: bcfstreamuntil.cpp programs.hh  BcfReader.hh BcfRecord.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 bcfconcat.o: bcfconcat.cpp programs.hh BcfWriter.hh BcfHeader.hh BcfReader.hh BcfRecord.hh

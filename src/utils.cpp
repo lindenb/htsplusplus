@@ -51,6 +51,7 @@ bool StringUtils::endsWith(const char* str, const char* suffix) {
     }
 
 
+
 const char* IoUtils::separator() {
 		return "/";
 		}
