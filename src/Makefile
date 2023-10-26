@@ -36,6 +36,7 @@ OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader
 	$(addprefix distance_parser,$(LEX_YACC_OBJ)) \
 	SamSequenceDictionary \
 	SamFileReader \
+	Interval \
 	Cigar \
 	Faidx \
 	bcfhead \
@@ -80,7 +81,10 @@ Cigar.o: Cigar.cpp Cigar.hh
 Regex.o : Regex.cpp Regex.hh debug.hh utils.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
-ContigPos.o: ContigPos.cpp ContigPos.hh Locatable.hh
+ContigPos.o: ContigPos.cpp ContigPos.hh Locatable.hh Comparable.hh
+	$(CC) -c -o $@ $(CFLAGS) $<
+
+Interval.o: Interval.cpp Interval.hh Locatable.hh Comparable.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
 
 bcfprune.o: bcfprune.cpp programs.hh
