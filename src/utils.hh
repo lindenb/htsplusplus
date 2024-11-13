@@ -12,6 +12,8 @@
 #define final
 
 
+#define FLAG_NULL_ON_ERROR 1
+
 struct stdio_file_closer
 	{
     void operator()(std::FILE* fp) const {

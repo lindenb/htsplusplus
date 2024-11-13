@@ -6,13 +6,9 @@ class Path {
     private:
         std::string fp;
     public:   
-        Path(std::string fp):fp(fp) {
-            }
-        Path(const Path& cp):fp(cp.fp) {
-            }
-        const char* c_str() const {
-            return fp.c_str();
-            }
+        Path(std::string fp);
+        Path(const Path& cp);
+        const char* c_str() const;
     };
 
 #endif

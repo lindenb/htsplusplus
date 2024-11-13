@@ -7,8 +7,9 @@
 #include "SamRecord.hh"
 #include "SamFileHeader.hh"
 #include "Coverage.hh"
+#include "HtsIdx.hh"
 
-class SamFile{
+class SamFile {
 	public:
 		samFile* fp;
 		SamFile(samFile* fp):fp(fp) {
@@ -83,102 +84,20 @@ class SamRecordIndexIterator: public SamRecordIterator {
 class SamFileReader {
 	public:
 		typedef int (*callback1_t)(SamRecord*,void* data);
-		std::unique_ptr<SamFile> fp;
-		std::unique_ptr<SamFileHeader> header;
+		HtsFile* fp;
+		SamFileHeader* header;
 		//associated index
-		hts_idx_t *idx;
-
-		SamFileReader():idx(NULL) {
-			}
-		virtual ~SamFileReader() {
-			if(idx!=NULL) ::hts_idx_destroy(idx);
-			}
-		bool has_index() {
-			return idx!=NULL;
-			}
-		bool read1(bam1_t* b) {
-			int ret= sam_read1(fp->get(),header->get(), b);
-			return ret>=0;
-			}
-		bool read2(SamRecord* rec) {
-			return read1(rec->get());
-			}
-		std::unique_ptr<SamRecord> read2() {
-			std::unique_ptr<SamRecord> rec = std::unique_ptr<SamRecord>(new SamRecord);
-			if(!read2(rec.get())) {
-				rec.reset();
-				}
-			return rec;
-			}
-		std::unique_ptr<SamRecordIterator> query(const Locatable* loc) {
-			if(loc==NULL) THROW_ERROR("loc is NULL");
-			std::string str = loc->to_string();
-			return query(str.c_str()); 
-			}
-		std::unique_ptr<SamRecordIterator> query(const char* reg) {
-			if(reg==NULL) THROW_ERROR("reg is NULL");
-			hts_itr_t* iter = ::sam_itr_querys(idx, header->get(), reg);
-			if(iter==NULL) THROW_ERROR("cannot sam_itr_querys for "<< reg);
-			SamRecordIterator* it = new SamRecordIndexIterator(this->fp->get(),iter);
-			std::unique_ptr<SamRecordIterator> p(it);
-			return p; 
-			}
-		std::unique_ptr<SamRecordIterator> iterator() {
-			SamRecordIterator* iter = new SamRecordScanIterator(this->fp->get(),this->header->get());
-			std::unique_ptr<SamRecordIterator> p(iter);
-			return p; 
-			}
+		HtsIndex* idx;
+		SamFileReader();
+		virtual ~SamFileReader();
+		bool has_index();
+		bool read1(bam1_t* b);
+		bool read2(SamRecord* rec);
+		std::unique_ptr<SamRecord> read2();
+		std::unique_ptr<SamRecordIterator> query(const Locatable* loc);
+		std::unique_ptr<SamRecordIterator> query(const char* reg);
+		std::unique_ptr<SamRecordIterator> iterator();
 	};
-
-class SamFileReaderFactory {
-	private:
-		HtsThreadPool* threadPool;
-		std::string reference;
-		bool requires_index;
-	public:
-		SamFileReaderFactory():threadPool(NULL),requires_index(false) {
-			}
-		SamFileReaderFactory& threads(HtsThreadPool* threadPool) {
-			this->threadPool = threadPool;
-			return *this;
-			}
-		SamFileReaderFactory load_index(bool b) {
-			this->requires_index = b;
-			return *this;
-			}
-		std::unique_ptr<SamFileReader> open(const char* filename) {
-        	samFile* fp = sam_open_format(filename, "r", NULL);
-		    if (fp== NULL) {
-		       THROW_ERROR("Cannot open " << filename);
-		    	}
-		   
-		    if (!!hts_set_opt(fp, CRAM_OPT_DECODE_MD, 0)) {
-		        THROW_ERROR("Failed to set CRAM_OPT_DECODE_MD value.");
-		   		}
-			if(threadPool!=NULL) threadPool->bind(fp);
-			
-		    std::unique_ptr<SamFileHeader> header= SamFileHeader::read(fp);
-			
-			hts_idx_t *idx = NULL;
-			if(this->requires_index) {
-				idx = ::sam_index_load(fp,filename);
-				if(idx==NULL) {
-					THROW_ERROR("Cannot load index for " << filename);
-					}
-				}
-			
-			SamFileReader* sfr=new SamFileReader;
-			sfr->fp.reset(new SamFile(fp));
-			sfr->header.swap(header);
-			
-			
-			
-			std::unique_ptr<SamFileReader> r(sfr);
-			
-			return r;
-			}
-	};
-
 
 
 #endif

@@ -31,6 +31,8 @@ grammars/$(1)/$(1).tab.cpp :grammars/$(1)/$(1).y grammars/$(1)/$(1).hh
 endef
 
 
+API_OBJECTS=SamFileReaderFactory SamFileReader HtsFile SamFileHeader HtsIdx Path KString
+
 OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader HtsThreadPool utils tests Regex \
 	$(addprefix selgt,$(LEX_YACC_OBJ)) \
 	$(addprefix distance_parser,$(LEX_YACC_OBJ)) \
@@ -51,6 +53,10 @@ OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader
 
 %.o: %.cpp
 	$(CC) -c -o $@ $(CFLAGS) $<
+%.pico:%.cpp
+	$(CC) -c -o $@ $(CFLAGS) $<
+
+hts++.a: $(sort $(addsuffix .o,$(API_OBJECTS))) $(HTSDIR)/libhts.a
 
 
 all: ../bin/hts++ ../README.md tests2
@@ -74,6 +80,13 @@ SamFileWriter.hh: HtsThreadPool.hh
 
 SamFileReader.o : SamFileReader.cpp SamFileReader.hh HtsThreadPool.hh SamRecord.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
+
+SamFileReaderFactory.o : SamFileReaderFactory.cpp SamFileReaderFactory.hh SamFileReader.hh
+	$(CC) -c -o $@ $(CFLAGS) $<
+
+HtsFile.o:  HtsFile.cpp HtsFile.hh
+	$(CC) -c -o $@ $(CFLAGS) $<
+
 
 Cigar.o: Cigar.cpp Cigar.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
