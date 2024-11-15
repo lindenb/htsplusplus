@@ -1,4 +1,4 @@
-#include "CigarOpeator.hh"
+#include "CigarOperator.hh"
 #include "debug.hh"
 
 using namespace htspp;
@@ -57,3 +57,9 @@ const CigarOperator* CigarOperator::of(char c) {
 		}
 	}
 
+bool CigarOperator::consumesReadBases(char c) {
+    return of(c)->CigarOperator::consumesReadBases();
+    }
+bool CigarOperator::consumesReferenceBases(char c) {
+    return of(c)->CigarOperator::consumesReferenceBases();
+    }

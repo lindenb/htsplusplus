@@ -1,5 +1,3 @@
-#ifndef CIGAR_HH
-#define CIGAR_HH
 #include <vector>
 #include <string>
 #include <sstream>
@@ -8,17 +6,28 @@
 
 using namespace htspp;
 
-CigarIterator::CigarIterator(bam1_t* b):i(0),n_cigar(b->core.n_cigar),cigar(bam_get_cigar(b)),letter('\0'),length(0) {
+CigarIterator::CigarIterator(bam1_t* b):i(-1),n_cigar(b->core.n_cigar),cigar(bam_get_cigar(b)),_letter('\0'),_length(0) {
 			}
-			
-		const CigarOperator* CigarIterator::op() {
-			return CigarOperator::of(this->letter);
+
+const CigarOperator* CigarIterator::op() {
+			return CigarOperator::of(letter());
 			}
-			
-		bool CigarIterator::next() {
-			if(i>=n_cigar) return false;
-			this->length = bam_cigar_oplen(cigar[i]);
-			this->letter = bam_cigar_opchr(cigar[i]);
-			++i;
+
+bool CigarIterator::next() {
+			i++;
+			if(i>=n_cigar) {
+    	    		this->_length = 0;
+    			    this->_letter = '\0';
+			        return false;
+			        }
+			this->_length = bam_cigar_oplen(cigar[i]);
+			this->_letter = bam_cigar_opchr(cigar[i]);
 			return true;
 			}
+
+char CigarIterator::letter() {
+    return _letter;
+    }
+int CigarIterator::length() {
+    return _length;
+    }

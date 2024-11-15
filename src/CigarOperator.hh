@@ -28,6 +28,8 @@ class CigarOperator {
 		bool consumesReadBases() const;
 		bool consumesReferenceBases();
 		static  const CigarOperator* of(char c);
+		static bool consumesReadBases(char c);
+		static bool consumesReferenceBases(char c);
 	};
 
 }

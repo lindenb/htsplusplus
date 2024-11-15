@@ -6,17 +6,23 @@
 #include "htslib/sam.h"
 #include "CigarOperator.hh"
 
+namespace htspp {
+
 class CigarIterator {
 	private:
 		int i;
 		int n_cigar;
 	 	uint32_t *cigar;
+		char _letter;
+		int _length;
 	public:
-		char letter;
-		int length;
+		char letter();
+		int length();
 		CigarIterator(bam1_t* b);
 		const CigarOperator* op();
 		bool next();
 	};
+
+}
 
 #endif

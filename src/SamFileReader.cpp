@@ -1,6 +1,7 @@
 #include "SamFileReader.hh"
 
 using namespace htspp;
+using namespace std;
 
 class AbstractSamRecordIter : public SamRecordIterator
 	protected:
@@ -93,6 +94,7 @@ class SamRecordIndexIterator: public AbstractSamRecordIter {
 			std::string str = loc->to_string();
 			return query(str.c_str());
 			}
+
 		std::unique_ptr<SamRecordIterator> SamFileReader::query(const char* reg) {
 			if(reg==NULL) THROW_ERROR("reg is NULL");
 			hts_itr_t* iter = ::sam_itr_querys(idx->get(), header->get(), reg);
@@ -101,6 +103,7 @@ class SamRecordIndexIterator: public AbstractSamRecordIter {
 			std::unique_ptr<SamRecordIterator> p(it);
 			return p;
 			}
+
 		std::unique_ptr<SamRecordIterator> SamFileReader::iterator() {
 			SamRecordIterator* iter = new SamRecordScanIterator(this);
 			std::unique_ptr<SamRecordIterator> p(iter);

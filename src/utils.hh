@@ -16,6 +16,8 @@
 
 #define FLAG_NULL_ON_ERROR 1
 
+namespace htspp {
+
 struct stdio_file_closer
 	{
     void operator()(std::FILE* fp) const {
@@ -209,5 +211,7 @@ class IoUtils {
         static std::vector<std::string> unroll(int argc,char** argv,int optind); 
 	};
 
+
+}
 #endif
 

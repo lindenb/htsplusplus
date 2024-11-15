@@ -1,11 +1,14 @@
 #ifndef SAM_FILE_HEADER_HH
 #define SAM_FILE_HEADER_HH
+
 #include <set>
 #include <memory>
 #include <htslib/hts.h>
 #include <htslib/sam.h>
 //#include "HtsFile.hh"
 #include "utils.hh"
+
+namespace htspp {
 
 class SamFileHeader:public Pointer<sam_hdr_t> {
 	protected:
@@ -26,6 +29,8 @@ class SamFileHeader:public Pointer<sam_hdr_t> {
 		static std::unique_ptr<SamFileHeader> read(samFile *fp,int flag);
 		static std::unique_ptr<SamFileHeader> wrap(sam_hdr_t *header);
 	};
+
+}
 
 #endif
 

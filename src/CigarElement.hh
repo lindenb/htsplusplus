@@ -18,7 +18,7 @@ class CigarElement {
 		virtual const CigarOperator* op() const;
 		virtual char letter() const;
 		virtual hts_pos_t length() const;
-		virtual std::ostream& print(std::ostream& out);
+		virtual std::ostream& print(std::ostream& out) const;
 		virtual std::string to_string();
 	};
 

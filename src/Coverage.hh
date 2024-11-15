@@ -2,7 +2,7 @@
 #define COVERAGE_HH
 #include "Interval.hh"
 
-
+namespace htspp {
 
 class Coverage : public Interval {
 	public:
@@ -24,5 +24,7 @@ class Coverage : public Interval {
 			return cov[idx - start()];
 			}
 	};
+
+}
 
 #endif

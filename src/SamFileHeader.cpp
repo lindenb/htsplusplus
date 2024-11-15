@@ -3,6 +3,7 @@
 #include "debug.hh"
 
 using namespace std;
+using namespace xpp;
 
 SamFileHeader::SamFileHeader( sam_hdr_t *header):Pointer(header) {
 			}
