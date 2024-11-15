@@ -54,13 +54,13 @@ class Pointer : public Object {
 			}
 		virtual ~Pointer() {
 			}
-		virtual T* get() {
+		virtual T* get() const {
 			return ptr;
 			}
-		virtual bool is_null() {
+		virtual bool is_null() const {
 			return get()==NULL;
 			}
-		virtual bool is_not_null() {
+		virtual bool is_not_null() const {
 			return !this->is_null();
 			}
 		void set_null() {

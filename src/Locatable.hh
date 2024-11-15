@@ -7,6 +7,8 @@
 #include <htslib/hts.h>
 #include "utils.hh"
 
+namespace htspp {
+
 class Locatable {
 	public:
 		Locatable() {}
@@ -37,5 +39,6 @@ class Locatable {
 			}
 	};
 
+}
 
 #endif

@@ -32,7 +32,7 @@ grammars/$(1)/$(1).tab.cpp :grammars/$(1)/$(1).y grammars/$(1)/$(1).hh
 endef
 
 
-API_OBJECTS=SamFileReaderFactory SamFileReader HtsFile SamFileHeader HtsIdx Path KString Regex  SamRecordIterator Interval
+API_OBJECTS=SamFileReaderFactory SamFileReader HtsFile SamFileHeader HtsIdx Path KString Regex AbstractSamRecord SamRecord SamRecordIterator Interval
 
 OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader HtsThreadPool utils tests Regex \
 	$(addprefix selgt,$(LEX_YACC_OBJ)) \
