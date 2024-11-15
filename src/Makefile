@@ -1,6 +1,7 @@
 HTSDIR?=../../htslib
 HTSLIB_CPPFLAGS?= -I$(HTSDIR)
-CFLAGS=-I. $(HTSLIB_CPPFLAGS) -c -Wall -g -std=gnu++0x
+CFLAGS=-I. $(HTSLIB_CPPFLAGS) -c -Wall -g -std=c++11
+EXTRA_CFLAGS_PIC = -fpic
 LDFLAGS=$(HTSLIB_LDFLAGS)  -lz -lm -lbz2 -llzma -lcurl -lpthread
 LEX_YACC_OBJ=_main .tab .lex.yy
 CC=g++
@@ -31,7 +32,7 @@ grammars/$(1)/$(1).tab.cpp :grammars/$(1)/$(1).y grammars/$(1)/$(1).hh
 endef
 
 
-API_OBJECTS=SamFileReaderFactory SamFileReader HtsFile SamFileHeader HtsIdx Path KString
+API_OBJECTS=SamFileReaderFactory SamFileReader HtsFile SamFileHeader HtsIdx Path KString Regex  SamRecordIterator Interval
 
 OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader HtsThreadPool utils tests Regex \
 	$(addprefix selgt,$(LEX_YACC_OBJ)) \
@@ -54,10 +55,10 @@ OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader
 %.o: %.cpp
 	$(CC) -c -o $@ $(CFLAGS) $<
 %.pico:%.cpp
-	$(CC) -c -o $@ $(CFLAGS) $<
+	$(CC) -c -o $@ $(CFLAGS) $(EXTRA_CFLAGS_PIC) $<
 
-hts++.a: $(sort $(addsuffix .o,$(API_OBJECTS))) $(HTSDIR)/libhts.a
-
+libhts++.so: $(sort $(addsuffix .pico,$(API_OBJECTS)))
+	gcc -shared -fvisibility=hidden -o $@ $^ $(LDFLAGS) -lhts
 
 all: ../bin/hts++ ../README.md tests2
 

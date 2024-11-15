@@ -10,7 +10,9 @@
 
 /** prevent java syntax from failing ...*/
 #define final
-
+#define boolean bool
+#define null NULL
+#define abstract virtual
 
 #define FLAG_NULL_ON_ERROR 1
 
@@ -34,8 +36,14 @@ struct stdlib_free
 	};
 
 
+class Object {
+	public:
+		Object() {}
+		virtual ~Object() {}
+	};
+
 template<typename T>
-class Pointer {
+class Pointer : public Object {
 	public:
 		T* ptr;
 		Pointer():ptr(NULL) {
@@ -47,7 +55,16 @@ class Pointer {
 		virtual T* get() {
 			return ptr;
 			}
-	};
+		virtual bool is_null() {
+			return get()==NULL;
+			}
+		virtual bool is_not_null() {
+			return !this->is_null();
+			}
+		void set_null() {
+			ptr=NULL;
+			}
+		};
 
 template<typename T>
 class Iterator {
@@ -172,7 +189,7 @@ class CoordMath {
 
 class StringUtils {
 	public:
-		static bool isBlank(const char* s);
+	static bool isBlank(const char* s);
         static bool startsWith(const char* s,const char* prefix);
         static bool endsWith(const char* s,const char* suffix);
 	};

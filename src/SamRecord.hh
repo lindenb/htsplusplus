@@ -7,6 +7,7 @@
 #include "SamFileHeader.hh"
 #include "Cigar.hh"
 
+namespace htspp {
 
 struct AlignmentBlock {
     hts_pos_t readStart;
@@ -149,14 +150,20 @@ class AbstractSamRecord {
 class SamRecord : public AbstractSamRecord {
 	public:
 		bam1_t* b;
-
-		SamRecord():b(::bam_init1()) {
+		SamFileHeader* header;
+		SamRecord():b(::bam_init1()):header(NULL) {
 			if(b==NULL) {
 				THROW_ERROR("Out of memory.");
 				}
 
 			}
-		SamRecord(const SamRecord& cp):b(::bam_dup1(cp.b)) {
+		SamRecord(SamFileHeader* header):b(::bam_init1()):header(header) {
+			if(b==NULL) {
+				THROW_ERROR("Out of memory.");
+				}
+
+			}
+		SamRecord(const SamRecord& cp):b(::bam_dup1(cp.b)),header(cp.header) {
 			if(b==NULL) {
 				THROW_ERROR("Out of memory.");
 				}
@@ -171,5 +178,10 @@ class SamRecord : public AbstractSamRecord {
 			return std::unique_ptr<SamRecord>(new SamRecord(*this));
 			}
 		};
+
+
+
+}
+
 #endif
 

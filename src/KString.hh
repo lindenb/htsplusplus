@@ -1,6 +1,7 @@
 #ifndef KSTRING_HH
 #define KSTRING_HH
 #include <htslib/hts.h>
+
 class KString {
 	public:
 		kstring_t ks;
@@ -8,6 +9,7 @@ class KString {
 		KString(const char* s);
 		KString(const KString& cp);
 		virtual ~KString();
+		char operator[](int i);
 		char* c_str();
 	};
 

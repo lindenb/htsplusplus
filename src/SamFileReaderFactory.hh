@@ -9,22 +9,25 @@
 #include "SamFileReader.hh"
 #include "Coverage.hh"
 
+namespace htspp {
 
 class SamFileReaderFactory {
 	private:
 		HtsThreadPool* threadPool;
-		std::string reference;
+		std::string _reference;
 		bool requires_index;
 	protected:
 	  virtual SamFileReader* createNewSamFileReader();
 	public:
 		SamFileReaderFactory();
 		virtual ~SamFileReaderFactory();
-		SamFileReaderFactory& threads(HtsThreadPool* threadPool);
-		SamFileReaderFactory& load_index(bool b);
-		SamFileReader* open(const char* filename,int flags);
+		virtual SamFileReaderFactory& threads(HtsThreadPool* threadPool);
+		virtual SamFileReaderFactory& load_index(bool b);
+		virtual SamFileReaderFactory& reference(const char* fasta);
+		virtual std::unique_ptr<SamFileReader> open(const char* filename,const char* bai);
 	};
 
+}
 
 
 #endif

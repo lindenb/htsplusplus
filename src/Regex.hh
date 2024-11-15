@@ -3,23 +3,15 @@
 
 #include <memory>
 #include "utils.hh"
-#include <regex.h> 
+#include <regex.h>
 
 class Regex {
 	private:
 		regex_t regex;
-		Regex() {
-			}
+		Regex();
 	public:
-		virtual ~Regex() {
-			::regfree(&regex);
-			}
-		
-
-			
-		bool matches(const char* s) {
-			return (::regexec(&regex,s,0,NULL,0)==0);
-			}
+		virtual ~Regex();
+		bool matches(const char* s);
 		static std::unique_ptr<Regex> compile(const char* s,int flags);
 		/** parse flag for regexcmp as string, multipe separated by space, comma etc.. */
 		static int parse_flags(const char* s);

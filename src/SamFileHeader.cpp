@@ -2,29 +2,27 @@
 #include "SamFileHeader.hh"
 #include "debug.hh"
 
+using namespace std;
 
-
-SamFileHeader::SamFileHeader( sam_hdr_t *header):header(header) {
+SamFileHeader::SamFileHeader( sam_hdr_t *header):Pointer(header) {
 			}
 
 SamFileHeader::~SamFileHeader() {
-			if(header!=NULL) ::sam_hdr_destroy(header);
 			}
-	void SamFileHeader::write(htsFile* fp) {
-		if ( fp==NULL || header==NULL || ::sam_hdr_write(fp, header)!=0 ) {
+
+void SamFileHeader::write(htsFile* fp) {
+		if ( fp==NULL || this->ptr==NULL || ::sam_hdr_write(fp, get())!=0 ) {
 			THROW_ERROR("Cannot write SAM header");
 			}
 		}
-		sam_hdr_t* SamFileHeader::get() {
-			return header;
-			}
 		sam_hdr_t* SamFileHeader::operator()() {
 			return get();
 			}
+
 		const char* SamFileHeader::tid2name(int tid) {
 			return ::sam_hdr_tid2name(get(),tid);
 			}
-		/*  Returns the value associated with a given '@HD' line tag */
+/*  Returns the value associated with a given '@HD' line tag */
 std::unique_ptr<std::string> SamFileHeader::find_tag_hd(const char* tag)
 			{
 			std::string* ret = NULL;
@@ -69,16 +67,29 @@ std::set<std::string> SamFileHeader::samples() {
 				    int r = ::sam_hdr_find_tag_pos(get(), "RG", i, "SM", &sm_val);
 				    if (r < 0) continue;
 				    std::string sample(ks_str(&sm_val));
-				    _samples.insert(sample);    
+				    _samples.insert(sample);
 					}
 				ks_free(&sm_val);
 				return _samples;
 				}
 
+class SamFileHeader2 : public SamFileHeader {
+    bool free_on_close;
+    public:
+        SamFileHeader2(sam_hdr_t* h,bool free_on_close):SamFileHeader(h),free_on_close(free_on_close) {}
+        virtual ~SamFileHeader2() {
+            if(ptr!=NULL && free_on_close) ::sam_hdr_destroy(ptr);
+            }
+    };
 
 
-SamFileHeader* SamFileHeader::read(samFile *fp,int flags) {
+std::unique_ptr<SamFileHeader> SamFileHeader::read(samFile *fp,int flags) {
 			sam_hdr_t *header = ::sam_hdr_read(fp);
-			return header==NULL?NULL:new SamFileHeader(header);
+			return std::unique_ptr<SamFileHeader>(header==NULL?NULL:new SamFileHeader2(header, true));
+			}
+
+
+std::unique_ptr<SamFileHeader> SamFileHeader::wrap(sam_hdr_t* header) {
+			return std::unique_ptr<SamFileHeader>(header==NULL?NULL:new SamFileHeader2(header,false));
 			}
 

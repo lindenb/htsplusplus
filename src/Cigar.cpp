@@ -1,48 +1,34 @@
 #include "Cigar.hh"
 #include "debug.hh"
 
-    /** Match or mismatch */
-const CigarOperator* CigarOperator::M = new CigarOperator(true, true,   'M');
-    /** Insertion vs. the reference. */
-const CigarOperator* CigarOperator::I = new CigarOperator(true, false,  'I');
-    /** Deletion vs. the reference. */
-const CigarOperator* CigarOperator::D = new CigarOperator(false, true,  'D');
-    /** Skipped region from the reference. */
-const CigarOperator* CigarOperator::N = new CigarOperator(false, true,  'N');
-    /** Soft clip. */
-const CigarOperator* CigarOperator::S = new CigarOperator(true, false,  'S');
-    /** Hard clip. */
-const CigarOperator* CigarOperator::H = new CigarOperator(false, false, 'H');
-    /** Padding. */
-const CigarOperator* CigarOperator::P = new CigarOperator(false, false, 'P');
-    /** Matches the reference. */
-const CigarOperator* CigarOperator::EQ = new CigarOperator(true, true,  '=');
-    /** Mismatches the reference. */
-const CigarOperator* CigarOperator::X = new CigarOperator(true, true,   'X');
 
+using namespace htspp;
 
+               	Cihar::Cigar(bam1_t* b) {
+                        CigarIterator iter(b);
+                        elements.reserve(b->core.n_cigar);
+                        while(iter.next()) {
+                                elements.push_back(new CigarElement(iter.letter, iter.length));
+                                }
+                        }
+                Cigar::~Cigar() {
+                        for(unsigned int i=0;i< elements.size();i++) {
+                                delete elements[i];
+                                }
+                        }
+                bool Cigar::empty() const {
+                        return elements.empty();
+                        }
+                unsigned int Cigar::size() const {
+                        return elements.size();
+                        }
+                CigarElement* Cigar::at(unsigned int idx) const {
+                        return elements.at(idx);
+                        }
+                std::ostream& Cigar::print(std::ostream& out) const {
+                        for(unsigned int i=0; i< size();i++) {
+                                at(i)->print(out);
+                                }
+                        return out;
+                        }
 
-const CigarOperator* CigarOperator::of(char c) {
-	switch(c) {
-		case 'M':
-            return CigarOperator::M;
-        case 'I':
-            return CigarOperator::I;
-        case 'D':
-            return CigarOperator::D;
-        case 'N':
-            return CigarOperator::N;
-        case 'S':
-            return CigarOperator::S;
-        case 'H':
-            return CigarOperator::H;
-        case 'P':
-            return CigarOperator::P;
-        case '=':
-            return CigarOperator::EQ;
-        case 'X':
-            return CigarOperator::X;
-        default:
-			THROW_ERROR("Bad cigar char " << c);
-		}
-	}

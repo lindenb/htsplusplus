@@ -1,5 +1,7 @@
 #include "SamFileReaderFactory.hh"
 
+using namespace std;
+using namespace htspp;
 
 SamFileReader* SamFileReaderFactory::createNewSamFileReader() {
 	    return new SamFileReader;
@@ -16,14 +18,20 @@ SamFileReaderFactory& SamFileReaderFactory::load_index(bool b) {
 		this->requires_index = b;
 		return *this;
 		}
+
+SamFileReaderFactory& SamFileReaderFactory::reference(const char* fasta) {
+		this->_reference.assign(fasta);
+		return *this;
+		}
+
 		
 SamFileReaderFactory::~SamFileReaderFactory() {
   }
 
-SamFileReader* SamFileReaderFactory::open(const char* filename,int flags) {
-      SamFileReader* sfr = createNewSamFileReader();
+unique_ptr<SamFileReader> SamFileReaderFactory::open(const char* filename,const char* bai) {
+      unique_ptr<SamFileReader> sfr(createNewSamFileReader());
       sfr->fp = HtsFile::open(filename, "rb");
-		    if (sfr->fp== NULL) {
+		    if (!(sfr->fp)) {
 		       THROW_ERROR("Cannot open " << filename);
 		    	}
 		   
@@ -31,25 +39,28 @@ SamFileReader* SamFileReaderFactory::open(const char* filename,int flags) {
 		        THROW_ERROR("Failed to set CRAM_OPT_DECODE_MD value.");
 		   		}
 			if(threadPool!=NULL) threadPool->bind(sfr->fp->fp);
-			sfr->header= SamFileHeader::read(sfr->fp->fp,flags);
-			if(sfr->header==NULL) {
+			sfr->header = SamFileHeader::read(sfr->fp->fp,0);
+			if(!sfr->header) {
 			     THROW_ERROR("Cannot read header");
 					goto error;
 					}
 			
 			if(this->requires_index) {
 				sfr->idx = HtsIndex::load(filename,0,0);
-				if(sfr->idx==NULL) {
+				if(!sfr->idx) {
 					THROW_ERROR("Cannot load index for " << filename);
 					goto error;
 					}
 				}
+		    if(!_reference.empty()) {
+            if (hts_set_fai_filename(sfr->fp->get(),_reference.c_str()) != 0) {
+  			
+                }
+            }
 			
+			  return sfr;
 
-			
-			return sfr;
-			  
 			error:
-			  if(sfr!=NULL) delete sfr;
-			  return NULL;
+			unique_ptr<SamFileReader> p2;
+			  return p2;
 			}

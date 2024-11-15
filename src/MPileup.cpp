@@ -1,35 +1,36 @@
+#include <memory>
+#include <climits>
+#include "utils.hh"
 #include "MPileup.hh"
+
+using namespace std;
+using namespace htspp;
 
 static int _read_bam(void *data, bam1_t *b) {
 	MPileup* owner=(MPileup*)data;
   return owner->read(b);
 	}
 
-MPileup::MPileup():mplp(NULL) {
+MPileup::MPileup():max_depth(INT_MAX) {
 }
 
-MPileup::init() {
-  mplp = bam_mplp_init(n_bam_files, _read_bam, (void**)this); // initialization
-    if (max_depth > 0)
-        bam_mplp_set_maxcnt(mplp, max_depth);  // set maximum coverage depth
-    else if (!max_depth)
-        bam_mplp_set_maxcnt(mplp, INT_MAX);
-	}
+
+void MPileup::scan(vector<SamFileReader*> readers) {
+  int ret;
+  bam_mplp_t mplp = bam_mplp_init(readers.size() , _read_bam, (void**)this); // initialization
+  bam_mplp_set_maxcnt(mplp, max_depth);  // set maximum coverage depth
+  int tid;
+  hts_pos_t pos;
+
+  std::vector<int> n_plp(readers.size(),0);
+  std::vector<bam_pileup1_t*> plp(readers.size(),NULL);
+ while ((ret=bam_mplp64_auto(mplp, &tid, &pos, const_cast<int*>(n_plp.data()), (const bam_pileup1_t**)plp.data() )) > 0) { // come to the next covered position
+  report(readers,tid,pos,n_plp,plp);
+  }
+bam_mplp_destroy(mplp);
+}
 
 MPileup::~MPileup() {
- dispose();
- 
-void MPileup::dispose() {
-if (mplp!=NULL) bam_mplp_destroy(mplp);
-mplp=NULL;
 }
 
-void MPileup::scan() {
- int** n_plp = (int*) calloc(n_bam_files, sizeof(int*)); // n_plp[i] is the number of covering reads from the i-th BAM
- const bam_pileup1_t** plp = (const bam_pileup1_t**) calloc(n_bam_files, sizeof(bam_pileup1_t*)); // plp[i] points to the array of covering reads (internal in mplp)
- while ((ret=bam_mplp_auto(mplp, &tid, &pos, n_plp, plp)) > 0) { // come to the next covered position
-  report();
-  }
-if (n_plp) free(n_plp);
-if (plp) free(plp);
-}
+

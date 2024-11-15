@@ -2,6 +2,18 @@
 #include "debug.hh"
 #include "utils.hh"
 
+Regex::Regex() {
+    }
+                                                                    
+Regex::~Regex() {
+    ::regfree(&regex);
+    }
+
+bool Regex::matches(const char* s) {
+    return (::regexec(&regex,s,0,NULL,0)==0);
+    }
+
+
 std::unique_ptr<Regex> Regex::compile(const char* s,int flags) {
 	ASSERT_NOT_NULL(s);
 	Regex* r = new Regex();
