@@ -3,6 +3,8 @@
 #include <string>
 #include "Locatable.hh"
 #include "Comparable.hh"
+namespace htspp {
+
 class Interval : public Locatable, Comparable<Interval> {
 	private:
 		std::string ctg;
@@ -35,5 +37,6 @@ class Interval : public Locatable, Comparable<Interval> {
 	};
 
 std::ostream& operator << (std::ostream& out,const Interval& o);
+}
 
 #endif

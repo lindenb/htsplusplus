@@ -7,6 +7,7 @@ using namespace htspp;
 			ASSERT_NOT_NULL(b);
 			return b;
 			}
+			
 		AbstractSamRecord::AbstractSamRecord() {
 			}
 		AbstractSamRecord::~AbstractSamRecord() {

@@ -1,5 +1,6 @@
 HTSDIR?=../../htslib
 HTSLIB_CPPFLAGS?= -I$(HTSDIR)
+HTSLIB_LDFLAGS?= -L$(HTSDIR)
 CFLAGS=-I. $(HTSLIB_CPPFLAGS) -c -Wall -g -std=c++11
 EXTRA_CFLAGS_PIC = -fpic
 LDFLAGS=$(HTSLIB_LDFLAGS)  -lz -lm -lbz2 -llzma -lcurl -lpthread
@@ -32,7 +33,8 @@ grammars/$(1)/$(1).tab.cpp :grammars/$(1)/$(1).y grammars/$(1)/$(1).hh
 endef
 
 
-API_OBJECTS=SamFileReaderFactory SamFileReader HtsFile SamFileHeader HtsIdx Path KString Regex AbstractSamRecord SamRecord SamRecordIterator Interval
+API_OBJECTS=SamFileReaderFactory SamFileReader HtsFile SamFileHeader HtsIdx Path KString Regex AbstractSamRecord SamRecord SamRecordIterator Interval CharSplitter \
+	GetOpt CigarOperator Cigar CigarIterator CigarElement CoordMath Locatable StringUtils SamSequenceDictionary
 
 OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader HtsThreadPool utils tests Regex \
 	$(addprefix selgt,$(LEX_YACC_OBJ)) \
@@ -56,6 +58,9 @@ OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader
 	$(CC) -c -o $@ $(CFLAGS) $<
 %.pico:%.cpp
 	$(CC) -c -o $@ $(CFLAGS) $(EXTRA_CFLAGS_PIC) $<
+
+a.out: Test.cpp libhts++.so
+	LD_LIBRARY_PATH=${PWD} $(CC) -o $@ -Wall -I. -I$(HTSDIR) $(LDFLAGS) -L. $< -lhts++ -lhts
 
 libhts++.so: $(sort $(addsuffix .pico,$(API_OBJECTS)))
 	gcc -shared -fvisibility=hidden -o $@ $^ $(LDFLAGS) -lhts

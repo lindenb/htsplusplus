@@ -14,47 +14,24 @@ class SamRecord : public Locatable, public AbstractSamRecord {
 		bam1_t* b;
 		SamFileHeader* header;
 
-		bam1_t* get() {return b;}
-		bam1_t* get() const {return b;}
+		bam1_t* get() const;
+		bam1_t* get();
 
-		SamRecord():b(::bam_init1()),header(NULL) {
-			if(b==NULL) {
-				THROW_ERROR("Out of memory.");
-				}
+		SamRecord();
+		SamRecord(SamFileHeader* header);
 
-			}
-		SamRecord(SamFileHeader* header):b(::bam_init1()),header(header) {
-			if(b==NULL) {
-				THROW_ERROR("Out of memory.");
-				}
+	
+		SamRecord(const SamRecord& cp);
 
-			}
-		SamRecord(const SamRecord& cp):b(::bam_dup1(cp.b)),header(cp.header) {
-			if(b==NULL) {
-				THROW_ERROR("Out of memory.");
-				}
-			}
+		virtual ~SamRecord();
 
-		virtual ~SamRecord() {
-			if(b!=NULL) ::bam_destroy1(b);
-			}
-
-                virtual const char* contig() const;
-                virtual hts_pos_t start() const { return AbstractSamRecord::start();}
-                virtual hts_pos_t end() const;
-
-
-		std::unique_ptr<SamRecord> clone() {
-			return std::unique_ptr<SamRecord>(new SamRecord(*this));
-			}
-
+    virtual const char* contig() const;
+    virtual hts_pos_t start() const;
+    virtual hts_pos_t end() const;
+		virtual std::unique_ptr<SamRecord> clone();
 		SamRecord& operator=(const SamRecord& cp);
-
-		virtual std::ostream& print(std::ostream& out) const {
-			KString str;
-			if (sam_format1(header->get(), get(), str.get()) < 0);
-			return str.print(out);
-			}
+		virtual std::ostream& print(std::ostream& out) const ;
+		virtual std::string to_string() const;
 		};
 
 

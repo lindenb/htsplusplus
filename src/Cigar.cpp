@@ -51,3 +51,10 @@ Cigar::Cigar() {
     }
   return cig;
  }
+ 
+ std::string Cigar::to_string() {
+ 		 std::ostringstream os;
+ 		 print(os);
+ 		 return os.str();
+ }
+ 

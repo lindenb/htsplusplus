@@ -1,6 +1,9 @@
 #include "Regex.hh"
 #include "debug.hh"
 #include "utils.hh"
+#include "CharSplitter.hh"
+#include "StringUtils.hh"
+using namespace htspp;
 
 Regex::Regex() {
     }

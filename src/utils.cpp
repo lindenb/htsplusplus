@@ -19,8 +19,6 @@ bool CoordMath::overlaps(hts_pos_t start, hts_pos_t end, hts_pos_t start2,hts_po
 
 
 
-CharSplitter CharSplitter::TAB('\t');
-CharSplitter CharSplitter::COMMA(',');
 
 bool StringUtils::isBlank(const char* s) {
 	if(s==NULL) return true;

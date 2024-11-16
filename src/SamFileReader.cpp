@@ -3,29 +3,32 @@
 using namespace htspp;
 using namespace std;
 
-class AbstractSamRecordIter : public SamRecordIterator
+class AbstractSamRecordIter : public SamRecordIterator {
 	protected:
 		SamFileReader* owner;
 		AbstractSamRecordIter(SamFileReader* owner):owner(owner) {
-        		}
+			assert(owner!=NULL);
+		  }
 	public:
 		virtual ~AbstractSamRecordIter() {
 			owner=NULL;
 			}
+  virtual bool read(bam1_t* b)=0;
+  	
+  virtual bool read2(SamRecord* rec) {
+      assert(rec!=NULL);
+	    bool b= this->read(rec->get());
+      rec->header = (b?owner->header.get():NULL);
+      return b;
+    	}
 
-	        virtual bool SamFileReader::read2(SamRecord* rec) {
-        	    b= read1(rec->get());
-	            rec->header = header->get();
-        	    return b;
-            	    }
-
-	virtual std::unique_ptr<SamRecord> SamFileReader::read2() {
-            std::unique_ptr<SamRecord> rec = std::unique_ptr<SamRecord>(new SamRecord(header->get()));
-            if(!read2(rec.get())) {
-                rec.reset();
-                }
-	    return rec;
-            }
+	virtual std::unique_ptr<SamRecord> read2() {
+    std::unique_ptr<SamRecord> rec = std::unique_ptr<SamRecord>(new SamRecord(owner->header.get()));
+    if(!read2(rec.get())) {
+        rec.reset();
+        }
+		return rec;
+    }
 
 };
 
@@ -57,7 +60,7 @@ class SamRecordIndexIterator: public AbstractSamRecordIter {
 			}
 		virtual bool read(bam1_t* b) {
 			if(iter==NULL) return false;
-			int ret=::sam_itr_next(this->fp->get(),this->iter,b);
+			int ret=::sam_itr_next(owner->fp->get(),this->iter,b);
 			return ret>=0;
 			}
 	};
@@ -77,21 +80,20 @@ class SamRecordIndexIterator: public AbstractSamRecordIter {
 			return ret>=0;
 			}
 		bool SamFileReader::read2(SamRecord* rec) {
-			b= read1(rec->get());
-			rec->header = header->get();
+			bool b= read1(rec->get());
+			rec->header = header.get();
 			return b;
 			}
 
 		std::unique_ptr<SamRecord> SamFileReader::read2() {
-			std::unique_ptr<SamRecord> rec = std::unique_ptr<SamRecord>(new SamRecord(header->get()));
+			std::unique_ptr<SamRecord> rec = std::unique_ptr<SamRecord>(new SamRecord(header.get()));
 			if(!read2(rec.get())) {
 				rec.reset();
 				}
 			return rec;
 			}
-		std::unique_ptr<SamRecordIterator> SamFileReader::query(const Locatable* loc) {
-			if(loc==NULL) THROW_ERROR("loc is NULL");
-			std::string str = loc->to_string();
+		std::unique_ptr<SamRecordIterator> SamFileReader::query(const Locatable& loc) {
+			std::string str = loc.to_string();
 			return query(str.c_str());
 			}
 

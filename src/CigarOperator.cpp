@@ -23,12 +23,15 @@ const CigarOperator* CigarOperator::EQ = new CigarOperator(true, true,  '=');
 const CigarOperator* CigarOperator::X = new CigarOperator(true, true,   'X');
 
 
-CigarOperator::CigarOperator(bool consumesReadBases, bool consumesReferenceBases, char c):_consumesReadBases(consumesReadBases),_consumesReferenceBases(consumesRef$
-                        }
+CigarOperator::CigarOperator(bool consumesReadBases, bool consumesReferenceBases, char c):
+	_consumesReadBases(consumesReadBases),
+	_consumesReferenceBases(consumesReadBases),
+	_character(c) {
+ }
 
-                char CigarOperator::getc() const { return _character;}
-                bool CigarOperator::consumesReadBases() const { return _consumesReadBases;}
-                bool CigarOperator::consumesReferenceBases() const { return _consumesReferenceBases;}
+char CigarOperator::getc() const { return _character;}
+bool CigarOperator::consumesReadBases() const { return _consumesReadBases;}
+bool CigarOperator::consumesReferenceBases() const { return _consumesReferenceBases;}
 
 
 

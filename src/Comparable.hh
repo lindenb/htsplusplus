@@ -1,5 +1,7 @@
 #ifndef COMPARABLE_HH
 #define COMPARABLE_HH
+
+namespace htspp {
 template<typename T>
 class Comparable {
 	public:
@@ -14,5 +16,6 @@ class Comparable {
 	virtual bool operator >= (const CLAZZ& cp) const { return this->compareTo(cp) >= 0; } \
 	virtual bool operator == (const CLAZZ& cp) const { return this->compareTo(cp) == 0; } \
 	virtual bool operator != (const CLAZZ& cp) const { return this->compareTo(cp) != 0; }
+}
 
 #endif

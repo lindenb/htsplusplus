@@ -3,7 +3,7 @@
 #include "debug.hh"
 
 using namespace std;
-using namespace xpp;
+using namespace htspp;
 
 SamFileHeader::SamFileHeader( sam_hdr_t *header):Pointer(header) {
 			}
@@ -16,13 +16,7 @@ void SamFileHeader::write(htsFile* fp) {
 			THROW_ERROR("Cannot write SAM header");
 			}
 		}
-		sam_hdr_t* SamFileHeader::operator()() {
-			return get();
-			}
 
-		const char* SamFileHeader::tid2name(int tid) {
-			return ::sam_hdr_tid2name(get(),tid);
-			}
 /*  Returns the value associated with a given '@HD' line tag */
 std::unique_ptr<std::string> SamFileHeader::find_tag_hd(const char* tag)
 			{
@@ -58,7 +52,11 @@ bool SamFileHeader::is_coordinate_sorted() {
 void SamFileHeader::assert_coordinate_sorted() {
 			assert_sort_order("coordinate");
 			}
-	
+
+const char* SamFileHeader::tid2name(int tid) const {
+	return ::sam_hdr_tid2name(get(), tid);
+	}
+
 std::set<std::string> SamFileHeader::samples() {
 				std::set<std::string> _samples;
 				/* get the RG lines */

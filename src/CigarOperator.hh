@@ -24,9 +24,9 @@ class CigarOperator {
 		static const CigarOperator* EQ;
 
 		CigarOperator(bool consumesReadBases, bool consumesReferenceBases, char c);
-		char getc();
+		char getc() const;
 		bool consumesReadBases() const;
-		bool consumesReferenceBases();
+		bool consumesReferenceBases() const;
 		static  const CigarOperator* of(char c);
 		static bool consumesReadBases(char c);
 		static bool consumesReferenceBases(char c);

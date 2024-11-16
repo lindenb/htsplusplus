@@ -5,6 +5,7 @@ using namespace htspp;
 
 
 Locatable::Locatable() {}
+Locatable::~Locatable() {}
 
 		 bool Locatable::has_contig(const char* ctg) const {
 			return ctg!=NULL && std::strcmp(ctg,contig())==0;

@@ -27,7 +27,7 @@ class SamFileReader {
 		bool read1(bam1_t* b);
 		bool read2(SamRecord* rec);
 		std::unique_ptr<SamRecord> read2();
-		std::unique_ptr<SamRecordIterator> query(const Locatable* loc);
+		std::unique_ptr<SamRecordIterator> query(const Locatable& loc);
 		std::unique_ptr<SamRecordIterator> query(const char* reg);
 		std::unique_ptr<SamRecordIterator> iterator();
 	};

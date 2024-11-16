@@ -1,5 +1,6 @@
 #ifndef UTILS_HH
 #define UTILS_HH
+#include <cassert>
 #include <cstdlib>
 #include <cstdio>
 #include <memory>
@@ -7,6 +8,7 @@
 #include <string>
 #include <htslib/hts.h>
 #include "Path.hh"
+
 
 /** prevent java syntax from failing ...*/
 #define final
@@ -57,8 +59,13 @@ class Pointer : public Object {
 		virtual T* get() const {
 			return ptr;
 			}
+
 		virtual bool is_null() const {
 			return get()==NULL;
+			}
+		virtual T* require_not_null() const {
+		  //TODO check null
+		  return get();
 			}
 		virtual bool is_not_null() const {
 			return !this->is_null();
@@ -124,77 +131,8 @@ class AbstractList {
 			}
 	};
 
-class CharSplitter {
-	private:
-		std::string delims;
-	protected:
-		virtual bool match(char c) const {
-			return  delims.find(c)!=std::string::npos ;
-			}
-	public:
-		CharSplitter(char delim):delims() {
-			delims+=delim;
-			}
-		CharSplitter(std::string delims):delims(delims) {
-			}
-		
-		std::vector<std::string>::size_type split(std::string s,std::vector<std::string>& v,int limit) const {
-			std::string::size_type prev=0UL,i=0UL, len = s.size();
-			//remove trailing
-			while(len>0UL && match(s[len-1])) {
-				len--;
-				}
-			if(limit==1) {
-				v.push_back(s.substr(0,len));
-				return v.size();
-				}
-			for(;;) {
-				if(i>=len || match(s[i])) {
-					v.push_back(s.substr(prev,i-prev));
-					if(i>=len) break;
-					prev=i+1;
-					if(limit>1 && v.size()+1==(unsigned int)limit) {
-						v.push_back(s.substr(prev,len-prev));
-						return v.size();
-						}
-					}
-				i++;
-				}
-			return v.size();
-			}
-		
-		std::vector<std::string>::size_type split(std::string s,std::vector<std::string>& v) const {
-			return split(s,v,-1);
-			}
-		
-		std::vector<std::string> split(std::string s) const {
-			std::vector<std::string>  v;
-			split(s,v);
-			return v;
-			}
-		std::vector<std::string> split(std::string s,int limit) const {
-			std::vector<std::string>  v;
-			split(s,v,limit);
-			return v;
-			}
-		static CharSplitter TAB;
-		static CharSplitter COMMA;
-	};
 
 
-
-class CoordMath {
-	public:
-		static hts_pos_t getLength(hts_pos_t start, hts_pos_t end);
-		static bool overlaps(hts_pos_t start, hts_pos_t end, hts_pos_t start2,hts_pos_t end2);
-	};
-
-class StringUtils {
-	public:
-	static bool isBlank(const char* s);
-        static bool startsWith(const char* s,const char* prefix);
-        static bool endsWith(const char* s,const char* suffix);
-	};
 
 
 

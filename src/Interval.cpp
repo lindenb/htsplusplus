@@ -2,6 +2,7 @@
 #include "Interval.hh"
 #include "debug.hh"
 using namespace std;
+using namespace htspp;
 
  Interval Interval::of(std::string s) {
 	string::size_type colon = s.find(':');

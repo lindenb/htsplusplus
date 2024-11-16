@@ -2,6 +2,7 @@
 #include "HtsFile.hh"
 
 using namespace std;
+using namespace htspp;
 
 HtsFile::HtsFile(htsFile *fp,bool b):Pointer(fp),close_in_descructor(b) {
     }

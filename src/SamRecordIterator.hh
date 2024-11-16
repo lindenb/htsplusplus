@@ -6,12 +6,13 @@
 namespace htspp {
 
 class SamRecordIterator {
-	public:
+	protected:
 		SamRecordIterator();
+  public:
 		virtual ~SamRecordIterator();
 		virtual bool read(bam1_t* b)=0;
-        	virtual bool read2(SamRecord* rec);
-		std::unique_ptr<SamRecord> read2();
+    virtual bool read2(SamRecord* rec)=0;
+		virtual std::unique_ptr<SamRecord> read2()=0;
 	};
 
 }

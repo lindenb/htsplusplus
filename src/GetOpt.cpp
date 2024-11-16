@@ -19,6 +19,12 @@ using namespace htspp;
  flag_help=true;
  return *this;
  }
+ 
+ GetOpt::Option& GetOpt::Option::required()  {
+ flag_required=true;
+ return *this;
+ }
+ 
  GetOpt::Option& GetOpt::Option::longOpt(const char* s) {
 long_opt.assign(s);
 return *this;

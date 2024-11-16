@@ -5,6 +5,8 @@
 #include "utils.hh"
 #include <regex.h>
 
+namespace htspp {
+
 class Regex {
 	private:
 		regex_t regex;
@@ -16,6 +18,8 @@ class Regex {
 		/** parse flag for regexcmp as string, multipe separated by space, comma etc.. */
 		static int parse_flags(const char* s);
 	};
+	
+}
 
 
 #endif

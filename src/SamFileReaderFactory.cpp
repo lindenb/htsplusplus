@@ -38,8 +38,8 @@ unique_ptr<SamFileReader> SamFileReaderFactory::open(const char* filename,const 
 		    if (!sfr->fp->set_opt(CRAM_OPT_DECODE_MD, 0)) {
 		        THROW_ERROR("Failed to set CRAM_OPT_DECODE_MD value.");
 		   		}
-			if(threadPool!=NULL) threadPool->bind(sfr->fp->fp);
-			sfr->header = SamFileHeader::read(sfr->fp->fp,0);
+			if(threadPool!=NULL) threadPool->bind(sfr->fp->get());
+			sfr->header = SamFileHeader::read(sfr->fp->get(),0);
 			if(!sfr->header) {
 			     THROW_ERROR("Cannot read header");
 					goto error;

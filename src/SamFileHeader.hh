@@ -16,8 +16,7 @@ class SamFileHeader:public Pointer<sam_hdr_t> {
 	public:
 		virtual ~SamFileHeader();
 		virtual void write(htsFile* fp);
-		virtual sam_hdr_t* operator()();
-		virtual const char* tid2name(int tid);
+		virtual const char* tid2name(int tid) const;
 		virtual std::unique_ptr<std::string> find_tag_hd(const char* tag);
 		virtual std::unique_ptr<std::string> sort_order();
 		virtual bool has_sort_order(const char* s);
