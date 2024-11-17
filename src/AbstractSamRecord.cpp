@@ -7,7 +7,7 @@ using namespace htspp;
 			ASSERT_NOT_NULL(b);
 			return b;
 			}
-			
+
 		AbstractSamRecord::AbstractSamRecord() {
 			}
 		AbstractSamRecord::~AbstractSamRecord() {
@@ -69,10 +69,16 @@ using namespace htspp;
 		std::unique_ptr<Cigar> AbstractSamRecord::cigar() const {
 			return std::unique_ptr<Cigar>(new Cigar(get()));
 			}
-
-		 std::vector<AlignmentBlock> AbstractSamRecord::alignment_blocks() const {
-			CigarIterator iter(get());
-		    std::vector<AlignmentBlock> alignmentBlocks;
+	
+std::vector<AlignmentBlock> AbstractSamRecord::alignment_blocks() const {
+		 std::vector<AlignmentBlock> alignmentBlocks;
+		 alignment_blocks(alignmentBlocks);
+		 return alignmentBlocks;
+		}	
+	
+std::vector<AlignmentBlock>::size_type AbstractSamRecord::alignment_blocks(std::vector<AlignmentBlock>& alignmentBlocks) const {
+				CigarIterator iter(get());
+		    alignmentBlocks.clear();
 		    int readBase = 1;
 		    int refBase = start();
 
@@ -100,9 +106,9 @@ using namespace htspp;
 		                int n = iter.length();
 		                AlignmentBlock ab;
 		                ab.readStart = readBase;
-						ab.referenceStart = refBase;
-						ab.length = n;
-						alignmentBlocks.push_back(ab);
+										ab.referenceStart = refBase;
+										ab.length = n;
+										alignmentBlocks.push_back(ab);
 		                readBase += n;
 		                refBase += n;
 		                break;
@@ -111,9 +117,14 @@ using namespace htspp;
 		                THROW_ERROR("cigar not handled");
 		                break;
 		        	}
-		    }
-        	return alignmentBlocks;
+		    	}
+        	return alignmentBlocks.size();
         	}
+
+
+std::unique_ptr<CigarIterator> AbstractSamRecord::cigar_iterator() {
+	return std::unique_ptr<CigarIterator>(new CigarIterator(get()));
+}
 
 
 

@@ -19,6 +19,7 @@ class CigarIterator {
 		char letter();
 		int length();
 		CigarIterator(bam1_t* b);
+		~CigarIterator();
 		const CigarOperator* op();
 		bool next();
 	};

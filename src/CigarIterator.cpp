@@ -9,6 +9,9 @@ using namespace htspp;
 CigarIterator::CigarIterator(bam1_t* b):i(-1),n_cigar(b->core.n_cigar),cigar(bam_get_cigar(b)),_letter('\0'),_length(0) {
 			}
 
+CigarIterator::~CigarIterator() {
+}
+
 const CigarOperator* CigarIterator::op() {
 			return CigarOperator::of(letter());
 			}
