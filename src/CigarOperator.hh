@@ -30,7 +30,12 @@ class CigarOperator {
 		static  const CigarOperator* of(char c);
 		static bool consumesReadBases(char c);
 		static bool consumesReferenceBases(char c);
-	};
+		bool is_clip() const;
+		bool is_align() const;
+		bool is_del() const;
+		bool is_ins() const;
+		bool is_indel() const;
+		};
 
 }
 

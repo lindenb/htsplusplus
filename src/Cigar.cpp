@@ -7,15 +7,15 @@ using namespace htspp;
 Cigar::Cigar() {
 }
 
-               	Cigar::Cigar(bam1_t* b) {
-               	        assert(b!=NULL);
-                        CigarIterator iter(b);
-                        elements.reserve(b->core.n_cigar);
-                        while(iter.next()) {
-                                elements.push_back(new CigarElement(iter.letter(), iter.length()));
-                                }
-                        assert(elements.size()==b->core.n_cigar);
-                        }
+ 	Cigar::Cigar(bam1_t* b) {
+ 	        assert(b!=NULL);
+          CigarIterator iter(b);
+          elements.reserve(b->core.n_cigar);
+          while(iter.next()) {
+                  elements.push_back(new CigarElement(iter.letter(), iter.length()));
+                  }
+          assert(elements.size()==b->core.n_cigar);
+          }
                 Cigar::~Cigar() {
                         for(unsigned int i=0;i< elements.size();i++) {
                                 delete elements[i];
@@ -52,9 +52,51 @@ Cigar::Cigar() {
   return cig;
  }
  
+ 
+ hts_pos_t Cigar::reference_length() const {
+        int length = 0;
+        for(auto i=elements.begin(); i!= elements.end();++i) {
+            switch ((*i)->letter()) {
+                case 'M':
+                case 'D':
+                case 'N':
+                case '=':
+                case 'X':
+                    length += (*i)->length();
+                    break;
+                default: break;
+            }
+        }
+        return length;
+    }
+
+
+ 
+ hts_pos_t Cigar::read_length() const {
+        int length = 0;
+        for(auto i=elements.begin(); i!= elements.end();++i) {
+            if((*i)->op()->consumesReadBases()) {
+            	length += (*i)->length();
+            }
+        }
+        return length;
+    }
+
  std::string Cigar::to_string() {
  		 std::ostringstream os;
  		 print(os);
  		 return os.str();
  }
  
+bool Cigar::is_left_clipped() const {
+	return !empty() && elements.at(0)->op()->is_clip();
+  }
+
+
+bool Cigar::is_right_clipped() const {
+   return !empty() && elements.at(elements.size()-1)->op()->is_clip();
+    }
+ 
+ bool Cigar::is_clipped() const {
+return is_left_clipped() || is_right_clipped();
+ }

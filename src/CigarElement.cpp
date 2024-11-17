@@ -17,7 +17,7 @@ using namespace htspp;
 		hts_pos_t CigarElement::length() const { return _len;}
 
 		std::ostream& CigarElement::print(std::ostream& out) const {
-			out << letter() << length();
+			out <<length() << letter();
 			return out;
 			}
 	    

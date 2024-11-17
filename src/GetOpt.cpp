@@ -188,7 +188,7 @@ void GetOpt::usage(std::ostream& out) {
    int opt;
    while ((opt = ::getopt_long(argc, argv, optstring.c_str(), loptions.data(),NULL)) >0) {
    			 if (opt == '?') {
-	          fprintf (stderr, "Unknow option %c\n", optopt);
+	          fprintf (stderr, "Unknow option -%c %s\n", optopt, optstring.c_str());
 	          return -1;
 	          }
         else if (opt == ':') {
@@ -198,14 +198,14 @@ void GetOpt::usage(std::ostream& out) {
    
    		 GetOpt::Option* option= NULL;
        for(size_t i=0;i< options.size();i++) {
-            if(options.at(i)->optc==optopt) {
+            if(options.at(i)->optc==opt) {
             	option = options.at(i);
             	break;
             	}
           }
        
        if(option==NULL) {
-          fprintf (stderr, "Unknow option %c\n", optopt);
+          fprintf (stderr, "Unknow option -%c.\n", opt);
        		return -1;
        		}
        if(option->flag_help) {
@@ -224,7 +224,6 @@ void GetOpt::usage(std::ostream& out) {
 		while(optind <argc) {
 			files.push_back(argv[optind++]);
 			}	
-			
      return 0;
      }
  

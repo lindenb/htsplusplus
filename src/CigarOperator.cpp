@@ -25,7 +25,7 @@ const CigarOperator* CigarOperator::X = new CigarOperator(true, true,   'X');
 
 CigarOperator::CigarOperator(bool consumesReadBases, bool consumesReferenceBases, char c):
 	_consumesReadBases(consumesReadBases),
-	_consumesReferenceBases(consumesReadBases),
+	_consumesReferenceBases(consumesReferenceBases),
 	_character(c) {
  }
 
@@ -37,7 +37,7 @@ bool CigarOperator::consumesReferenceBases() const { return _consumesReferenceBa
 
 const CigarOperator* CigarOperator::of(char c) {
 	switch(c) {
-		case 'M':
+		    case 'M':
             return CigarOperator::M;
         case 'I':
             return CigarOperator::I;
@@ -63,6 +63,36 @@ const CigarOperator* CigarOperator::of(char c) {
 bool CigarOperator::consumesReadBases(char c) {
     return of(c)->CigarOperator::consumesReadBases();
     }
-bool CigarOperator::consumesReferenceBases(char c) {
+bool CigarOperator::consumesReferenceBases(char c)  {
     return of(c)->CigarOperator::consumesReferenceBases();
     }
+   
+bool CigarOperator::is_clip() const {
+	switch(getc()) {
+		case 'H':case 'S': return true;
+		default: return false;
+		}
+	}   
+   
+bool CigarOperator::is_align() const {
+	switch(getc()) {
+		case 'M':case 'X':  case '=': return true;
+		default: return false;
+		}
+	}   
+bool CigarOperator::is_del() const {
+	switch(getc()) {
+		case 'D':case 'N':  case '=': return true;
+		default: return false;
+		}
+	}
+bool CigarOperator::is_ins() const {
+	switch(getc()) {
+		case 'I':  case '=': return true;
+		default: return false;
+		}
+	}
+bool CigarOperator::is_indel() const {
+	return is_del() || is_ins();
+	}
+  
