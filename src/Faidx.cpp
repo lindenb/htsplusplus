@@ -23,7 +23,7 @@ std::unique_ptr<Faidx> Faidx::load(const char* filename) {
 	const char* Faidx::name(int i) const {
 		return ::faidx_iseq(get(),i);
 		}
-hts_pos_t Faidx::length(const char *reg) const {
+  hts_pos_t Faidx::length(const char *reg) const {
 	return ::faidx_seq_len64(get(),reg);
 	}
 
