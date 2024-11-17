@@ -20,9 +20,13 @@ class HtsFile : public Pointer<htsFile> {
 		virtual void close();
 		virtual bool is_open();
 		virtual ~HtsFile();
+		virtual const htsFormat *format();
 		virtual void set_reference(const char *fn_aux);
 		virtual int set_opt(hts_fmt_option key,int value);
+		virtual void fush();
+		virtual void set_cache_size(int n);
 		static std::unique_ptr<HtsFile> open(const char* fn,const char* mode);
+		static std::unique_ptr<HtsFile> open(const char* fn);
 		static std::unique_ptr<HtsFile> wrap(htsFile* p);
 	};
 

@@ -21,6 +21,19 @@ bool HtsFile::is_open() {
 	return is_not_null();
 	}
 
+void HtsFile::fush() {
+	if(!is_null()) ::hts_flush(get());
+	}
+const htsFormat* HtsFile::format() {
+	return ::hts_get_format(get());
+}
+
+void HtsFile::set_cache_size(int n) {
+	hts_set_cache_size(get(),n);
+}
+
+
+
 HtsFile::~HtsFile() {
 	close();
 	}
@@ -41,6 +54,10 @@ std::unique_ptr<HtsFile> HtsFile::open(const char* filename,const char* mode) {
 		}
 	p.reset(new HtsFile(fp,true));
 	return p;
+	}
+
+std::unique_ptr<HtsFile> HtsFile::open(const char* filename) {
+	return open(filename,"rb");
 	}
 
 std::unique_ptr<HtsFile> HtsFile::wrap(htsFile* pt) {

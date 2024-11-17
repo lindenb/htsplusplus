@@ -3,6 +3,7 @@
 #include "SelfTest.hh"
 #include "Cigar.hh"
 #include "Faidx.hh"
+#include "HtsFile.hh"
 #undef ASSERT_NOT_NULL
 using namespace std;
 using namespace htspp;
@@ -128,7 +129,7 @@ END_TEST
 
 SelfTest::SelfTest():n_passing(0L),n_fail(0L) {
 }
-void testFaidx1(SelfTest* tester) {
+static void testFaidx1(SelfTest* tester) {
 	BEGIN_TEST
 	std::unique_ptr<Faidx> obj = Faidx::load("/home/lindenb/src/htsplusplus/tests/toy.fa");
 	ASSERT_NOT_NULL(obj.get());
@@ -152,6 +153,17 @@ void testFaidx1(SelfTest* tester) {
 	END_TEST
 }
 
+static void testHtsFile1(SelfTest* tester) {
+	BEGIN_TEST
+	std::unique_ptr<HtsFile> obj = HtsFile::open("/home/lindenb/src/htsplusplus/tests/toy.bam");
+	ASSERT_NOT_NULL(obj.get());
+	ASSERT_TRUE(obj->is_open());
+	
+	obj->close();
+	ASSERT_FALSE(obj->is_open());
+	END_TEST
+}
+
 
 void SelfTest::check(const char* fname,int line,bool b) {
 	if(b) {
@@ -170,6 +182,7 @@ int SelfTest::run(const char* base) {
 	testCigar1(this);
 	testCigarOperator1(this);
 	testFaidx1(this);
+	testHtsFile1(this);
 	cerr << "Tests done. PASS " << n_passing << " FAIL: " << n_fail << endl;
 	return (int)n_fail;
 	}
