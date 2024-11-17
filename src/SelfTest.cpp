@@ -2,6 +2,8 @@
 #include "GetOpt.hh"
 #include "SelfTest.hh"
 #include "Cigar.hh"
+#include "Faidx.hh"
+#undef ASSERT_NOT_NULL
 using namespace std;
 using namespace htspp;
 
@@ -40,7 +42,7 @@ static void testCigarOp(SelfTest* tester,const CigarElement* ce,hts_pos_t len,ch
 	END_TEST
 	}
 
-static void tesCigar1(SelfTest* tester) {
+static void testCigar1(SelfTest* tester) {
 	BEGIN_TEST
 	const char* s="1S10M1I2D1M2H";
 	static std::unique_ptr<Cigar> c= Cigar::of(s);
@@ -62,7 +64,7 @@ static void tesCigar1(SelfTest* tester) {
 	END_TEST
 	}
 
-static void tesCigarOperator1(SelfTest* tester) {
+static void testCigarOperator1(SelfTest* tester) {
 BEGIN_TEST
 const CigarOperator* op = CigarOperator::of('M');
 ASSERT_TRUE(op->consumesReadBases());
@@ -126,6 +128,30 @@ END_TEST
 
 SelfTest::SelfTest():n_passing(0L),n_fail(0L) {
 }
+void testFaidx1(SelfTest* tester) {
+	BEGIN_TEST
+	std::unique_ptr<Faidx> obj = Faidx::load("/home/lindenb/src/htsplusplus/tests/toy.fa");
+	ASSERT_NOT_NULL(obj.get());
+	ASSERT_EQUALS(obj->nseq(),2);
+	ASSERT_EQUALS(strcmp(obj->name(0),"ref"),0);
+	ASSERT_EQUALS(strcmp(obj->name(1),"ref2"),0);
+	std::shared_ptr<SamSequenceDictionary> dict = obj->dictionary();
+	ASSERT_NOT_NULL(dict.get());
+  ASSERT_EQUALS(dict->nseq(),2);
+  const SamSequenceRecord* ssr=dict->getSequence("ref");
+  ASSERT_NOT_NULL(ssr);
+  ASSERT_EQUALS(ssr->tid(),0);
+  ASSERT_EQUALS(ssr->length(),45);
+  
+  ssr=dict->getSequence("ref2");
+  ASSERT_NOT_NULL(ssr);
+  ASSERT_EQUALS(ssr->tid(),1);
+  ASSERT_EQUALS(ssr->length(),40);
+  
+  ASSERT_EQUALS(dict->genome_length(),85);
+	END_TEST
+}
+
 
 void SelfTest::check(const char* fname,int line,bool b) {
 	if(b) {
@@ -141,8 +167,9 @@ void SelfTest::check(const char* fname,int line,bool b) {
 
 int SelfTest::run(const char* base) {
 	testGetOpt1(this);
-	tesCigar1(this);
-	tesCigarOperator1(this);
+	testCigar1(this);
+	testCigarOperator1(this);
+	testFaidx1(this);
 	cerr << "Tests done. PASS " << n_passing << " FAIL: " << n_fail << endl;
 	return (int)n_fail;
 	}
