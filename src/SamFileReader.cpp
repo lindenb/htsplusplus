@@ -92,8 +92,8 @@ class SamRecordIndexIterator: public AbstractSamRecordIter {
 				}
 			return rec;
 			}
-		std::unique_ptr<SamRecordIterator> SamFileReader::query(const Locatable& loc) {
-			std::string str = loc.to_string();
+		std::unique_ptr<SamRecordIterator> SamFileReader::query_by_loc(const Locatable* loc) {
+			std::string str = loc->to_string();
 			return query(str.c_str());
 			}
 
@@ -111,3 +111,8 @@ class SamRecordIndexIterator: public AbstractSamRecordIter {
 			std::unique_ptr<SamRecordIterator> p(iter);
 			return p;
 			}
+
+
+std::shared_ptr<SamSequenceDictionary> SamFileReader::dictionary() const {
+	return header->dictionary();
+	}

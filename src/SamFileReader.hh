@@ -23,13 +23,14 @@ class SamFileReader {
 		std::unique_ptr<HtsIndex> idx;
 		SamFileReader();
 		virtual ~SamFileReader();
-		bool has_index();
-		bool read1(bam1_t* b);
-		bool read2(SamRecord* rec);
-		std::unique_ptr<SamRecord> read2();
-		std::unique_ptr<SamRecordIterator> query(const Locatable& loc);
-		std::unique_ptr<SamRecordIterator> query(const char* reg);
-		std::unique_ptr<SamRecordIterator> iterator();
+		virtual bool has_index();
+		virtual bool read1(bam1_t* b);
+		virtual bool read2(SamRecord* rec);
+		virtual std::unique_ptr<SamRecord> read2();
+		virtual std::unique_ptr<SamRecordIterator> query_by_loc(const Locatable* loc);
+		virtual std::unique_ptr<SamRecordIterator> query(const char* reg);
+		virtual std::unique_ptr<SamRecordIterator> iterator();
+		virtual std::shared_ptr<SamSequenceDictionary> dictionary() const;
 	};
 
 }

@@ -72,6 +72,15 @@ std::set<std::string> SamFileHeader::samples() {
 				return _samples;
 				}
 
+std::shared_ptr<SamSequenceDictionary> SamFileHeader::dictionary() const {
+	if(this->_dict.get() ==NULL) {
+		SamSequenceDictionary* d = SamSequenceDictionary::of_sam_header(get()).release();
+		this->_dict.reset(d);
+		}
+	return _dict;
+	}
+
+
 class SamFileHeader2 : public SamFileHeader {
     bool free_on_close;
     public:

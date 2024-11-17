@@ -34,7 +34,10 @@ endef
 
 
 API_OBJECTS=SamFileReaderFactory SamFileReader HtsFile SamFileHeader HtsIdx Path KString Regex AbstractSamRecord SamRecord SamRecordIterator Interval CharSplitter \
-	GetOpt CigarOperator Cigar CigarIterator CigarElement CoordMath Locatable StringUtils SamSequenceDictionary
+	GetOpt CigarOperator Cigar CigarIterator CigarElement CoordMath Locatable StringUtils SamSequenceDictionary \
+		SamSequenceRecord \
+		GenomicLocParser
+
 
 OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader HtsThreadPool utils tests Regex \
 	$(addprefix selgt,$(LEX_YACC_OBJ)) \

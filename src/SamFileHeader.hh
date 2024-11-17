@@ -5,12 +5,14 @@
 #include <memory>
 #include <htslib/hts.h>
 #include <htslib/sam.h>
-//#include "HtsFile.hh"
+#include "SamSequenceDictionary.hh"
 #include "utils.hh"
 
 namespace htspp {
 
 class SamFileHeader:public Pointer<sam_hdr_t> {
+  private:
+  	mutable std::shared_ptr<SamSequenceDictionary> _dict;
 	protected:
 		SamFileHeader( sam_hdr_t *header);
 	public:
@@ -24,6 +26,7 @@ class SamFileHeader:public Pointer<sam_hdr_t> {
 		virtual bool is_coordinate_sorted() ;
 		virtual void assert_coordinate_sorted();
 		virtual std::set<std::string> samples();
+		virtual std::shared_ptr<SamSequenceDictionary> dictionary() const;
 
 		static std::unique_ptr<SamFileHeader> read(samFile *fp,int flag);
 		static std::unique_ptr<SamFileHeader> wrap(sam_hdr_t *header);
