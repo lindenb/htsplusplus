@@ -1,10 +1,13 @@
 #include <stdexcept>
+#include <vector>
 #include "GetOpt.hh"
 #include "SelfTest.hh"
 #include "Cigar.hh"
 #include "Faidx.hh"
 #include "HtsFile.hh"
 #include "DiscreteMedian.hh"
+#include "SamRecord.hh"
+#include "SamFileReaderFactory.hh"
 #undef ASSERT_NOT_NULL
 using namespace std;
 using namespace htspp;
@@ -17,9 +20,10 @@ using namespace htspp;
 #define ASSERT_NOT_EQUALS(a,b) ASSERT_FALSE((a)==(b))
 #define ASSERT_NULL(a) ASSERT_EQUALS((a),NULL)
 #define ASSERT_NOT_NULL(a) ASSERT_NOT_EQUALS((a),NULL)
+#define ASSERT_THROW(a) try { a  ; ASSERT(false)} catch(...) {ASSERT_TRUE(true)}
 
 #define BEGIN_TEST try {
-#define END_TEST } catch(...) {cerr << "BOUM" << endl;}
+#define END_TEST } catch(std::exception& err) {cerr << err.what() << endl;} catch(...) {cerr << "BOUM catch(...) " << endl;}
 
 static void testGetOpt1(SelfTest* tester) {
 	BEGIN_TEST
@@ -151,6 +155,16 @@ static void testFaidx1(SelfTest* tester) {
   ASSERT_EQUALS(ssr->length(),40);
   
   ASSERT_EQUALS(dict->genome_length(),85);
+  
+  
+  std::unique_ptr<Locatable> r= dict->parseInterval("chrref:4-100");
+  ASSERT_NOT_NULL(r.get());
+  ASSERT_EQUALS(strcmp(r->contig(),"ref"),0);
+  ASSERT_EQUALS(r->start(),4);
+  ASSERT_EQUALS(r->end(),45);
+  
+  ASSERT_THROW(dict->parseInterval("ref:10000-1"));
+  ASSERT_THROW(dict->parseInterval("chr2:1-2"));
 	END_TEST
 }
 
@@ -187,6 +201,110 @@ static void testOptional1(SelfTest* tester) {
 	END_TEST
 	}
 
+static void testDiscreteMedian1(SelfTest* tester) {
+	BEGIN_TEST
+	DiscreteMedian<int> dm;
+	ASSERT_TRUE(dm.empty());
+	for(int i=0;i< 10;i++) dm.accept(27);
+	dm.accept(1);
+	dm.accept(10000000);
+	ASSERT_FALSE(dm.empty());
+	Optional<double> m = dm.median();
+	ASSERT_TRUE(m.isPresent());
+	ASSERT_EQUALS((int)m.get(),27);
+	END_TEST
+	}
+	
+static void testDiscreteMedian2(SelfTest* tester) {
+	BEGIN_TEST
+	DiscreteMedian<int> dm;
+	ASSERT_TRUE(dm.empty());
+	for(int i=0;i< 10000;i++) {
+		dm.accept(100);
+		dm.accept(102);
+		}
+	ASSERT_EQUALS((int)dm.median().get(),101);
+	END_TEST
+	}
+
+static void testDiscreteMedian3(SelfTest* tester) {
+	BEGIN_TEST
+	DiscreteMedian<int> dm;
+	dm.accept(1);
+	dm.accept(2);
+	ASSERT_EQUALS(dm.median().get(),1.5);
+	END_TEST
+	}
+	
+static void testSamReader1(SelfTest* tester) {
+	BEGIN_TEST
+	std::vector<struct AlignmentBlock> blocks;
+	std::string fasta("/home/lindenb/src/htsplusplus/tests/toy.fa");
+	std::string cram("/home/lindenb/src/htsplusplus/tests/toy.cram");
+	for(int with_index=0;with_index < 2;++with_index) {
+		SamFileReaderFactory sfr;
+		sfr.reference(fasta.c_str());
+		auto sr = sfr.open(cram.c_str(),with_index==1);
+		ASSERT_NOT_NULL(sr.get());
+		auto iter= sr->iterator();
+		ASSERT_NOT_NULL(iter.get());
+		SamRecord rec;
+		
+		int n=0;
+		while(iter->read2(&rec)) {
+			switch(n) {
+					case 0:
+						ASSERT_EQUALS(strcmp(rec.read_name(),"r001"),0);
+						ASSERT_EQUALS(strcmp(rec.contig(),"ref"),0);
+						ASSERT_EQUALS(rec.flags(),163);
+						ASSERT_EQUALS(rec.start(),7);
+						ASSERT_EQUALS(rec.mapq(),30);
+						ASSERT_TRUE(rec.has_cigar());
+						ASSERT_EQUALS(rec.cigar_string().compare("8M4I4M1D3M"),0);
+						
+
+						rec.alignment_blocks(blocks);
+						ASSERT_EQUALS((int)blocks.size(),3);
+						ASSERT_EQUALS((int)blocks[0].length,8);
+						ASSERT_EQUALS((int)blocks[0].referenceStart,7);
+						
+						ASSERT_EQUALS((int)blocks[1].length,4);
+						ASSERT_EQUALS((int)blocks[1].referenceStart,15);
+
+						ASSERT_EQUALS((int)blocks[2].length,3);
+						ASSERT_EQUALS((int)blocks[2].referenceStart,20);
+					
+						break;
+					default:
+						break;
+					}
+			n++;
+			}
+		ASSERT_EQUALS(n,12);
+		}
+	END_TEST
+	}
+
+
+static void testSamReader2(SelfTest* tester) {
+	BEGIN_TEST
+	for(int with_index=0;with_index < 2;++with_index) {
+		std::string cram("/home/lindenb/src/htsplusplus/tests/toy.bam");
+		SamFileReaderFactory sfr;
+		auto sr = sfr.open(cram.c_str(),with_index==1);
+		ASSERT_NOT_NULL(sr.get());
+		auto iter= sr->iterator();
+		ASSERT_NOT_NULL(iter.get());
+		SamRecord rec;
+		int n=0;
+		while(iter->read2(&rec)) {
+			n++;
+			}
+		ASSERT_EQUALS(n,12);
+		}
+	END_TEST
+	}
+	
 
 
 void SelfTest::check(const char* fname,int line,bool b) {
@@ -208,6 +326,11 @@ int SelfTest::run(const char* base) {
 	testFaidx1(this);
 	testHtsFile1(this);
 	testOptional1(this);
+	testDiscreteMedian1(this);
+	testDiscreteMedian2(this);
+	testDiscreteMedian3(this);
+	testSamReader1(this);
+	testSamReader2(this);
 	cerr << "Tests done. PASS " << n_passing << " FAIL: " << n_fail << endl;
 	return (int)n_fail;
 	}

@@ -6,8 +6,14 @@
 using namespace std;
 using namespace htspp;
 
- GetOpt::Option::Option(char c,const char* desc):count_seen(0),flag_required(false),flag_help(false),optc(c),desc(desc==NULL?"no description":desc) {
- }
+ GetOpt::Option::Option(char c,const char* desc):desc(desc==NULL?"no description":desc),
+ 			flag_required(false),
+ 			flag_help(false),
+ 			flag_hidden(false),
+ 			count_seen(0),
+ 			optc(c) {
+ 	}
+ 
  GetOpt::Option::~Option()  {
  }
 
@@ -22,6 +28,12 @@ using namespace htspp;
  
  GetOpt::Option& GetOpt::Option::required()  {
  flag_required=true;
+ return *this;
+ }
+ 
+ 
+  GetOpt::Option& GetOpt::Option::hidden()  {
+ flag_hidden=true;
  return *this;
  }
  
@@ -162,6 +174,7 @@ GetOpt::Option&  GetOpt::add(GetOpt::Option* opt) {
 void GetOpt::usage(std::ostream& out) {
 	for(size_t i=0;i< options.size();i++) {
       GetOpt::Option* opt= options.at(i);
+      if(opt->flag_hidden) continue;
       out << " -" << opt->optc << " " << opt->desc << std::endl;
       }
   out << std::endl;

@@ -15,16 +15,17 @@ class SamFileReaderFactory {
 	private:
 		HtsThreadPool* threadPool;
 		std::string _reference;
-		bool requires_index;
 	protected:
 	  virtual SamFileReader* createNewSamFileReader();
 	public:
 		SamFileReaderFactory();
 		virtual ~SamFileReaderFactory();
 		virtual SamFileReaderFactory& threads(HtsThreadPool* threadPool);
-		virtual SamFileReaderFactory& load_index(bool b);
 		virtual SamFileReaderFactory& reference(const char* fasta);
-		virtual std::unique_ptr<SamFileReader> open(const char* filename,const char* bai);
+		virtual std::unique_ptr<SamFileReader> open();//stdin
+		virtual std::unique_ptr<SamFileReader> open(const char* filename);
+		virtual std::unique_ptr<SamFileReader> open(const char* filename,bool require_index);
+		virtual std::unique_ptr<SamFileReader> open(const char* filename,const char* index_or_NULL,bool require_index);
 	};
 
 }

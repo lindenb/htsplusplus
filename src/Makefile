@@ -69,6 +69,8 @@ OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader
 a.out: Test.cpp libhts++.so
 	LD_LIBRARY_PATH=${PWD} $(CC) -o $@ -Wall -I. -I$(HTSDIR) $(LDFLAGS) -L. $< -lhts++ -lhts
 
+SelfTest.cpp: DiscreteMedian.hh
+
 libhts++.so: $(sort $(addsuffix .pico,$(API_OBJECTS)))
 	gcc -shared -fvisibility=hidden -o $@ $^ $(LDFLAGS) -lhts
 

@@ -2,6 +2,7 @@
 #define DISCRETE_MEDIAN_HH
 #include<vector>
 #include<utility>
+#include<algorithm>
 #include<stdexcept>
 #include "Optional.hh"
 
@@ -17,7 +18,7 @@ class DiscreteMedian {
     public:
 			void accept(TYPE depth) {
           DiscreteMedian::item_t pivot = std::make_pair(depth,1UL);
-          auto it = std::lower_bound(counts.begin(), counts.end(), pivot,  [](item_t A, item_t B) -> bool { return A.first < B.first; } );
+          auto it = std::lower_bound(counts.begin(), counts.end(), depth,  [](item_t A, TYPE B) -> bool { return A.first < B; } );
           if(it==counts.end() || it->first!=depth) {
              counts.insert(it,pivot);
              }
@@ -38,15 +39,17 @@ class DiscreteMedian {
 						    for(i=0;i< counts.size();i++) {
 						       L += counts[i].second;
 						       }
-
 						    unsigned long mid_x = L/2L;
-
 						    unsigned long remain = mid_x;
 						    for(i=0;i< counts.size();i++) {
-
+									
 						      DiscreteMedian::item_t& item  = counts[i];
-
-						      if(item.second <  remain) {
+									if(item.second ==  remain) {
+										double v1 = item.first;
+										double v2 = counts[i+1].first;
+										 return make_optional<double>((v1+v2)/2.0);
+										}
+						      else if(item.second <  remain) {
 						          remain-= item.second;
 						          }
 						    else

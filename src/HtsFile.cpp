@@ -1,3 +1,4 @@
+#include <htslib/sam.h>
 #include "debug.hh"
 #include "HtsFile.hh"
 
@@ -64,3 +65,16 @@ std::unique_ptr<HtsFile> HtsFile::wrap(htsFile* pt) {
 	unique_ptr<HtsFile> p(new HtsFile(pt,false));
 	return p;
 	}
+
+
+
+std::unique_ptr<HtsIndex> HtsFile::load_sam_index(const char* bam) {
+	return load_sam_index(bam,NULL);
+	}
+
+std::unique_ptr<HtsIndex> HtsFile::load_sam_index(const char* bam,const char* bai) {
+	hts_idx_t* i = ::sam_index_load2(get(), bam,bai);
+ 	if(i==NULL) THROW_ERROR("cannot load index for " << bam);
+	return HtsIndex::of(i);
+	}
+	

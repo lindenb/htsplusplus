@@ -6,7 +6,7 @@ using namespace htspp;
 SamFileReader* SamFileReaderFactory::createNewSamFileReader() {
 	    return new SamFileReader;
 	    }
-SamFileReaderFactory::SamFileReaderFactory():threadPool(NULL),requires_index(false) {
+SamFileReaderFactory::SamFileReaderFactory():threadPool(NULL) {
 			}
 
 SamFileReaderFactory& SamFileReaderFactory::threads(HtsThreadPool* threadPool) {
@@ -14,10 +14,7 @@ SamFileReaderFactory& SamFileReaderFactory::threads(HtsThreadPool* threadPool) {
 			return *this;
 			}
 
-SamFileReaderFactory& SamFileReaderFactory::load_index(bool b) {
-		this->requires_index = b;
-		return *this;
-		}
+
 
 SamFileReaderFactory& SamFileReaderFactory::reference(const char* fasta) {
 		this->_reference.assign(fasta);
@@ -28,16 +25,31 @@ SamFileReaderFactory& SamFileReaderFactory::reference(const char* fasta) {
 SamFileReaderFactory::~SamFileReaderFactory() {
   }
 
-unique_ptr<SamFileReader> SamFileReaderFactory::open(const char* filename,const char* bai) {
+
+unique_ptr<SamFileReader> SamFileReaderFactory::open() {
+	return open("-");
+	}
+
+unique_ptr<SamFileReader> SamFileReaderFactory::open(const char* filename) {
+	return open(filename,false);
+	}
+	
+
+unique_ptr<SamFileReader> SamFileReaderFactory::open(const char* filename,bool require_index) {
+	return open(filename,NULL,require_index);
+	}
+
+
+std::unique_ptr<SamFileReader> SamFileReaderFactory::open(const char* filename,const char* index_or_NULL,bool require_index) {
       unique_ptr<SamFileReader> sfr(createNewSamFileReader());
       sfr->fp = HtsFile::open(filename, "rb");
-		    if (!(sfr->fp)) {
-		       THROW_ERROR("Cannot open " << filename);
-		    	}
+	    if (!(sfr->fp)) {
+	       THROW_ERROR("Cannot open " << filename);
+	    	}
 		   
-		    if (!sfr->fp->set_opt(CRAM_OPT_DECODE_MD, 0)) {
-		        THROW_ERROR("Failed to set CRAM_OPT_DECODE_MD value.");
-		   		}
+	    if (sfr->fp->set_opt(CRAM_OPT_DECODE_MD, 0)) {
+	        THROW_ERROR("Failed to set CRAM_OPT_DECODE_MD value.");
+	   		}
 			if(threadPool!=NULL) threadPool->bind(sfr->fp->get());
 			sfr->header = SamFileHeader::read(sfr->fp->get(),0);
 			if(!sfr->header) {
@@ -45,18 +57,17 @@ unique_ptr<SamFileReader> SamFileReaderFactory::open(const char* filename,const 
 					goto error;
 					}
 			
-			if(this->requires_index) {
-				sfr->idx = HtsIndex::load(filename,0,0);
-				if(!sfr->idx) {
-					THROW_ERROR("Cannot load index for " << filename);
-					goto error;
-					}
+			if(require_index) {
+				hts_idx_t* i = ::sam_index_load2( sfr->fp->get(), filename,index_or_NULL);
+ 				if(i==NULL) THROW_ERROR("cannot load CRAM/BAM index for " << filename);
+				sfr->idx =  HtsIndex::of(i);
 				}
-		    if(!_reference.empty()) {
-            if (hts_set_fai_filename(sfr->fp->get(),_reference.c_str()) != 0) {
-  			
-                }
-            }
+				
+	    if(!_reference.empty()) {
+          if (hts_set_fai_filename(sfr->fp->get(),_reference.c_str()) != 0) {
+						THROW_ERROR("Cannot set REF for " << filename);
+              }
+          }
 			
 			  return sfr;
 

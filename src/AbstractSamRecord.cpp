@@ -12,6 +12,11 @@ using namespace htspp;
 			}
 		AbstractSamRecord::~AbstractSamRecord() {
 			}
+			
+		 int AbstractSamRecord::mapq() const {
+			return get_not_null()->core.qual;
+			}
+			
 		 int AbstractSamRecord::flags() const {
 			return get_not_null()->core.flag;
 			}
@@ -69,6 +74,12 @@ using namespace htspp;
 		std::unique_ptr<Cigar> AbstractSamRecord::cigar() const {
 			return std::unique_ptr<Cigar>(new Cigar(get()));
 			}
+	
+		std::string AbstractSamRecord::cigar_string() const {
+			if(!has_cigar()) return "*";
+			Cigar c(get());
+		  return c.to_string();
+		}
 	
 std::vector<AlignmentBlock> AbstractSamRecord::alignment_blocks() const {
 		 std::vector<AlignmentBlock> alignmentBlocks;

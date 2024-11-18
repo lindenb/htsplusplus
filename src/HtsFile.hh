@@ -8,7 +8,7 @@
 #include <htslib/hts.h>
 #include "utils.hh"
 #include "debug.hh"
-
+#include "HtsIdx.hh"
 namespace htspp {
 
 class HtsFile : public Pointer<htsFile> {

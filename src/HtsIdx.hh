@@ -16,6 +16,7 @@ class HtsIndex: public Pointer<hts_idx_t> {
 		virtual int nseq();
 		static std::unique_ptr<HtsIndex> load(const char* filename,int fmt,int flags);
 	  static std::unique_ptr<HtsIndex> wrap(hts_idx_t* idx);
+	  static std::unique_ptr<HtsIndex> of(hts_idx_t* idx);
 	};
 
 }

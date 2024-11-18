@@ -38,6 +38,7 @@ class AbstractSamRecord {
 		virtual int start0() const;
 		virtual hts_pos_t start() const;
 		virtual hts_pos_t end() const;
+		virtual int mapq() const;
 		virtual const char* read_name()  const;
 		virtual bool is_unmapped() const;
         virtual bool is_mate_unmapped() const ;
@@ -57,6 +58,7 @@ class AbstractSamRecord {
 		virtual int num_cigar_elements() const;
 		virtual bool has_cigar() const ;
 		std::unique_ptr<Cigar> cigar() const;
+		std::string cigar_string() const;
 		virtual std::vector<AlignmentBlock> alignment_blocks() const;
 		virtual std::vector<AlignmentBlock>::size_type alignment_blocks(std::vector<AlignmentBlock>& array) const;
 		virtual std::unique_ptr<CigarIterator> cigar_iterator();

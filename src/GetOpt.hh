@@ -14,12 +14,14 @@ public:
 	  std::string long_opt;
 	  bool flag_required;
 	  bool flag_help;
+	  bool flag_hidden;
 	  int count_seen;
 	  char optc;
 	  Option(char c,const char* desc);
 	  virtual ~Option();
 		Option& required();
 		Option& help();
+		Option& hidden();
 		Option& longOpt(const char*);
 		virtual void touch();
 		virtual void process(const char* arg_or_NULL)=0;

@@ -2,6 +2,7 @@
 #define OPTIONAL_HH
 #include <stdexcept>
 #include <iostream>
+#include <sstream>
 #include <string>
 namespace htspp {
 

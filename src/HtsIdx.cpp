@@ -1,5 +1,6 @@
 #include <iostream>
 #include "HtsIdx.hh"
+#include "debug.hh"
 
 using namespace std;
 using namespace htspp;
@@ -19,9 +20,8 @@ void HtsIndex::dispose() {
   }
 
 std::unique_ptr<HtsIndex> HtsIndex::load( const char* filename,int fmt,int flags) {
-	hts_idx_t* i = ::hts_idx_load(filename,fmt);
-	std::unique_ptr<HtsIndex> p( i==NULL?NULL:new HtsIndex(i,true));
-	return p;
+  ASSERT_NOT_NULL(filename);
+	return HtsIndex::of(::hts_idx_load(filename,fmt));
 	}
 
 std::unique_ptr<HtsIndex> HtsIndex::wrap(hts_idx_t* idx) {
@@ -29,6 +29,11 @@ std::unique_ptr<HtsIndex> HtsIndex::wrap(hts_idx_t* idx) {
 	return p;
 	}
 
+std::unique_ptr<HtsIndex> HtsIndex::of(hts_idx_t* idx) {
+	ASSERT_NOT_NULL(idx);
+	std::unique_ptr<HtsIndex> p(new HtsIndex(idx,true));
+	return p;
+	}
 
 int HtsIndex::nseq() {
 	return ::hts_idx_nseq(require_not_null());
