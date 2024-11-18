@@ -11,11 +11,13 @@ private:
 	const SamSequenceDictionary* dict;
 	bool _trim_pos;
 	bool _resolve_contig;
+	bool _contig_only;
 public:
 	GenomicLocParser();
 	GenomicLocParser(const SamSequenceDictionary* dict);
 	~GenomicLocParser();
 	GenomicLocParser& resolve_contigs(bool b);
+	GenomicLocParser& enable_contig_only(bool b);
 	GenomicLocParser& trim_positions(bool b);
 	std::unique_ptr<Locatable> parse(const char* s) const;
 

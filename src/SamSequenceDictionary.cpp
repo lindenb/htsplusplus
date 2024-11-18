@@ -109,6 +109,7 @@ std::unique_ptr<Locatable> SamSequenceDictionary::parseInterval(const char* s) c
 	GenomicLocParser glp(this);
 	glp.resolve_contigs(true);
 	glp.trim_positions(true);
+	glp.enable_contig_only(true);
 	return glp.parse(s);
 	}
 

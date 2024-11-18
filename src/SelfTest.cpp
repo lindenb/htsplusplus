@@ -163,6 +163,13 @@ static void testFaidx1(SelfTest* tester) {
   ASSERT_EQUALS(r->start(),4);
   ASSERT_EQUALS(r->end(),45);
   
+  
+  r= dict->parseInterval("chrref");
+  ASSERT_NOT_NULL(r.get());
+  ASSERT_EQUALS(strcmp(r->contig(),"ref"),0);
+  ASSERT_EQUALS(r->start(),1);
+  ASSERT_EQUALS(r->end(),45);
+  
   ASSERT_THROW(dict->parseInterval("ref:10000-1"));
   ASSERT_THROW(dict->parseInterval("chr2:1-2"));
 	END_TEST
