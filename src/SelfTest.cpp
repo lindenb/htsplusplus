@@ -4,6 +4,7 @@
 #include "Cigar.hh"
 #include "Faidx.hh"
 #include "HtsFile.hh"
+#include "DiscreteMedian.hh"
 #undef ASSERT_NOT_NULL
 using namespace std;
 using namespace htspp;
@@ -165,6 +166,29 @@ static void testHtsFile1(SelfTest* tester) {
 }
 
 
+static void testOptional1(SelfTest* tester) {
+	BEGIN_TEST
+	Optional<int> o1 = make_optional(13);
+	Optional<int> e1 = make_empty_optional<int>();
+	ASSERT_TRUE(o1.isPresent());
+	ASSERT_FALSE(e1.isPresent());
+	ASSERT_EQUALS(o1.get(),13);
+	ASSERT_EQUALS(o1.to_string(),"13");
+	ASSERT_EQUALS(o1.orElse(28),13);
+	ASSERT_EQUALS(e1.orElse(28),28);
+	ASSERT_TRUE(o1==o1);
+	ASSERT_TRUE(e1==e1);
+	ASSERT_FALSE(o1==e1);
+	ASSERT_TRUE(o1!=e1);
+	
+	e1=o1;
+	ASSERT_TRUE(o1==e1);
+	
+	END_TEST
+	}
+
+
+
 void SelfTest::check(const char* fname,int line,bool b) {
 	if(b) {
 	 	n_passing++;
@@ -183,6 +207,7 @@ int SelfTest::run(const char* base) {
 	testCigarOperator1(this);
 	testFaidx1(this);
 	testHtsFile1(this);
+	testOptional1(this);
 	cerr << "Tests done. PASS " << n_passing << " FAIL: " << n_fail << endl;
 	return (int)n_fail;
 	}
