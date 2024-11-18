@@ -1,4 +1,6 @@
+#include <cstring>
 #include <memory>
+#include <algorithm>
 #include "GenomicLocParser.hh"
 #include "Interval.hh"
 #include "debug.hh"
@@ -21,7 +23,11 @@ class TidStartEnd : public Locatable  {
 	};
 
 
-GenomicLocParser::GenomicLocParser():dict(NULL),_trim_pos(false),_resolve_contig(false),_contig_only(false) {
+GenomicLocParser::GenomicLocParser():dict(NULL),_trim_pos(false),
+			_resolve_contig(false),
+			_contig_only(false),
+			_rm_commas(false),
+			_with_suffix(false) {
 	}
 
 GenomicLocParser::GenomicLocParser(const SamSequenceDictionary* dict):dict(dict) {
@@ -46,6 +52,40 @@ _contig_only = b;
 return *this;
 }
 
+GenomicLocParser& GenomicLocParser::remove_commas(bool b) {
+_rm_commas = b;
+return *this;
+}
+
+GenomicLocParser& GenomicLocParser::enable_suffix(bool b) {
+_with_suffix = b;
+return *this;
+}
+
+#define IF_SUFFIX(suffix,FACTOR) \
+	if(s.length() > strlen(suffix) && s.compare(s.length() - strlen(suffix), strlen(suffix), suffix)==0 ) { s.erase(  s.length() - strlen(suffix),strlen(suffix)); factor= FACTOR;}
+
+hts_pos_t GenomicLocParser::parseInt(const char* src,std::string s) const {
+	int factor=1;
+	if(_rm_commas) {
+		auto r_end= std::remove(s.begin(), s.end(), ',');
+		s.erase(r_end, s.end());
+		}
+	if(_with_suffix) {
+		IF_SUFFIX("bp",1)
+		else IF_SUFFIX("b",1)
+		else IF_SUFFIX("kb",1000)
+		else IF_SUFFIX("k",1000)
+		else IF_SUFFIX("mb",1E6)
+		else IF_SUFFIX("m",1E6)
+		else IF_SUFFIX("gb",1E9)
+		else IF_SUFFIX("g",1E9)
+		}
+	hts_pos_t p = std::stoi(s);
+	p*=factor;
+	return p;
+	}
+#undef IF_SUFFIX
 
 std::unique_ptr<Locatable> GenomicLocParser::parse(const char* s0) const {
 	std::unique_ptr<Locatable> p;
@@ -68,14 +108,14 @@ std::unique_ptr<Locatable> GenomicLocParser::parse(const char* s0) const {
 				    THROW_ERROR("cannot find '-' in " << s);        
 				    }
      		contig = s.substr(0,colon);
-    		 beg = std::stoi( s.substr(colon+1,hyphen-(colon+1)));
+    		 beg = parseInt(s0, s.substr(colon+1,hyphen-(colon+1)));
     		 if(beg<1 && _trim_pos) {
     		 		beg= 1;
     		 		}
 				 else if(beg<1)  {
 				    THROW_ERROR("start < 1 in " << s);        
 				    }
-     		stop = std::stoi( s.substr(hyphen+1));
+     		stop = parseInt(s0, s.substr(hyphen+1));
     		}
     		
     if(dict!=NULL && this->_resolve_contig) {

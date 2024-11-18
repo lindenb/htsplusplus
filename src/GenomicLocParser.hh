@@ -12,6 +12,9 @@ private:
 	bool _trim_pos;
 	bool _resolve_contig;
 	bool _contig_only;
+	bool _rm_commas;
+	bool _with_suffix;
+	hts_pos_t parseInt(const char* src,std::string s) const;
 public:
 	GenomicLocParser();
 	GenomicLocParser(const SamSequenceDictionary* dict);
@@ -19,6 +22,8 @@ public:
 	GenomicLocParser& resolve_contigs(bool b);
 	GenomicLocParser& enable_contig_only(bool b);
 	GenomicLocParser& trim_positions(bool b);
+	GenomicLocParser& remove_commas(bool b);
+	GenomicLocParser& enable_suffix(bool b);
 	std::unique_ptr<Locatable> parse(const char* s) const;
 
 };
