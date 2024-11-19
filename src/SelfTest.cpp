@@ -132,11 +132,11 @@ END_TEST
 }
 
 
-SelfTest::SelfTest():n_passing(0L),n_fail(0L) {
-}
+
 static void testFaidx1(SelfTest* tester) {
 	BEGIN_TEST
-	std::unique_ptr<Faidx> obj = Faidx::load("/home/lindenb/src/htsplusplus/tests/toy.fa");
+	string fasta(tester->base + "toy.fa");
+	std::unique_ptr<Faidx> obj = Faidx::load(fasta.c_str());
 	ASSERT_NOT_NULL(obj.get());
 	ASSERT_EQUALS(obj->nseq(),2);
 	ASSERT_EQUALS(strcmp(obj->name(0),"ref"),0);
@@ -177,7 +177,8 @@ static void testFaidx1(SelfTest* tester) {
 
 static void testHtsFile1(SelfTest* tester) {
 	BEGIN_TEST
-	std::unique_ptr<HtsFile> obj = HtsFile::open("/home/lindenb/src/htsplusplus/tests/toy.bam");
+	string path(tester->base + "toy.bam");
+	std::unique_ptr<HtsFile> obj = HtsFile::open(path.c_str());
 	ASSERT_NOT_NULL(obj.get());
 	ASSERT_TRUE(obj->is_open());
 	
@@ -246,8 +247,8 @@ static void testDiscreteMedian3(SelfTest* tester) {
 static void testSamReader1(SelfTest* tester) {
 	BEGIN_TEST
 	std::vector<struct AlignmentBlock> blocks;
-	std::string fasta("/home/lindenb/src/htsplusplus/tests/toy.fa");
-	std::string cram("/home/lindenb/src/htsplusplus/tests/toy.cram");
+	std::string fasta(tester->base + "/toy.fa");
+	std::string cram(tester->base + "toy.cram");
 	for(int with_index=0;with_index < 2;++with_index) {
 		SamFileReaderFactory sfr;
 		sfr.reference(fasta.c_str());
@@ -256,7 +257,7 @@ static void testSamReader1(SelfTest* tester) {
 		auto iter= sr->iterator();
 		ASSERT_NOT_NULL(iter.get());
 		SamRecord rec;
-		
+		std::unique_ptr<CharSequence> seq;
 		int n=0;
 		while(iter->read2(&rec)) {
 			switch(n) {
@@ -267,8 +268,13 @@ static void testSamReader1(SelfTest* tester) {
 						ASSERT_EQUALS(rec.start(),7);
 						ASSERT_EQUALS(rec.mapq(),30);
 						ASSERT_TRUE(rec.has_cigar());
+						ASSERT_EQUALS(rec.read_length(),19);
 						ASSERT_EQUALS(rec.cigar_string().compare("8M4I4M1D3M"),0);
-						
+						seq=rec.read_bases();
+                        ASSERT_NOT_NULL(seq.get());
+                        ASSERT_EQUALS(seq->at(0),'T');
+                        ASSERT_EQUALS(seq->at(1),'T');
+                        ASSERT_EQUALS(seq->to_string().compare("TTAGATAAAGAGGATACTG"),0);
 
 						rec.alignment_blocks(blocks);
 						ASSERT_EQUALS((int)blocks.size(),3);
@@ -296,7 +302,7 @@ static void testSamReader1(SelfTest* tester) {
 static void testSamReader2(SelfTest* tester) {
 	BEGIN_TEST
 	for(int with_index=0;with_index < 2;++with_index) {
-		std::string cram("/home/lindenb/src/htsplusplus/tests/toy.bam");
+		std::string cram(tester->base + "/toy.bam");
 		SamFileReaderFactory sfr;
 		auto sr = sfr.open(cram.c_str(),with_index==1);
 		ASSERT_NOT_NULL(sr.get());
@@ -312,7 +318,11 @@ static void testSamReader2(SelfTest* tester) {
 	END_TEST
 	}
 	
+SelfTest::~SelfTest() {
+}
 
+SelfTest::SelfTest():Program("test","run unit tests"),n_passing(0L),n_fail(0L) {
+}
 
 void SelfTest::check(const char* fname,int line,bool b) {
 	if(b) {
@@ -326,7 +336,14 @@ void SelfTest::check(const char* fname,int line,bool b) {
 		}
 	}
 
-int SelfTest::run(const char* base) {
+
+int SelfTest::main(int argc,char** argv) {
+    GetOpt options;
+    options.ccStringOpt('b',&(this->base),"base directory").required().longOpt("base");
+    if(options.parse(argc,argv)!=0) {
+        return EXIT_FAILURE;
+        }
+    cerr << "base is  " << base << endl;
 	testGetOpt1(this);
 	testCigar1(this);
 	testCigarOperator1(this);

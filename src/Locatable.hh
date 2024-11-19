@@ -21,6 +21,7 @@ class Locatable {
 		virtual hts_pos_t length_on_reference() const;
 		virtual std::ostream& print(std::ostream& out) const;
 		virtual std::string to_string() const;
+		virtual bool contains_position(hts_pos_t pos) const ;
 	};
 
 }

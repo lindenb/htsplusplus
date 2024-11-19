@@ -148,3 +148,36 @@ std::unique_ptr<CigarIterator> AbstractSamRecord::cigar_iterator() {
         bool AbstractSamRecord::isSecondaryOrSupplementary() const { return is_secondary_or_supplementary();}
         int AbstractSamRecord::getFlags() const { return flags();}
         const char* AbstractSamRecord::getReadName() const { return read_name();}
+        
+ /* defined in htslib/sam_internal.h */
+ extern void nibble2base(uint8_t *nib, char *seq, int len);
+ 
+class ReadSeq: public CharSequence {
+    private:
+        uint8_t *s;
+        int len;
+    public:
+       ReadSeq(uint8_t *s,int len):s(s),len(len) {
+        }
+       virtual ~ReadSeq() {
+        };
+        
+       virtual char at(int pos) const {
+         return seq_nt16_str[bam_seqi(s, pos)];
+         }
+       virtual std::size_t length() const {
+        return len;
+        }
+    };
+        
+int AbstractSamRecord::read_length() const {
+    return get()->core.l_qseq;
+    }
+    
+std::unique_ptr<CharSequence> AbstractSamRecord::read_bases() const {
+    std::unique_ptr<CharSequence> p;
+    if(read_length()==0) return p;
+    p.reset(new ReadSeq( bam_get_seq(get()),read_length())) ;
+    return p;
+    }
+   

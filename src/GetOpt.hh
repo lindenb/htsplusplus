@@ -33,7 +33,8 @@ std::vector<GetOpt::Option*> options;
 GetOpt::Option& add(GetOpt::Option* opt);
 public:
   std::vector<char*> files;
-
+  int optind;
+  
 	GetOpt();
 	~GetOpt();
 	void usage(std::ostream& out);

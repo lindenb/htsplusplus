@@ -16,6 +16,7 @@ class CharSequence {
           virtual std::size_t size() const;
           virtual std::size_t length() const=0;
           virtual std::string to_string() const;
+
     };
 
 }

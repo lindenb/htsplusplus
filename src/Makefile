@@ -35,16 +35,20 @@ endef
 
 API_OBJECTS=SamFileReaderFactory SamFileReader HtsFile SamFileHeader HtsIdx Path KString Regex AbstractSamRecord SamRecord SamRecordIterator Interval CharSplitter \
 	GetOpt CigarOperator Cigar CigarIterator CigarElement CoordMath Locatable StringUtils SamSequenceDictionary \
+		HtsPlusPlus \
 		DiscreteMedian \
+		Program \
 		Faidx \
+		Rimbert20241119 \
 		SamSequenceRecord \
 		SelfTest \
 		Optional \
 		CharSequence \
 		GenomicLocParser
 
+OBJECTS=$(API_OBJECTS)
 
-OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader HtsThreadPool utils tests Regex \
+OBJECTS_OLD=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader SamFileHeader HtsThreadPool utils tests Regex \
 	$(addprefix selgt,$(LEX_YACC_OBJ)) \
 	$(addprefix distance_parser,$(LEX_YACC_OBJ)) \
 	SamSequenceDictionary \
@@ -54,6 +58,7 @@ OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader
 	Faidx \
 	bcfhead \
         ContigPos \
+    Rimbert20241119 \
 	SequenceOntology \
 	bcfconcat \
 	samrmdupnames \

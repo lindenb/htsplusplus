@@ -2,6 +2,7 @@
 #include <cassert>
 #include <getopt.h>
 #include "GetOpt.hh"
+#include "debug.hh"
 
 using namespace std;
 using namespace htspp;
@@ -42,7 +43,7 @@ long_opt.assign(s);
 return *this;
 }
 
-GetOpt::GetOpt() {
+GetOpt::GetOpt():optind(0) {
 }
 
 GetOpt::~GetOpt() {
@@ -175,7 +176,9 @@ void GetOpt::usage(std::ostream& out) {
 	for(size_t i=0;i< options.size();i++) {
       GetOpt::Option* opt= options.at(i);
       if(opt->flag_hidden) continue;
-      out << " -" << opt->optc << " " << opt->desc << std::endl;
+      out << " -" << opt->optc ;
+      if(opt->takes_arg()) out << " <arg>";  
+      out <<  " " << opt->desc << std::endl;
       }
   out << std::endl;
 	}
@@ -183,7 +186,6 @@ void GetOpt::usage(std::ostream& out) {
  int GetOpt::parse(int argc,char** argv) {
    std::string optstring;
    std::vector<struct option> loptions;
-   
    for(size_t i=0;i< options.size();i++) {
       GetOpt::Option* opt= options.at(i);
 			optstring+= opt->optc;
@@ -193,22 +195,23 @@ void GetOpt::usage(std::ostream& out) {
 				loptions.push_back(	lo);
 				}
 		}
-		
+
 	 struct option eof={NULL,0,NULL,0};
-	 loptions.push_back(	eof);
-		
+	 loptions.push_back(eof);
 	 bool flag_help_seen=false;
    int opt;
-   while ((opt = ::getopt_long(argc, argv, optstring.c_str(), loptions.data(),NULL)) >0) {
+   int long_index=0;
+   /** reinitialize optind */
+   ::optind = 1;
+   while ((opt = ::getopt_long(argc, argv, optstring.c_str(), loptions.data(),&long_index)) >0) {
    			 if (opt == '?') {
-	          fprintf (stderr, "Unknow option -%c %s\n", optopt, optstring.c_str());
+	          fprintf (stderr, "Unknow option `-%c` (optstring: %s)\n", optopt, optstring.c_str());
 	          return -1;
 	          }
         else if (opt == ':') {
-	          fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+	          fprintf (stderr, "Option `-%c` requires an argument.\n", optopt);
 	          return -1;
 	          }
-   
    		 GetOpt::Option* option= NULL;
        for(size_t i=0;i< options.size();i++) {
             if(options.at(i)->optc==opt) {
@@ -216,7 +219,7 @@ void GetOpt::usage(std::ostream& out) {
             	break;
             	}
           }
-       
+
        if(option==NULL) {
           fprintf (stderr, "Unknow option -%c.\n", opt);
        		return -1;
@@ -227,16 +230,19 @@ void GetOpt::usage(std::ostream& out) {
        option->touch();
        option->process(option->takes_arg()?optarg:NULL);		
        }
-    for(size_t i=0;i< options.size() && !flag_help_seen ;i++) {
+
+      for(size_t i=0;i< options.size() && !flag_help_seen ;i++) {
       GetOpt::Option* opt= options.at(i);
 			if(opt->flag_required && opt->count_seen==0) {
 			  fprintf (stderr, "Option %c was not set.\n", opt->optc);
 			  return -1;
 				}
 			}
-		while(optind <argc) {
-			files.push_back(argv[optind++]);
-			}	
+	this->optind= ::optind;
+	while(::optind <argc) {
+		files.push_back(argv[::optind++]);
+		}
+
      return 0;
      }
- 
+

@@ -3,6 +3,7 @@
 
 #include <cerrno>
 #include "debug.hh"
+#include "CharSequence.hh"
 #include "HtsThreadPool.hh"
 #include "SamFileHeader.hh"
 #include "Cigar.hh"
@@ -62,6 +63,9 @@ class AbstractSamRecord {
 		virtual std::vector<AlignmentBlock> alignment_blocks() const;
 		virtual std::vector<AlignmentBlock>::size_type alignment_blocks(std::vector<AlignmentBlock>& array) const;
 		virtual std::unique_ptr<CigarIterator> cigar_iterator();
+
+        virtual int read_length() const;
+        virtual std::unique_ptr<CharSequence> read_bases() const;
 
         /** java htsdk functions */
         bool getReadUnmappedFlag() const;

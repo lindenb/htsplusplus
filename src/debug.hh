@@ -14,4 +14,5 @@
 #define ASSERT_NOT_NULL(a) if(a==NULL) THROW_ERROR(#a  " is NULL")
 
 
+
 #endif

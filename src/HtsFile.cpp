@@ -67,14 +67,3 @@ std::unique_ptr<HtsFile> HtsFile::wrap(htsFile* pt) {
 	}
 
 
-
-std::unique_ptr<HtsIndex> HtsFile::load_sam_index(const char* bam) {
-	return load_sam_index(bam,NULL);
-	}
-
-std::unique_ptr<HtsIndex> HtsFile::load_sam_index(const char* bam,const char* bai) {
-	hts_idx_t* i = ::sam_index_load2(get(), bam,bai);
- 	if(i==NULL) THROW_ERROR("cannot load index for " << bam);
-	return HtsIndex::of(i);
-	}
-	
