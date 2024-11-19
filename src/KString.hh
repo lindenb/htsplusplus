@@ -1,11 +1,11 @@
 #ifndef KSTRING_HH
 #define KSTRING_HH
 #include <htslib/hts.h>
-#include <iostream>
+#include "CharSequence.hh"
 
 namespace htspp {
 
-class KString {
+class KString : public CharSequence {
 	public:
 		kstring_t ks;
 		KString();
@@ -13,19 +13,23 @@ class KString {
 		KString(const KString& cp);
 		virtual ~KString();
 		virtual kstring_t* get();
-		char operator[](int i) const;
-		const char* c_str() const;
-		KString& reserve(std::size_t n);
-		std::ostream& print(std::ostream& out) const;
+		virtual char at(int i) const;
+		virtual char& operator[](int i);
+		virtual const char* c_str() const;
+		virtual KString& reserve(std::size_t n);
+		virtual std::ostream& print(std::ostream& out) const;
 		
 		
-		std::size_t size() const;
-		std::size_t length() const;
-		KString& clear();
-		KString& append(const char* s);
-		KString& append(char c);
-		KString& append(const char* s,std::size_t n);
+
+		virtual std::size_t length() const;
+		virtual KString& clear();
+		virtual KString& append(const char* s);
+		virtual KString& append(char c);
+		virtual KString& append(const char* s,std::size_t n);
+		
 };
+
+std::ostream& operator<<(std::ostream& out, const KString& cp);
 
 }
 #endif

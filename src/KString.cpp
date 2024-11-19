@@ -22,10 +22,12 @@ kstring_t* KString::get() {
 	return  &ks;
 	}
 
-char KString::operator[](int i) const {
-    return c_str()[i];
+char KString::at(int i) const {
+    return ks.s[i];
     }
-
+char& KString::operator[](int i) {
+    return ks.s[i];
+    }
 const char* KString::c_str() const {
     return ::ks_c_str(const_cast<kstring_t*>(&ks));
     }
@@ -41,9 +43,6 @@ KString& KString::reserve(std::size_t n) {
 	return *this;
 	}
 
-size_t KString::size() const {
-	return ks_len(const_cast<kstring_t*>(&ks));
-}
 
 size_t KString::length() const {
 	return size();
@@ -69,4 +68,8 @@ KString& KString::append(const char* s,size_t n) {
 	::kputsn(s,n,get());
 	return *this;
 }
+
+std::ostream& operator<<(std::ostream& out, const KString& cp) {
+    return cp.print(out);
+    }
 

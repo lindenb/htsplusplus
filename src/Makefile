@@ -40,6 +40,7 @@ API_OBJECTS=SamFileReaderFactory SamFileReader HtsFile SamFileHeader HtsIdx Path
 		SamSequenceRecord \
 		SelfTest \
 		Optional \
+		CharSequence \
 		GenomicLocParser
 
 
@@ -52,7 +53,7 @@ OBJECTS=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfReader
 	Cigar \
 	Faidx \
 	bcfhead \
-    ContigPos \
+        ContigPos \
 	SequenceOntology \
 	bcfconcat \
 	samrmdupnames \
