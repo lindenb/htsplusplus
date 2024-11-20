@@ -269,7 +269,7 @@ for(auto r=cnvs_list.begin();r!=cnvs_list.end();++r) {
 	cout << "\t" << average(normalized,TO_BIN(r->start) , TO_BIN(r->end));
 	if(ansi_blocks) {
 		cout << "\t[";
-		int d = (int)((TO_BIN(r->end) - TO_BIN(r->start))*1.5);
+		int d = (int)((1+ r->end - r->start)*1.5);
 		int x1 = std::max(0,TO_BIN(r->start-d));
 		int x2 = std::min((int)normalized.size(),TO_BIN(r->end+d));
 		//cout << "d=" << d << " x1=" << x1 << " x2=" << x2 << " ";
