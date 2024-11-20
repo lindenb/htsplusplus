@@ -79,6 +79,7 @@ static void runningMedian(vector<int>& coverage,int winsize) {
 static int average(vector<int>& coverage,int a,int b) {
 	double sum=0;
 	int d = (b-a);
+	cerr << a << " " << b << " " << d << endl;
 	while(a<b) {
 		sum+=coverage[a++];
 		}

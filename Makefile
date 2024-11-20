@@ -1,17 +1,15 @@
 
 CC = gcc
 CPPFLAGS = 
-CFLAGS = -g -O2
-LDFLAGS = 
+CFLAGS+= -g -O2
+LDFLAGS += 
 LIBS = 
 
-HTSLIB_CPPFLAGS = -I/home/lindenb/src/htsplusplus/../htslib
-HTSLIB_LDFLAGS = -L/home/lindenb/src/htsplusplus/../htslib
-HTSDIR = /home/lindenb/src/htsplusplus/../htslib
+HTSDIR:=$(word 1,$(realpath ../htslib ../../htslib ${HOME}/src/htslib ${HOME}/packages/htslib ))
 
 
 all:
-	$(MAKE) -C src  HTSLIB_CPPFLAGS=$(HTSLIB_CPPFLAGS) HTSLIB_LDFLAGS=$(HTSLIB_LDFLAGS) HTSDIR=$(HTSDIR)
+	$(MAKE) -C src  HTSDIR=$(HTSDIR) CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
 
 clean:
 	$(MAKE) -C src clean

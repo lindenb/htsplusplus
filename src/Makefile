@@ -1,9 +1,9 @@
 HTSDIR?=../../htslib
 HTSLIB_CPPFLAGS?= -I$(HTSDIR)
 HTSLIB_LDFLAGS?= -L$(HTSDIR)
-CFLAGS=-I. $(HTSLIB_CPPFLAGS) -c -Wall -g -std=c++11 -O3
+CFLAGS=  -I. $(HTSLIB_CPPFLAGS) -c -Wall -g -std=c++11 -O3
 EXTRA_CFLAGS_PIC = -fpic
-LDFLAGS=$(HTSLIB_LDFLAGS)  -lz -lm -lbz2 -llzma -lcurl -lpthread -ldl
+#LDFLAGS+=$(HTSLIB_LDFLAGS)  Ã-ldl -lz -lm -lbz2 -llzma -lcurl -lpthread
 LEX_YACC_OBJ=_main .tab .lex.yy
 CC=g++
 
@@ -79,12 +79,12 @@ OBJECTS_OLD=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfRe
 all: ../bin/hts++
 
 libhts++.so: $(sort $(addsuffix .pico,$(API_OBJECTS)))
-	gcc -shared -fvisibility=hidden -o $@ $^ $(LDFLAGS) -lhts
+	gcc -shared -fvisibility=hidden -o $@ $^ $(LDFLAGS)
 
 
 ../bin/hts++: $(sort $(addsuffix .o,$(OBJECTS))) $(HTSDIR)/libhts.a
 	mkdir -p $(dir $@)
-	$(CC) -o $@ $(filter %.o,$^) $(filter %.a,$^) $(LDFLAGS)
+	$(CC) -o $@ $(filter %.o,$^) $(filter %.a,$^) $(LDFLAGS) -lpthread -lz -lm -lbz2 -llzma -lcurl -lpthread -ldl
 
 tests.o: tests.cpp SamFilterApp.hh programs.hh debug.hh utils.hh
 	$(CC) -c -o $@ $(CFLAGS) $<
