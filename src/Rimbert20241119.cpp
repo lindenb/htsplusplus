@@ -107,7 +107,7 @@ getopt.stringOpt('r',&opt_reg).description("interval").longOpt("interval").requi
 getopt.intOpt('d',&winthin_distance).description("merge interval withing distance 'x'").longOpt("merge");
 getopt.intOpt('m',&run_median_win_size).description("running median window size").longOpt("running-median-length");
 getopt.intOpt('Q',&mapq).description("min mapq").longOpt("mapq");
-getopt.intOpt('s',&mapq).description("min CNV size").longOpt("min-size");
+getopt.intOpt('s',&min_cnv_size).description("min CNV size").longOpt("min-size");
 if(getopt.parse(argc,argv)!=0) {
   this->usage(cerr,&getopt);
 	return EXIT_FAILURE;
