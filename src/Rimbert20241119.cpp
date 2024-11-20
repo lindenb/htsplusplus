@@ -40,8 +40,8 @@ struct BinInfo {
 };
 
 struct CNV {
-hts_pos_t start;
-hts_pos_t end;
+int start;
+int end;
 int svtype;
 };
 
@@ -101,6 +101,7 @@ Rimbert20241119::~Rimbert20241119() {
 
 int Rimbert20241119::main(int argc, char** argv) {
 GetOpt getopt;
+bool ansi_blocks=false;
 int opt_n_bins=100;
 double treshold=0.4;
 int run_median_win_size=7;
@@ -111,7 +112,7 @@ char* bam_file=NULL;
 char* bai_file = NULL;
 char* opt_reg = NULL;
 int mapq=1;
-
+getopt.boolOpt('B',&ansi_blocks).description("plot coverage as ascii").longOpt("blocks");
 getopt.stringOpt('T',&fasta).description("indexed fasta reference").longOpt("reference");
 getopt.stringOpt('r',&opt_reg).description("interval").longOpt("interval").required();
 getopt.intOpt('d',&winthin_distance).description("merge interval withing distance 'x'").longOpt("merge");
@@ -266,6 +267,15 @@ for(auto r=cnvs_list.begin();r!=cnvs_list.end();++r) {
 	cout << "\t" << (bai_file==NULL?".":bai_file);
 	cout << "\t" << median;
 	cout << "\t" << average(normalized,TO_BIN(r->start) , TO_BIN(r->end));
+	if(ansi_blocks) {
+		cout << "\t";
+		int d = (int)((r->end - r->start)*1.5);
+		int x1 = std::max(0,r->start-d);
+		int x2 = std::min((int)normalized.size(),r->end+d);
+		while(x1<x2) {
+			cout << ansi::ANSI::block(normalized[x1++]);
+			}
+		}
 	cout << endl;
 	}
 return 0;

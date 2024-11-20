@@ -31,8 +31,19 @@ using namespace ansi;
 using namespace std;
 
 
+//   https://en.wikipedia.org/wiki/Block_Elements
+// LOWER ONE EIGHTH BLOCK … FULL BLOCK
+#define BLOCK_CHARS_LEN 9
+static const char *const BLOCK_CHARS[BLOCK_CHARS_LEN] = {" ","\u2581", "\u2582", "\u2583", "\u2584", "\u2585", "\u2586", "\u2587", "\u2588"};
+
 bool ANSI::_enabled = ::isatty(::fileno(stdout));
 
 
 bool ANSI::enabled() { return ANSI::_enabled;}
 void ANSI::disable() { ANSI::_enabled=false;}
+
+const char* ANSI::block(double fraction) {
+	int i = std::min(std::max(0,(int)(fraction*BLOCK_CHARS_LEN)),BLOCK_CHARS_LEN-1) ;
+	if(fraction>0 && i==0) i=1;
+	return BLOCK_CHARS[i];
+	}

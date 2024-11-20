@@ -35,6 +35,7 @@ class ANSI {
 	public:
 		static bool enabled();
 		static void disable();
+		static const char* block(double fraction);
 	};
 
 
