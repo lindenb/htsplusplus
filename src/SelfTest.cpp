@@ -51,6 +51,15 @@ using namespace htspp;
 #define BEGIN_TEST try {
 #define END_TEST } catch(std::exception& err) {cerr << err.what() << endl;} catch(...) {cerr << "BOUM catch(...) " << endl;}
 
+static void testANSI1(SelfTest* tester) {
+	BEGIN_TEST
+	ASSERT_EQUALS(strcmp(ansi::ANSI::block(1.0), "\u2588"),0);
+	ASSERT_EQUALS(strcmp(ansi::ANSI::block(0.0), " "),0);
+	ASSERT_EQUALS(strcmp(ansi::ANSI::block(0.0000001), "\u2581"),0);
+	ASSERT_EQUALS(strcmp(ansi::ANSI::block(0.5), "\u2584"),0);
+	END_TEST
+	}
+
 static void testGetOpt1(SelfTest* tester) {
 	BEGIN_TEST
 	GetOpt obj;
@@ -370,6 +379,7 @@ int SelfTest::main(int argc,char** argv) {
         return EXIT_FAILURE;
         }
     cerr << "base is  " << base << endl;
+  testANSI1(this);
 	testGetOpt1(this);
 	testCigar1(this);
 	testCigarOperator1(this);

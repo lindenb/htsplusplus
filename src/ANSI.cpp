@@ -34,7 +34,7 @@ using namespace std;
 //   https://en.wikipedia.org/wiki/Block_Elements
 // LOWER ONE EIGHTH BLOCK … FULL BLOCK
 #define BLOCK_CHARS_LEN 9
-static const char *const BLOCK_CHARS[BLOCK_CHARS_LEN] = {".","\u2581", "\u2582", "\u2583", "\u2584", "\u2585", "\u2586", "\u2587", "\u2588"};
+static const char *const BLOCK_CHARS[BLOCK_CHARS_LEN] = {" ","\u2581", "\u2582", "\u2583", "\u2584", "\u2585", "\u2586", "\u2587", "\u2588"};
 
 bool ANSI::_enabled = ::isatty(::fileno(stdout));
 
