@@ -88,6 +88,12 @@ using namespace htspp;
          bool AbstractSamRecord::is_supplementary() const { return has_flag(BAM_FSUPPLEMENTARY);}
          bool AbstractSamRecord::is_secondary_or_supplementary() const { return is_secondary() || is_supplementary() ;}
 
+	 bool AbstractSamRecord::is_ignorable() const {
+		return is_unmapped() || is_duplicate() || is_secondary_or_supplementary() || is_qc_fail();
+		}
+	 bool AbstractSamRecord::is_ignorable(int mapQ) const {
+		return is_ignorable() || mapq() < mapQ;
+		}
 
 		 int AbstractSamRecord::num_cigar_elements() const {
 			return get()->core.n_cigar;

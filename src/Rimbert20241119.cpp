@@ -100,10 +100,12 @@ char* fasta=NULL;
 char* bam_file=NULL;
 char* bai_file = NULL;
 char* opt_reg = NULL;
+int mapq=1;
 getopt.stringOpt('T',&fasta).description("indexed fasta reference").longOpt("reference").required();
 getopt.stringOpt('r',&opt_reg).description("interval").longOpt("interval").required();
 getopt.intOpt('d',&winthin_distance).description("merge interval withing distance 'x'").longOpt("merge");
 getopt.intOpt('m',&run_median_win_size).description("running median window size").longOpt("running-median-length");
+getopt.intOpt('Q',&mapq).description("min mapq").longOpt("mapq");
 if(getopt.parse(argc,argv)!=0) {
   this->usage(cerr,&getopt);
 	return EXIT_FAILURE;
@@ -132,6 +134,7 @@ SamRecord rec;
 vector<AlignmentBlock> alignmentBlocks;
 vector<int32_t> coverage(reg->length_on_reference(), 0);
 while(iter->read2(&rec)) {
+	if(rec.is_ignorable(mapq)) continue;
 	rec.alignment_blocks(alignmentBlocks);
 	for(size_t i=0;i< alignmentBlocks.size();++i) {
 		AlignmentBlock& ab = alignmentBlocks[i];

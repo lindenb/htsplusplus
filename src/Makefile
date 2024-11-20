@@ -74,12 +74,13 @@ OBJECTS_OLD=bcfprune htsplusplus samviewwithmate RegIdx HtsFile  BcfHeader BcfRe
 	$(CC) -c -o $@ $(CFLAGS) $(EXTRA_CFLAGS_PIC) $<
 
 
-SelfTest.cpp: DiscreteMedian.hh
+
+
+all: ../bin/hts++
 
 libhts++.so: $(sort $(addsuffix .pico,$(API_OBJECTS)))
 	gcc -shared -fvisibility=hidden -o $@ $^ $(LDFLAGS) -lhts
 
-all: ../bin/hts++ ../README.md tests2
 
 ../bin/hts++: $(sort $(addsuffix .o,$(OBJECTS))) $(HTSDIR)/libhts.a
 	mkdir -p $(dir $@)

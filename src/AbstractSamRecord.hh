@@ -79,6 +79,8 @@ class AbstractSamRecord {
         virtual bool is_secondary() const;
         virtual bool is_supplementary() const;
         virtual bool is_secondary_or_supplementary() const;
+        virtual bool is_ignorable() const;
+        virtual bool is_ignorable(int mapq) const;
 
 
 		virtual int num_cigar_elements() const;
