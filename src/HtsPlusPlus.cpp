@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstring>
 #include <vector>
+#include "ANSI.hh"
 #include "Program.hh"
 #include "SelfTest.hh"
 #include "Rimbert20241119.hh"
@@ -22,7 +23,7 @@ public:
         out << "available programs:" << endl;
         for(auto i=subprograms.begin(); i!=subprograms.end();++i) {
             if((*i)->is_hidden()) continue;
-            out << " - " << (*i)->name() << "\t" << (*i)->description() << endl;
+            out << ANSI_GREEN( " - " << (*i)->name()) << "\t" << ANSI_BLUE( (*i)->description() ) << endl;
             }
         out << endl;
         }

@@ -58,7 +58,12 @@ const char* SamFileHeader::tid2name(int tid) const {
 	}
 
 std::set<std::string> SamFileHeader::samples() {
-				std::set<std::string> _samples;
+				std::set<std::string> sns;
+				this->samples(sns);
+				return sns;
+				}				
+				
+std::set<std::string>::size_type SamFileHeader::samples(std::set<std::string>& _samples) {
 				/* get the RG lines */
 				int n_rg = ::sam_hdr_count_lines(get(), "RG");
 				kstring_t sm_val = KS_INITIALIZE;
@@ -69,7 +74,7 @@ std::set<std::string> SamFileHeader::samples() {
 				    _samples.insert(sample);
 					}
 				ks_free(&sm_val);
-				return _samples;
+				return _samples.size();
 				}
 
 std::shared_ptr<SamSequenceDictionary> SamFileHeader::dictionary() const {

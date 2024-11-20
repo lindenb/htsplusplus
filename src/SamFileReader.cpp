@@ -98,7 +98,9 @@ class SamRecordIndexIterator: public AbstractSamRecordIter {
 			}
 
 		std::unique_ptr<SamRecordIterator> SamFileReader::query(const char* reg) {
-			if(reg==NULL) THROW_ERROR("reg is NULL");
+			ASSERT_NOT_NULL(reg);
+		  ASSERT_NOT_NULL(idx->get());
+		  ASSERT_NOT_NULL(header->get());
 			hts_itr_t* iter = ::sam_itr_querys(idx->get(), header->get(), reg);
 			if(iter==NULL) THROW_ERROR("cannot sam_itr_querys for "<< reg);
 			SamRecordIterator* it = new SamRecordIndexIterator(this,iter);

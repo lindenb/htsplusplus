@@ -26,8 +26,8 @@ class SamFileHeader:public Pointer<sam_hdr_t> {
 		virtual bool is_coordinate_sorted() ;
 		virtual void assert_coordinate_sorted();
 		virtual std::set<std::string> samples();
+		virtual std::set<std::string>::size_type samples(std::set<std::string>& samples);
 		virtual std::shared_ptr<SamSequenceDictionary> dictionary() const;
-
 		static std::unique_ptr<SamFileHeader> read(samFile *fp,int flag);
 		static std::unique_ptr<SamFileHeader> wrap(sam_hdr_t *header);
 	};

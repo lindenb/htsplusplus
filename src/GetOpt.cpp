@@ -2,16 +2,19 @@
 #include <cassert>
 #include <getopt.h>
 #include "GetOpt.hh"
+#include "ANSI.hh"
 #include "debug.hh"
 
 using namespace std;
 using namespace htspp;
 
- GetOpt::Option::Option(char c,const char* desc):desc(desc==NULL?"no description":desc),
+ GetOpt::Option::Option(char c,void* ptr):_ptr(ptr),
+ 			desc("no description"),
  			flag_required(false),
  			flag_help(false),
  			flag_hidden(false),
  			count_seen(0),
+ 			_argname("arg"),
  			optc(c) {
  	}
  
@@ -43,6 +46,18 @@ long_opt.assign(s);
 return *this;
 }
 
+
+ GetOpt::Option& GetOpt::Option::description(const char* s) {
+ desc.assign(s);
+ return *this;
+ }
+
+ 
+GetOpt::Option& GetOpt::Option::argName(const char* s) {
+_argname.assign(s);
+return *this;
+}
+
 GetOpt::GetOpt():optind(0) {
 }
 
@@ -51,120 +66,127 @@ for(size_t i=0;i< options.size();i++) {
 	delete options[i];
 	}
 }
-
+/**********************************************************************************/
 class BoolOpt:public  GetOpt::Option {
 public:
   bool* ptr;
-	BoolOpt(char c,const char* desc,bool* ptr): GetOpt::Option(c,desc),ptr(ptr) {
+	BoolOpt(char c,bool* ptr): GetOpt::Option(c,NULL),ptr(ptr) {
 		}
 	virtual ~BoolOpt() {}
 	virtual bool takes_arg() { return false;}
 	virtual void process(const char* arg_or_NULL) {assert(arg_or_NULL==NULL);*ptr=true;}
+	virtual void write_default(std::ostream& out) {out << *ptr;}
 };
 
 
-GetOpt::Option& GetOpt::boolOpt(char c,bool* arg,const char* description) {
-	return add(new BoolOpt(c,description,arg));
+GetOpt::Option& GetOpt::boolOpt(char c,bool* arg) {
+	return add(new BoolOpt(c,arg));
 	}
-
+/**********************************************************************************/
 class In32Opt:public  GetOpt::Option {
 public:
   int32_t* ptr;
-	In32Opt(char c,const char* desc,int32_t* ptr): GetOpt::Option(c,desc),ptr(ptr) {
+	In32Opt(char c,int32_t* ptr): GetOpt::Option(c,ptr),ptr(ptr) {
 		}
 	virtual ~In32Opt() {}
 	virtual bool takes_arg() { return true;}
 	virtual void process(const char* arg) {assert(arg!=NULL);*ptr=atoi(arg);}
+	virtual void write_default(std::ostream& out) {out << *ptr;}
 };
 
 
-GetOpt::Option& GetOpt::intOpt(char c,int32_t* arg,const char* description) {
-
-
-
-	return add(new In32Opt(c,description,arg));
+GetOpt::Option& GetOpt::intOpt(char c,int32_t* arg) {
+	return add(new In32Opt(c,arg));
 	}
-
+/**********************************************************************************/
 
 class DoubleOpt:public  GetOpt::Option {
 public:
   double* ptr;
-	DoubleOpt(char c,const char* desc,double* ptr): GetOpt::Option(c,desc),ptr(ptr) {
+	DoubleOpt(char c,double* ptr): GetOpt::Option(c,ptr),ptr(ptr) {
 		}
 	virtual ~DoubleOpt() {}
 	virtual bool takes_arg() { return true;}
 	virtual void process(const char* arg) {assert(arg!=NULL);*ptr=atof(arg);}
+	virtual void write_default(std::ostream& out) {out << *ptr;}
 };
 
 
-GetOpt::Option& GetOpt::doubleOpt(char c,double* arg,const char* description) {
-	return add(new DoubleOpt(c,description,arg));
+GetOpt::Option& GetOpt::doubleOpt(char c,double* arg) {
+	return add(new DoubleOpt(c,arg));
 	}
 
-
+/**********************************************************************************/
 class CStringOpt:public  GetOpt::Option {
 public:
   char** ptr;
-	CStringOpt(char c,const char* desc,char** ptr): GetOpt::Option(c,desc),ptr(ptr) {
+	CStringOpt(char c,char** ptr): GetOpt::Option(c,ptr),ptr(ptr) {
 		}
 	virtual ~CStringOpt() {}
 	virtual bool takes_arg() { return true;}
 	virtual void process(const char* arg) {assert(arg!=NULL);*ptr=const_cast<char*>(arg);}
+	virtual void write_default(std::ostream& out) {out << (*ptr==NULL?"(NULL)":*ptr);}
 };
 
 
-GetOpt::Option& GetOpt::cStringOpt(char c,char** arg,const char* description) {
-	return add(new CStringOpt(c,description,arg));
+GetOpt::Option& GetOpt::stringOpt(char c,char** arg) {
+	return add(new CStringOpt(c,arg));
 	}
 
-
+/**********************************************************************************/
 
 
 class CCStringOpt:public  GetOpt::Option {
 public:
   std::string* ptr;
-	CCStringOpt(char c,const char* desc,std::string* ptr): GetOpt::Option(c,desc),ptr(ptr) {
+	CCStringOpt(char c,std::string* ptr): GetOpt::Option(c,ptr),ptr(ptr) {
 		}
 	virtual ~CCStringOpt() {}
 	virtual bool takes_arg() { return true;}
 	virtual void process(const char* arg) {assert(arg!=NULL);ptr->assign(arg);}
+	virtual void write_default(std::ostream& out) {out << *ptr;}
 };
 
 
-GetOpt::Option& GetOpt::ccStringOpt(char c,std::string* arg,const char* description) {
-	return add(new CCStringOpt(c,description,arg));
+GetOpt::Option& GetOpt::ccStringOpt(char c,std::string* arg) {
+	return add(new CCStringOpt(c,arg));
 	}
 
-
+/**********************************************************************************/
 
 
 
 class StringsOpt:public  GetOpt::Option {
 public:
   std::vector<std::string>* ptr;
-	StringsOpt(char c,const char* desc,std::vector<std::string>* ptr): GetOpt::Option(c,desc),ptr(ptr) {
+	StringsOpt(char c,std::vector<std::string>* ptr): GetOpt::Option(c,ptr),ptr(ptr) {
 		}
 	virtual ~StringsOpt() {}
 	virtual bool takes_arg() { return true;}
 	virtual void process(const char* arg) {assert(arg!=NULL);ptr->push_back(arg);}
+	virtual void write_default(std::ostream& out) {}
 };
 
 
-GetOpt::Option& GetOpt::stringsOpt(char c,std::vector<std::string>* arg,const char* description) {
-	return add(new StringsOpt(c,description,arg));
+GetOpt::Option& GetOpt::stringsOpt(char c,std::vector<std::string>* arg) {
+	return add(new StringsOpt(c,arg));
 	}
-
+/**********************************************************************************/
 
 
 GetOpt::Option&  GetOpt::add(GetOpt::Option* opt) {
+	if(opt->optc==0 && opt->long_opt.empty() ) {
+		THROW_ERROR("no long/short opt defined");
+		}
 	for(size_t i=0;i< options.size();i++) {
-      if(options.at(i)->optc==opt->optc) {
-       fprintf (stderr, "duplicate option %c\n", opt->optc);
-      	exit(EXIT_FAILURE);
+      if(opt->optc!=0 && options.at(i)->optc==opt->optc) {
+       THROW_ERROR("duplicate option " << (char)opt->optc);
       	}
        if(!opt->long_opt.empty() && options.at(i)->long_opt==opt->long_opt) {
-       fprintf (stderr, "duplicate option %s\n", opt->long_opt.c_str());
-      	exit(EXIT_FAILURE);
+     		THROW_ERROR( "duplicate option " << opt->long_opt.c_str());
+      	}
+      if(opt->_ptr!=0 && options.at(i)->_ptr==opt->_ptr) {
+      	THROW_ERROR( "two options share the same ptr");
       	}
       }
   options.push_back(opt);
@@ -176,9 +198,19 @@ void GetOpt::usage(std::ostream& out) {
 	for(size_t i=0;i< options.size();i++) {
       GetOpt::Option* opt= options.at(i);
       if(opt->flag_hidden) continue;
-      out << " -" << opt->optc ;
-      if(opt->takes_arg()) out << " <arg>";  
-      out <<  " " << opt->desc << std::endl;
+      out << " ";
+      if(opt->optc!=0) {
+      	out << ANSI_GREEN( "-" << (char)opt->optc);
+      	if(!opt->long_opt.empty()) out << "|";
+      	}
+      if(!opt->long_opt.empty()) {
+      	out << ANSI_GREEN( "--" << opt->long_opt);
+      	}
+      if(opt->takes_arg()) out << ANSI_BLUE( " <" << opt->_argname << ">" ) ;  
+      out <<  " " << ansi::white << opt->desc << ansi::reset;
+      if(opt->flag_required)   out <<  " " << ANSI_YELLOW( "[REQUIRED]");
+     	if(opt->takes_arg()) {out<< ". " << ansi::cyan << "[" ; opt->write_default(out)  ; out << "]" << ansi::reset ;}
+      out << std::endl;
       }
   out << std::endl;
 	}
@@ -188,8 +220,15 @@ void GetOpt::usage(std::ostream& out) {
    std::vector<struct option> loptions;
    for(size_t i=0;i< options.size();i++) {
       GetOpt::Option* opt= options.at(i);
-			optstring+= opt->optc;
-			if(opt->takes_arg()) optstring+=":";
+      if(opt->optc==0 && opt->long_opt.empty()) {
+      	THROW_ERROR("option.c=0 && option.longopt.empty()");
+      }
+      
+      if(opt->optc!=0) {
+				optstring+= opt->optc;
+				if(opt->takes_arg()) optstring+=":";
+				}
+			
 			if(!opt->long_opt.empty()) {
 				struct option lo={opt->long_opt.c_str(),opt->takes_arg()?required_argument:no_argument,NULL,opt->optc};
 				loptions.push_back(	lo);
@@ -205,11 +244,11 @@ void GetOpt::usage(std::ostream& out) {
    ::optind = 1;
    while ((opt = ::getopt_long(argc, argv, optstring.c_str(), loptions.data(),&long_index)) >0) {
    			 if (opt == '?') {
-	          fprintf (stderr, "Unknow option `-%c` (optstring: %s)\n", optopt, optstring.c_str());
+	          cerr << ansi::red << "Unknow option `-" << (char)optopt << "` \n" << ansi::reset;
 	          return -1;
 	          }
         else if (opt == ':') {
-	          fprintf (stderr, "Option `-%c` requires an argument.\n", optopt);
+	          cerr << ansi::red << "Option `-" << (char)optopt  <<  "` requires an argument.\n" << ansi::reset;
 	          return -1;
 	          }
    		 GetOpt::Option* option= NULL;
@@ -221,7 +260,7 @@ void GetOpt::usage(std::ostream& out) {
           }
 
        if(option==NULL) {
-          fprintf (stderr, "Unknow option -%c.\n", opt);
+ 	      	cerr << ansi::red << "Unknow option `-" << (char)opt << "` \n" << ansi::reset;
        		return -1;
        		}
        if(option->flag_help) {
@@ -234,13 +273,13 @@ void GetOpt::usage(std::ostream& out) {
       for(size_t i=0;i< options.size() && !flag_help_seen ;i++) {
       GetOpt::Option* opt= options.at(i);
 			if(opt->flag_required && opt->count_seen==0) {
-			  fprintf (stderr, "Option %c was not set.\n", opt->optc);
+				cerr << ANSI_RED("Option `-" << (char)opt->optc << "` was not set \n");
 			  return -1;
 				}
 			}
 	this->optind= ::optind;
-	while(::optind <argc) {
-		files.push_back(argv[::optind++]);
+	for(int i=::optind ; i <argc;++i) {
+		files.push_back(argv[i]);
 		}
 
      return 0;

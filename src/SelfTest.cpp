@@ -8,6 +8,7 @@
 #include "DiscreteMedian.hh"
 #include "SamRecord.hh"
 #include "SamFileReaderFactory.hh"
+#include "ANSI.hh"
 #undef ASSERT_NOT_NULL
 using namespace std;
 using namespace htspp;
@@ -30,7 +31,7 @@ static void testGetOpt1(SelfTest* tester) {
 	GetOpt obj;
 	bool arg=false;
 	const char* argv[]={"exe","-x"};
-	obj.boolOpt('x',&arg,"desc");
+	obj.boolOpt('x',&arg);
 	int v = obj.parse(2,(char**)argv);
 	ASSERT_EQUALS(v,0);
 	ASSERT_EQUALS(arg,true);
@@ -331,7 +332,7 @@ void SelfTest::check(const char* fname,int line,bool b) {
 	else
 		{
 		n_fail++;
-		cerr << "FAIL at " << fname << ":" << line << endl;
+		cerr << ansi::red << "FAIL at " << fname << ":" << line << ansi::reset << endl;
 		throw std::runtime_error("failing");
 		}
 	}
@@ -339,7 +340,7 @@ void SelfTest::check(const char* fname,int line,bool b) {
 
 int SelfTest::main(int argc,char** argv) {
     GetOpt options;
-    options.ccStringOpt('b',&(this->base),"base directory").required().longOpt("base");
+    options.ccStringOpt('b',&(this->base)).argName("directory").description("base directory").required().longOpt("base");
     if(options.parse(argc,argv)!=0) {
         return EXIT_FAILURE;
         }
@@ -355,7 +356,7 @@ int SelfTest::main(int argc,char** argv) {
 	testDiscreteMedian3(this);
 	testSamReader1(this);
 	testSamReader2(this);
-	cerr << "Tests done. PASS " << n_passing << " FAIL: " << n_fail << endl;
+	cerr << "Tests done. " << ansi::green <<  "PASS:" << n_passing << " " << ansi::red << " FAIL: " << n_fail << ansi::reset << endl;
 	return (int)n_fail;
 	}
 

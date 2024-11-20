@@ -1,7 +1,7 @@
 HTSDIR?=../../htslib
 HTSLIB_CPPFLAGS?= -I$(HTSDIR)
 HTSLIB_LDFLAGS?= -L$(HTSDIR)
-CFLAGS=-I. $(HTSLIB_CPPFLAGS) -c -Wall -g -std=c++11
+CFLAGS=-I. $(HTSLIB_CPPFLAGS) -c -Wall -g -std=c++11 -O3
 EXTRA_CFLAGS_PIC = -fpic
 LDFLAGS=$(HTSLIB_LDFLAGS)  -lz -lm -lbz2 -llzma -lcurl -lpthread
 LEX_YACC_OBJ=_main .tab .lex.yy
@@ -36,6 +36,7 @@ endef
 API_OBJECTS=SamFileReaderFactory SamFileReader HtsFile SamFileHeader HtsIdx Path KString Regex AbstractSamRecord SamRecord SamRecordIterator Interval CharSplitter \
 	GetOpt CigarOperator Cigar CigarIterator CigarElement CoordMath Locatable StringUtils SamSequenceDictionary \
 		HtsPlusPlus \
+		ANSI \
 		DiscreteMedian \
 		Program \
 		Faidx \

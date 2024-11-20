@@ -1,8 +1,5 @@
 #include <cassert>
 #include <sstream>
-
-#include <sam_internal.h>
-
 #include "SamRecord.hh"
 
 using namespace htspp;

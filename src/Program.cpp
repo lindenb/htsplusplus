@@ -15,3 +15,13 @@ bool Program::is_hidden() const {
  
 const char* Program::name() const { return _name.c_str();}
 const char* Program::description() const { return _description.c_str();}
+
+
+void Program::usage(std::ostream& out,GetOpt* getopt) {
+	out << _name << endl;
+	out << "Description: " << _description << endl;
+	if(getopt!=NULL) {
+		getopt->usage(out);
+		}
+	out << endl;
+	}
