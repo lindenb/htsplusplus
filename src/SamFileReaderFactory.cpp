@@ -42,7 +42,13 @@ SamFileReaderFactory& SamFileReaderFactory::threads(HtsThreadPool* threadPool) {
 
 
 SamFileReaderFactory& SamFileReaderFactory::reference(const char* fasta) {
-		this->_reference.assign(fasta);
+		if(fasta==NULL) {
+				this->_reference.clear();
+			}
+		else
+			{
+			this->_reference.assign(fasta);
+			}
 		return *this;
 		}
 

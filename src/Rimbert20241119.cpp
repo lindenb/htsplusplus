@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-
+#include <cmath>
 #include <cstdlib>
 #include "GetOpt.hh"
 #include "SamFileReaderFactory.hh"
@@ -34,11 +34,17 @@ SOFTWARE.
 using namespace htspp;
 using namespace std;
 
+
+struct BinInfo {
+
+};
+
 struct CNV {
 hts_pos_t start;
 hts_pos_t end;
 int svtype;
 };
+
 
 static double median(int* array0,int winsize) {
 	int array[winsize];
@@ -76,14 +82,14 @@ static void runningMedian(vector<int>& coverage,int winsize) {
     coverage.swap(copy);
     }
 
-static int average(vector<int>& coverage,int a,int b) {
+static double average(vector<double>& coverage,int a,int b) {
 	double sum=0;
-	int d = (b-a);
-	cerr << a << " " << b << " " << d << endl;
-	while(a<b) {
+	int count=0;
+	while(a<b && a < (int)coverage.size()) {
 		sum+=coverage[a++];
+		++count;
 		}
-	return (int)(sum/(d));
+	return (sum/count);
   }
 
 Rimbert20241119::Rimbert20241119():Program("rimbert20241119","find sv in region by looking at the median depth") {
@@ -95,6 +101,8 @@ Rimbert20241119::~Rimbert20241119() {
 
 int Rimbert20241119::main(int argc, char** argv) {
 GetOpt getopt;
+int opt_n_bins=100;
+double treshold=0.4;
 int run_median_win_size=7;
 int winthin_distance=20;
 int min_cnv_size=100;
@@ -103,12 +111,16 @@ char* bam_file=NULL;
 char* bai_file = NULL;
 char* opt_reg = NULL;
 int mapq=1;
-getopt.stringOpt('T',&fasta).description("indexed fasta reference").longOpt("reference").required();
+
+getopt.stringOpt('T',&fasta).description("indexed fasta reference").longOpt("reference");
 getopt.stringOpt('r',&opt_reg).description("interval").longOpt("interval").required();
 getopt.intOpt('d',&winthin_distance).description("merge interval withing distance 'x'").longOpt("merge");
 getopt.intOpt('m',&run_median_win_size).description("running median window size").longOpt("running-median-length");
 getopt.intOpt('Q',&mapq).description("min mapq").longOpt("mapq");
 getopt.intOpt('s',&min_cnv_size).description("min CNV size").longOpt("min-size");
+getopt.doubleOpt('f',&treshold).description("CNV treshold  DUP > 1.0+x  DEL =< 1.0-x ").longOpt("treshold");
+getopt.intOpt('w',&opt_n_bins).description(" number of bins").longOpt("n-bins");
+
 if(getopt.parse(argc,argv)!=0) {
   this->usage(cerr,&getopt);
 	return EXIT_FAILURE;
@@ -132,59 +144,97 @@ SamFileReaderFactory sfr;
 sfr.reference(fasta);
 unique_ptr<SamFileReader> sr = sfr.open(bam_file,bai_file,true);
 auto reg = sr->dictionary()->parseInterval(opt_reg);
+if(reg->length_on_reference() <opt_n_bins) {
+	opt_n_bins = reg->length_on_reference();
+	WARNING("interval is too short. Adjusting bin to " << opt_n_bins);
+	}
 unique_ptr<SamRecordIterator> iter= sr->query_by_loc(reg.get());
 SamRecord rec;
 vector<AlignmentBlock> alignmentBlocks;
-vector<int32_t> coverage(reg->length_on_reference(), 0);
+vector<int32_t> coverage(opt_n_bins,0);
+double base_per_bin = (reg->length_on_reference()/opt_n_bins);
+
+#define TO_BIN(X)  ((int)(((X - reg->start() )/(double)reg->length_on_reference())  * opt_n_bins))
+
+int n_reads=0;
 while(iter->read2(&rec)) {
 	if(rec.is_ignorable(mapq)) continue;
 	rec.alignment_blocks(alignmentBlocks);
+	n_reads++;
+	hts_pos_t prev_pos=-1;
 	for(size_t i=0;i< alignmentBlocks.size();++i) {
 		AlignmentBlock& ab = alignmentBlocks[i];
 		for(int x=0; x < ab.length;++x) {
-			int refpos = ab.referenceStart +x;
-			if(!reg->contains_position(refpos)) continue;
-			coverage[refpos-reg->start()]++;
+			hts_pos_t refpos = ab.referenceStart +x;
+			if(refpos <= prev_pos) continue;
+			prev_pos = refpos;
+			if(!reg->contains_position(refpos)) {
+				continue;
+				}
+			int bin_idx= TO_BIN(refpos);
+
+			if(bin_idx<0 || bin_idx>=(int)coverage.size()) {
+				continue;
+				}
+			coverage[bin_idx]++;
 			}
 		}
 	}
-	
+
 runningMedian(coverage,run_median_win_size);	
 	
 DiscreteMedian<int> dm;
 for(auto i=coverage.begin();i!=coverage.end();i++) {
-    dm.accept(*i);
+		double x  = ceil((*i)/(double)base_per_bin);
+		*i = (int)x;
+    dm.accept(x);
     }
+
 Optional<double> median_obj = dm.median();
 if(!median_obj.isPresent()) {
 	cerr <<  ANSI_RED("no median can be exracted") << std::endl;
 	return EXIT_FAILURE;
 	}
+
+
 double median = median_obj.get();
-#define is_dup(DP) (DP>=median*1.4)
-#define is_del(DP) (DP<=median*0.6)
+
+vector<double> normalized(coverage.size(),0.0);
+for(size_t i=0;i< coverage.size();i++) {
+	normalized[i] = (median==0?coverage[i]:coverage[i]/median);
+	/*
+		int n = (int)(normalized[i]*20.0);
+	for(int k=0;k< n;k++) cout << "*";
+	cout << " " << normalized[i]  << ":" << coverage[i] << endl;
+	*/
+}
+
+
+#define TO_COORD(X) (reg->start()+(X*base_per_bin))
+#define is_dup(DP) (DP>(1.0+treshold))
+#define is_del(DP) (DP<=(1.0-treshold))
 vector<CNV> cnvs_list;
 /** find CNVs */
 size_t i=0;
-while(i< coverage.size()) {
-    int dp = coverage[i];
+while(i< normalized.size()) {
+    double dp = normalized[i];
     if(is_dup(dp)) {
         CNV cnv;
-        cnv.start = reg->start()+i;
-        while(i< coverage.size() && is_dup(coverage[i])) {
+        cnv.start = TO_COORD(i);
+        while(i< normalized.size() && is_dup(normalized[i])) {
             i++;
             }
-        cnv.end = reg->start()+i;
+        cnv.end = TO_COORD(i);
         cnv.svtype=1;
         if(cnv.end - cnv.start >= min_cnv_size) cnvs_list.push_back(cnv);
         }
     else if(is_del(dp)) {
         CNV cnv;
-        cnv.start = reg->start()+i;
-        while(i< coverage.size() && is_del(coverage[i])) {
+        cnv.start = TO_COORD(i);
+        while(i< normalized.size() && is_del(normalized[i])) {
             i++;
             }
-        cnv.end = reg->start()+i;
+        cnv.end = TO_COORD(i);
         cnv.svtype=-1;
         if(cnv.end - cnv.start >= min_cnv_size) cnvs_list.push_back(cnv);
         }
@@ -215,7 +265,7 @@ for(auto r=cnvs_list.begin();r!=cnvs_list.end();++r) {
 	cout << "\t" << bam_file ;
 	cout << "\t" << (bai_file==NULL?".":bai_file);
 	cout << "\t" << median;
-	cout << "\t" << average(coverage,r->start -reg->start() , r->end - reg->start());
+	cout << "\t" << average(normalized,TO_BIN(r->start) , TO_BIN(r->end));
 	cout << endl;
 	}
 return 0;
