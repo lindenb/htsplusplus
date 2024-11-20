@@ -96,6 +96,7 @@ int Rimbert20241119::main(int argc, char** argv) {
 GetOpt getopt;
 int run_median_win_size=7;
 int winthin_distance=20;
+int min_cnv_size=100;
 char* fasta=NULL;
 char* bam_file=NULL;
 char* bai_file = NULL;
@@ -106,6 +107,7 @@ getopt.stringOpt('r',&opt_reg).description("interval").longOpt("interval").requi
 getopt.intOpt('d',&winthin_distance).description("merge interval withing distance 'x'").longOpt("merge");
 getopt.intOpt('m',&run_median_win_size).description("running median window size").longOpt("running-median-length");
 getopt.intOpt('Q',&mapq).description("min mapq").longOpt("mapq");
+getopt.intOpt('s',&mapq).description("min CNV size").longOpt("min-size");
 if(getopt.parse(argc,argv)!=0) {
   this->usage(cerr,&getopt);
 	return EXIT_FAILURE;
@@ -173,7 +175,7 @@ while(i< coverage.size()) {
             }
         cnv.end = reg->start()+i;
         cnv.svtype=1;
-        cnvs_list.push_back(cnv);
+        if(cnv.end - cnv.start >= min_cnv_size) cnvs_list.push_back(cnv);
         }
     else if(is_del(dp)) {
         CNV cnv;
@@ -183,7 +185,7 @@ while(i< coverage.size()) {
             }
         cnv.end = reg->start()+i;
         cnv.svtype=-1;
-        cnvs_list.push_back(cnv);
+        if(cnv.end - cnv.start >= min_cnv_size) cnvs_list.push_back(cnv);
         }
     else  {
         i++;
