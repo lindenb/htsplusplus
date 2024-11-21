@@ -1,15 +1,13 @@
 
 CC = gcc
-CPPFLAGS = 
+CPPFLAGS =
 CFLAGS+= -g -O2
-LDFLAGS += 
-LIBS = 
-
+LIBS =
 HTSDIR:=$(word 1,$(realpath ../htslib ../../htslib ${HOME}/src/htslib ${HOME}/packages/htslib ))
 
 
 all:
-	$(MAKE) -C src  HTSDIR=$(HTSDIR) CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
+	$(MAKE) -C src  HTSDIR=$(HTSDIR)
 
 clean:
 	$(MAKE) -C src clean

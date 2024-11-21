@@ -136,7 +136,7 @@ else if(getopt.files.size()==2 ) {
 	}
 else
 	{
-  cerr <<  ANSI_RED("illegal number of arguments") << endl;
+        cerr <<  ANSI_RED("illegal number of arguments") << endl;
 	return EXIT_FAILURE;
 	}
 
@@ -162,18 +162,17 @@ while(iter->read2(&rec)) {
 	if(rec.is_ignorable(mapq)) continue;
 	rec.alignment_blocks(alignmentBlocks);
 	n_reads++;
-	hts_pos_t prev_pos=-1;
+	//int prev_bin=-1;
 	for(size_t i=0;i< alignmentBlocks.size();++i) {
 		AlignmentBlock& ab = alignmentBlocks[i];
 		for(int x=0; x < ab.length;++x) {
 			hts_pos_t refpos = ab.referenceStart +x;
-			if(refpos <= prev_pos) continue;
-			prev_pos = refpos;
 			if(!reg->contains_position(refpos)) {
 				continue;
 				}
 			int bin_idx= TO_BIN(refpos);
-
+			//if(prev_bin==bin_idx) continue;
+			//prev_bin = bin_idx;
 			if(bin_idx<0 || bin_idx>=(int)coverage.size()) {
 				continue;
 				}
@@ -182,12 +181,11 @@ while(iter->read2(&rec)) {
 		}
 	}
 
-runningMedian(coverage,run_median_win_size);	
-	
+runningMedian(coverage,run_median_win_size);
 DiscreteMedian<int> dm;
 for(auto i=coverage.begin();i!=coverage.end();i++) {
-		double x  = ceil((*i)/(double)base_per_bin);
-		*i = (int)x;
+    double x  = ceil((*i)/(double)base_per_bin);
+    *i = (int)x;
     dm.accept(x);
     }
 
@@ -208,11 +206,11 @@ for(size_t i=0;i< coverage.size();i++) {
 	for(int k=0;k< n;k++) cout << "*";
 	cout << " " << normalized[i]  << ":" << coverage[i] << endl;
 	*/
-}
+	}
 
 
 #define TO_COORD(X) (reg->start()+(X*base_per_bin))
-#define is_dup(DP) (DP>(1.0+treshold))
+#define is_dup(DP) (DP>=(1.0+treshold))
 #define is_del(DP) (DP<=(1.0-treshold))
 vector<CNV> cnvs_list;
 /** find CNVs */
@@ -269,8 +267,8 @@ for(auto r=cnvs_list.begin();r!=cnvs_list.end();++r) {
 	cout << "\t" << average(normalized,TO_BIN(r->start) , TO_BIN(r->end));
 	if(ansi_blocks) {
 		cout << "\t[";
-		int d = (int)( CoordMath::getLength(r->start,r->end)*1.5);
-		int x1 = std::max(0,TO_BIN(r->start - d)-1);
+		int d = (int)( CoordMath::getLength(r->start,r->end)*2.0);
+		int x1 = std::max(0,TO_BIN(r->start - d));
 		int x2 = std::min((int)normalized.size(),TO_BIN(r->end + d)+1);
 		//cout << "d=" << d << " x1=" << x1 << " x2=" << x2 << " ";
 		while(x1<x2) {

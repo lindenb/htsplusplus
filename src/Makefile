@@ -1,9 +1,9 @@
 HTSDIR?=../../htslib
-HTSLIB_CPPFLAGS?= -I$(HTSDIR)
-HTSLIB_LDFLAGS?= -L$(HTSDIR)
+HTSLIB_CPPFLAGS= -I$(HTSDIR)
+HTSLIB_LDFLAGS= -L$(HTSDIR)
 CFLAGS=  -I. $(HTSLIB_CPPFLAGS) -c -Wall -g -std=c++11 -O3
 EXTRA_CFLAGS_PIC = -fpic
-#LDFLAGS+=$(HTSLIB_LDFLAGS)  Ã-ldl -lz -lm -lbz2 -llzma -lcurl -lpthread
+#LDFLAGS+=$(HTSLIB_LDFLAGS) -ldl -lz -lm -lbz2 -llzma -lcurl -lpthread
 LEX_YACC_OBJ=_main .tab .lex.yy
 CC=g++
 
