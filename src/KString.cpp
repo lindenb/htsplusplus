@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-
+#include "debug.hh"
 #include "KString.hh"
 
 using namespace std;
@@ -58,7 +58,7 @@ const char* KString::c_str() const {
     }
 
 std::ostream& KString::print(std::ostream& out) const{
-	 out.write(c_str(),size());
+	out.write(c_str(),size());
    return out;
     }
     
@@ -67,9 +67,11 @@ KString& KString::reserve(std::size_t n) {
 	::ks_resize(&ks,n);
 	return *this;
 	}
+KString::size_t KString::size() const {
+	return ks.l;
+}
 
-
-size_t KString::length() const {
+KString::size_t KString::length() const {
 	return size();
 }
 
@@ -94,7 +96,7 @@ KString& KString::append(const char* s,size_t n) {
 	return *this;
 }
 
-std::ostream& operator<<(std::ostream& out, const KString& cp) {
+std::ostream& operator<<(std::ostream& out,KString const& cp) {
     return cp.print(out);
     }
 

@@ -26,6 +26,7 @@ SOFTWARE.
 #ifndef KSTRING_HH
 #define KSTRING_HH
 #include <htslib/hts.h>
+#include <iostream>
 #include "CharSequence.hh"
 
 namespace htspp {
@@ -47,6 +48,7 @@ class KString : public CharSequence {
 		
 
 		virtual std::size_t length() const;
+		virtual std::size_t size() const;
 		virtual KString& clear();
 		virtual KString& append(const char* s);
 		virtual KString& append(char c);
@@ -54,7 +56,7 @@ class KString : public CharSequence {
 		
 };
 
-std::ostream& operator<<(std::ostream& out, const KString& cp);
+std::ostream& operator<<(std::ostream& out, htspp::KString const& cp);
 
 }
 #endif

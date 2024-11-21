@@ -36,11 +36,13 @@ endef
 API_OBJECTS=SamFileReaderFactory SamFileReader HtsFile SamFileHeader HtsIdx Path KString Regex AbstractSamRecord SamRecord SamRecordIterator Interval CharSplitter \
 	GetOpt CigarOperator Cigar CigarIterator CigarElement CoordMath Locatable StringUtils SamSequenceDictionary \
 		HtsPlusPlus \
+		HFile \
 		ANSI \
 		DiscreteMedian \
 		Program \
 		Faidx \
 		Rimbert20241119 \
+		ShiftSam \
 		SamSequenceRecord \
 		SelfTest \
 		Optional \

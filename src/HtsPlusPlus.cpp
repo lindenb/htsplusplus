@@ -30,6 +30,7 @@ SOFTWARE.
 #include "ANSI.hh"
 #include "Program.hh"
 #include "SelfTest.hh"
+#include "ShiftSam.hh"
 #include "Rimbert20241119.hh"
 
 using namespace std;
@@ -38,8 +39,9 @@ class HtsPlusPlus: public Program {
 public:
     std::vector<Program*> subprograms;
     HtsPlusPlus():Program("hts++","hts++") {
-        subprograms.push_back(new SelfTest);
         subprograms.push_back(new Rimbert20241119);
+        subprograms.push_back(new SelfTest);
+        subprograms.push_back(new ShiftSam);
     }
     
     virtual ~HtsPlusPlus() {

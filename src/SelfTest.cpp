@@ -34,6 +34,9 @@ SOFTWARE.
 #include "SamRecord.hh"
 #include "SamFileReaderFactory.hh"
 #include "ANSI.hh"
+#include "IntervalTree.hh"
+#include "IntervalTreeMap.hh"
+
 #undef ASSERT_NOT_NULL
 using namespace std;
 using namespace htspp;
@@ -50,6 +53,29 @@ using namespace htspp;
 
 #define BEGIN_TEST try {
 #define END_TEST } catch(std::exception& err) {cerr << err.what() << endl;} catch(...) {cerr << "BOUM catch(...) " << endl;}
+
+
+static void testIntervalTree(SelfTest* tester) {
+    BEGIN_TEST
+    IntervalTree<int> tree;
+    tree.put(10,100,197);
+    tree.put(1000,2000,197);
+    tree.put(1000,2000,197);
+    tree.put(1000,2000,197);
+    ASSERT_TRUE(tree.find_overlapping(9,9).empty());
+    ASSERT_FALSE(tree.find_overlapping(10,10).empty());
+    ASSERT_FALSE(tree.find_overlapping(100,100).empty());
+    ASSERT_EQUALS(tree.find_overlapping(20,40).size(),1);
+    ASSERT_EQUALS(tree.find_overlapping(1,2000).size(),4);
+    END_TEST
+    }
+
+static void testIntervalTreeMap(SelfTest* tester) {
+    BEGIN_TEST
+    IntervalTreeMap<int> tree;
+    
+    END_TEST
+    }
 
 static void testANSI1(SelfTest* tester) {
 	BEGIN_TEST
@@ -379,7 +405,9 @@ int SelfTest::main(int argc,char** argv) {
         return EXIT_FAILURE;
         }
     cerr << "base is  " << base << endl;
-  testANSI1(this);
+    testIntervalTree(this);
+    testIntervalTreeMap(this);
+    testANSI1(this);
 	testGetOpt1(this);
 	testCigar1(this);
 	testCigarOperator1(this);

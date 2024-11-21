@@ -26,21 +26,35 @@ SOFTWARE.
 #ifndef CHAR_SEQUENCE_HH
 #define CHAR_SEQUENCE_HH
 
+#include <memory>
 #include <iostream>
 #include <string>
+#include <vector>
 namespace htspp {
 
 class CharSequence {
     public:
+          typedef std::size_t size_t; 
           CharSequence();
           virtual ~CharSequence();
           virtual bool empty() const;
           virtual char at(int i) const=0;
 		  virtual char operator[](int i) const;
 		  virtual std::ostream& print(std::ostream& out) const;
-          virtual std::size_t size() const;
-          virtual std::size_t length() const=0;
+          virtual size_t size() const;
+          virtual size_t length() const=0;
           virtual std::string to_string() const;
+          virtual bool starts_with(const char* s) const;
+          
+          
+          virtual std::unique_ptr<CharSequence> toupper() const;
+          virtual std::unique_ptr<CharSequence> tolower() const;
+          virtual std::unique_ptr<CharSequence> clone() const;
+          
+          virtual std::vector<std::unique_ptr<CharSequence> > split(char c) const;
+          virtual std::vector<std::unique_ptr<CharSequence> >::size_type split(char c,std::vector<std::unique_ptr<CharSequence> > & v) const;
+          virtual std::unique_ptr<CharSequence> substring(CharSequence::size_t start) const;
+          virtual std::unique_ptr<CharSequence> substring(CharSequence::size_t start,CharSequence::size_t end ) const;
 
     };
 
