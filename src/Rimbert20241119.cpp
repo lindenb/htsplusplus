@@ -105,7 +105,7 @@ bool ansi_blocks=false;
 int opt_n_bins=100;
 double treshold=0.4;
 int run_median_win_size=7;
-int winthin_distance=20;
+int within_distance=20;
 int min_cnv_size=100;
 char* fasta=NULL;
 char* bam_file=NULL;
@@ -115,7 +115,7 @@ int mapq=1;
 getopt.boolOpt('B',&ansi_blocks).description("plot coverage as ascii").longOpt("blocks");
 getopt.stringOpt('T',&fasta).description("indexed fasta reference").longOpt("reference");
 getopt.stringOpt('r',&opt_reg).description("interval").longOpt("interval").required();
-getopt.intOpt('d',&winthin_distance).description("merge interval withing distance 'x'").longOpt("merge");
+getopt.intOpt('d',&within_distance).description("merge interval withing distance 'x'").longOpt("merge");
 getopt.intOpt('m',&run_median_win_size).description("running median window size").longOpt("running-median-length");
 getopt.intOpt('Q',&mapq).description("min mapq").longOpt("mapq");
 getopt.intOpt('s',&min_cnv_size).description("min CNV size").longOpt("min-size");
@@ -248,7 +248,7 @@ i=0;
 while(i< coverage.size()) {
 	CNV& sv0 = cnvs_list[i];
 	CNV* next = i+1 < cnvs_list.size()?&cnvs_list[i+1]:NULL;
-	if(next!=NULL && sv0.svtype== next->svtype && CoordMath::overlaps(sv0.start-winthin_distance,sv0.end+winthin_distance,next->start,next->end) ) {
+	if(next!=NULL && sv0.svtype== next->svtype && CoordMath::overlaps(sv0.start-within_distance,sv0.end+within_distance,next->start,next->end) ) {
 	  sv0.start = std::min(sv0.start,next->start);
 	  sv0.end = std::max(sv0.end,next->end);
 		cnvs_list.erase(cnvs_list.begin()+(i+1));
@@ -269,12 +269,12 @@ for(auto r=cnvs_list.begin();r!=cnvs_list.end();++r) {
 	cout << "\t" << average(normalized,TO_BIN(r->start) , TO_BIN(r->end));
 	if(ansi_blocks) {
 		cout << "\t[";
-		int d = (int)((1+ r->end - r->start)*1.5);
-		int x1 = std::max(0,TO_BIN(r->start-d));
-		int x2 = std::min((int)normalized.size(),TO_BIN(r->end+d));
+		int d = (int)( CoordMath::getLength(r->start,r->end)*1.5);
+		int x1 = std::max(0,TO_BIN(r->start - d)-1);
+		int x2 = std::min((int)normalized.size(),TO_BIN(r->end + d)+1);
 		//cout << "d=" << d << " x1=" << x1 << " x2=" << x2 << " ";
 		while(x1<x2) {
-			cout << ansi::ANSI::block(normalized[x1++]) ;
+			cout << ansi::ANSI::block(normalized[x1++]/2.0) ; //divide per 2 to get the normalized median depth at 0.5
 			}
 		cout << "]";
 		}
