@@ -42,7 +42,6 @@ API_OBJECTS=SamFileReaderFactory SamFileReader HtsFile SamFileHeader HtsIdx Path
 		Program \
 		Faidx \
 		Rimbert20241119 \
-		ShiftSam \
 		SamSequenceRecord \
 		SelfTest \
 		Optional \

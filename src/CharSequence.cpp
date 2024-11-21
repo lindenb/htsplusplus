@@ -31,20 +31,21 @@ using namespace htspp;
 using namespace std;
 
 class CCCharseq: public CharSequence {
+private:
+	 std::string str;
 public:
-    std::string s;
-    CCCharseq(const CharSequence* delegate):CharSequence(),s(delegate->to_string()) {
+    CCCharseq(const CharSequence* delegate):CharSequence(),str(delegate->to_string()) {
         }
-    virtual ~CCCharSeq() {
+    virtual ~CCCharseq() {
         }
     virtual char at(int i) const {
-        return s[i];
+        return str[i];
         }
     virtual CharSequence::size_t size() const {
-        return s.size();
+        return str.size();
         }
     virtual CharSequence::size_t length() const {
-        return s.size();
+        return str.size();
         }
 };
 

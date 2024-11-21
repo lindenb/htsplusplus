@@ -27,10 +27,11 @@ SOFTWARE.
 #include <iostream>
 #include <cstring>
 #include <vector>
+#include <iomanip>
 #include "ANSI.hh"
 #include "Program.hh"
 #include "SelfTest.hh"
-#include "ShiftSam.hh"
+//#include "ShiftSam.hh"
 #include "Rimbert20241119.hh"
 
 using namespace std;
@@ -41,7 +42,7 @@ public:
     HtsPlusPlus():Program("hts++","hts++") {
         subprograms.push_back(new Rimbert20241119);
         subprograms.push_back(new SelfTest);
-        subprograms.push_back(new ShiftSam);
+        //subprograms.push_back(new ShiftSam);
     }
     
     virtual ~HtsPlusPlus() {
@@ -50,7 +51,7 @@ public:
         out << "available programs:" << endl;
         for(auto i=subprograms.begin(); i!=subprograms.end();++i) {
             if((*i)->is_hidden()) continue;
-            out << ANSI_GREEN( " - " << (*i)->name()) << "\t" << ANSI_BLUE( (*i)->description() ) << endl;
+            out << ANSI_GREEN( " - " << setw(10) << (*i)->name()) << "\t" << ANSI_BLUE( (*i)->description() ) << endl;
             }
         out << endl;
         }
