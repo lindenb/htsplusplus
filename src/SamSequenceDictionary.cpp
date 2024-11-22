@@ -141,11 +141,11 @@ std::unique_ptr<Locatable> SamSequenceDictionary::parseInterval(const char* s) c
 
 std::unique_ptr<SamSequenceDictionary> SamSequenceDictionary::of_sam_header(sam_hdr_t *header) {
 	ASSERT_NOT_NULL(header);
-  DefaultSamSequenceDictionary* dict(new DefaultSamSequenceDictionary);
-  for(int i=0;i< header->n_targets;i++) {
-  	dict->put(header->target_name[i],header->target_len[i]);
-  	}
-   std::unique_ptr<DefaultSamSequenceDictionary> p(dict);
+    DefaultSamSequenceDictionary* dict(new DefaultSamSequenceDictionary);
+    for(int i=0;i< header->n_targets;i++) {
+  	    dict->put(header->target_name[i],header->target_len[i]);
+  	    }
+    std::unique_ptr<SamSequenceDictionary> p(dict);
 	return p;
 	}
 
@@ -163,7 +163,7 @@ std::unique_ptr<SamSequenceDictionary> SamSequenceDictionary::of_faidx(faidx_t *
 	ASSERT_NOT_NULL(fai);
 	 DefaultSamSequenceDictionary* dict = new DefaultSamSequenceDictionary;
 	for(int i=0;i< ::faidx_nseq(fai);i++) {
-		dict->put(  ::faidx_iseq(fai,i),  ::faidx_seq_len64(fai, ::faidx_iseq(fai,i)) );
+		dict->put(  ::faidx_iseq(fai,i),  ::faidx_seq_len(fai, ::faidx_iseq(fai,i)) );
 		}
 	return std::unique_ptr<SamSequenceDictionary>(dict);
 	}
