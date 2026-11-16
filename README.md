@@ -7,6 +7,12 @@
 compilation requires a C++ compiler and `xsltproc`.
 
 ```
+
+autoreconf -i
+./configure                       # uses ../htslib
+./configure --with-htslib=/path/to/htslib
+make
+
 git clone "https://github.com/lindenb/htsplusplus"
 
 autoconf -Wno-syntax
