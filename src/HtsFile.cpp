@@ -71,7 +71,7 @@ void HtsFile::set_reference(const char *fn_aux) {
 			}
 		}
 
-std::unique_ptr<HtsFile> HtsFile::open(const char* filename,const char* mode) {
+std::shared_ptr<HtsFile> HtsFile::open(const char* filename,const char* mode) {
    htsFile* fp;
    errno = 0;
    std::unique_ptr<HtsFile> p;
@@ -82,7 +82,7 @@ std::unique_ptr<HtsFile> HtsFile::open(const char* filename,const char* mode) {
 	return p;
 	}
 
-std::unique_ptr<HtsFile> HtsFile::open(const char* filename) {
+std::shared_ptr<HtsFile> HtsFile::open(const char* filename) {
 	return open(filename,"rb");
 	}
 

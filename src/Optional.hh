@@ -118,4 +118,3 @@ Optional<T> make_empty_optional() {
 }
 
 #endif
-

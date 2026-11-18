@@ -1,8 +1,16 @@
-
 # hts++
 
 
+eg:
+
+
+
 # Compilation
+
+
+```
+autoreconf -fi && ./configure --with-htslib=${HOME}/src/bcftools-1.23.1/htslib-1.23.1
+```
 
 compilation requires a C++ compiler and `xsltproc`.
 

@@ -176,5 +176,20 @@ class IoUtils {
 
 
 }
+
+
+template <typename T>
+T parse_string(const char* s) {
+    std::string s(p);
+    std::stringstream ss{s};
+    T t;
+    ss >> t;
+    if(ss.fail()) {
+	cerr << "Cannot convert "<<s<<" to " << typeid(T).name() << endl;
+	}
+    return t;
+    }
+
+
 #endif
 

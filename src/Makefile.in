@@ -100,7 +100,9 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_htspp_OBJECTS = htspp-HtsPlusPlus.$(OBJEXT)
+am_htspp_OBJECTS = htspp-HtsPlusPlus.$(OBJEXT) htspp-Option.$(OBJEXT) \
+	htspp-OptionFlag.$(OBJEXT) htspp-GetOpt.$(OBJEXT) \
+	htspp-HtsFile.$(OBJEXT)
 htspp_OBJECTS = $(am_htspp_OBJECTS)
 htspp_DEPENDENCIES =
 htspp_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(htspp_LDFLAGS) \
@@ -120,7 +122,9 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/htspp-HtsPlusPlus.Po
+am__depfiles_remade = ./$(DEPDIR)/htspp-GetOpt.Po \
+	./$(DEPDIR)/htspp-HtsFile.Po ./$(DEPDIR)/htspp-HtsPlusPlus.Po \
+	./$(DEPDIR)/htspp-Option.Po ./$(DEPDIR)/htspp-OptionFlag.Po
 am__mv = mv -f
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -261,7 +265,7 @@ top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I ../m4
 
 # Define the source file
-htspp_SOURCES = HtsPlusPlus.cpp
+htspp_SOURCES = HtsPlusPlus.cpp Option.cpp OptionFlag.cpp GetOpt.cpp HtsFile.cpp
 
 # Add the flags defined by configure (HTSLIB_*)
 htspp_CPPFLAGS = @HTSLIB_CPPFLAGS@
@@ -353,7 +357,11 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/htspp-GetOpt.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/htspp-HtsFile.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/htspp-HtsPlusPlus.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/htspp-Option.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/htspp-OptionFlag.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -388,6 +396,62 @@ htspp-HtsPlusPlus.obj: HtsPlusPlus.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='HtsPlusPlus.cpp' object='htspp-HtsPlusPlus.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o htspp-HtsPlusPlus.obj `if test -f 'HtsPlusPlus.cpp'; then $(CYGPATH_W) 'HtsPlusPlus.cpp'; else $(CYGPATH_W) '$(srcdir)/HtsPlusPlus.cpp'; fi`
+
+htspp-Option.o: Option.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT htspp-Option.o -MD -MP -MF $(DEPDIR)/htspp-Option.Tpo -c -o htspp-Option.o `test -f 'Option.cpp' || echo '$(srcdir)/'`Option.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/htspp-Option.Tpo $(DEPDIR)/htspp-Option.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Option.cpp' object='htspp-Option.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o htspp-Option.o `test -f 'Option.cpp' || echo '$(srcdir)/'`Option.cpp
+
+htspp-Option.obj: Option.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT htspp-Option.obj -MD -MP -MF $(DEPDIR)/htspp-Option.Tpo -c -o htspp-Option.obj `if test -f 'Option.cpp'; then $(CYGPATH_W) 'Option.cpp'; else $(CYGPATH_W) '$(srcdir)/Option.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/htspp-Option.Tpo $(DEPDIR)/htspp-Option.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Option.cpp' object='htspp-Option.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o htspp-Option.obj `if test -f 'Option.cpp'; then $(CYGPATH_W) 'Option.cpp'; else $(CYGPATH_W) '$(srcdir)/Option.cpp'; fi`
+
+htspp-OptionFlag.o: OptionFlag.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT htspp-OptionFlag.o -MD -MP -MF $(DEPDIR)/htspp-OptionFlag.Tpo -c -o htspp-OptionFlag.o `test -f 'OptionFlag.cpp' || echo '$(srcdir)/'`OptionFlag.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/htspp-OptionFlag.Tpo $(DEPDIR)/htspp-OptionFlag.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='OptionFlag.cpp' object='htspp-OptionFlag.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o htspp-OptionFlag.o `test -f 'OptionFlag.cpp' || echo '$(srcdir)/'`OptionFlag.cpp
+
+htspp-OptionFlag.obj: OptionFlag.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT htspp-OptionFlag.obj -MD -MP -MF $(DEPDIR)/htspp-OptionFlag.Tpo -c -o htspp-OptionFlag.obj `if test -f 'OptionFlag.cpp'; then $(CYGPATH_W) 'OptionFlag.cpp'; else $(CYGPATH_W) '$(srcdir)/OptionFlag.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/htspp-OptionFlag.Tpo $(DEPDIR)/htspp-OptionFlag.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='OptionFlag.cpp' object='htspp-OptionFlag.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o htspp-OptionFlag.obj `if test -f 'OptionFlag.cpp'; then $(CYGPATH_W) 'OptionFlag.cpp'; else $(CYGPATH_W) '$(srcdir)/OptionFlag.cpp'; fi`
+
+htspp-GetOpt.o: GetOpt.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT htspp-GetOpt.o -MD -MP -MF $(DEPDIR)/htspp-GetOpt.Tpo -c -o htspp-GetOpt.o `test -f 'GetOpt.cpp' || echo '$(srcdir)/'`GetOpt.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/htspp-GetOpt.Tpo $(DEPDIR)/htspp-GetOpt.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='GetOpt.cpp' object='htspp-GetOpt.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o htspp-GetOpt.o `test -f 'GetOpt.cpp' || echo '$(srcdir)/'`GetOpt.cpp
+
+htspp-GetOpt.obj: GetOpt.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT htspp-GetOpt.obj -MD -MP -MF $(DEPDIR)/htspp-GetOpt.Tpo -c -o htspp-GetOpt.obj `if test -f 'GetOpt.cpp'; then $(CYGPATH_W) 'GetOpt.cpp'; else $(CYGPATH_W) '$(srcdir)/GetOpt.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/htspp-GetOpt.Tpo $(DEPDIR)/htspp-GetOpt.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='GetOpt.cpp' object='htspp-GetOpt.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o htspp-GetOpt.obj `if test -f 'GetOpt.cpp'; then $(CYGPATH_W) 'GetOpt.cpp'; else $(CYGPATH_W) '$(srcdir)/GetOpt.cpp'; fi`
+
+htspp-HtsFile.o: HtsFile.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT htspp-HtsFile.o -MD -MP -MF $(DEPDIR)/htspp-HtsFile.Tpo -c -o htspp-HtsFile.o `test -f 'HtsFile.cpp' || echo '$(srcdir)/'`HtsFile.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/htspp-HtsFile.Tpo $(DEPDIR)/htspp-HtsFile.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='HtsFile.cpp' object='htspp-HtsFile.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o htspp-HtsFile.o `test -f 'HtsFile.cpp' || echo '$(srcdir)/'`HtsFile.cpp
+
+htspp-HtsFile.obj: HtsFile.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT htspp-HtsFile.obj -MD -MP -MF $(DEPDIR)/htspp-HtsFile.Tpo -c -o htspp-HtsFile.obj `if test -f 'HtsFile.cpp'; then $(CYGPATH_W) 'HtsFile.cpp'; else $(CYGPATH_W) '$(srcdir)/HtsFile.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/htspp-HtsFile.Tpo $(DEPDIR)/htspp-HtsFile.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='HtsFile.cpp' object='htspp-HtsFile.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o htspp-HtsFile.obj `if test -f 'HtsFile.cpp'; then $(CYGPATH_W) 'HtsFile.cpp'; else $(CYGPATH_W) '$(srcdir)/HtsFile.cpp'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -516,7 +580,11 @@ clean: clean-am
 clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/htspp-HtsPlusPlus.Po
+		-rm -f ./$(DEPDIR)/htspp-GetOpt.Po
+	-rm -f ./$(DEPDIR)/htspp-HtsFile.Po
+	-rm -f ./$(DEPDIR)/htspp-HtsPlusPlus.Po
+	-rm -f ./$(DEPDIR)/htspp-Option.Po
+	-rm -f ./$(DEPDIR)/htspp-OptionFlag.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -562,7 +630,11 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/htspp-HtsPlusPlus.Po
+		-rm -f ./$(DEPDIR)/htspp-GetOpt.Po
+	-rm -f ./$(DEPDIR)/htspp-HtsFile.Po
+	-rm -f ./$(DEPDIR)/htspp-HtsPlusPlus.Po
+	-rm -f ./$(DEPDIR)/htspp-Option.Po
+	-rm -f ./$(DEPDIR)/htspp-OptionFlag.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

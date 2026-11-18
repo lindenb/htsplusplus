@@ -50,9 +50,9 @@ class HtsFile : public Pointer<htsFile> {
 		virtual int set_opt(hts_fmt_option key,int value);
 		virtual void fush();
 		virtual void set_cache_size(int n);
-		static std::unique_ptr<HtsFile> open(const char* fn,const char* mode);
-		static std::unique_ptr<HtsFile> open(const char* fn);
-		static std::unique_ptr<HtsFile> wrap(htsFile* p);
+		static std::shared_ptr<HtsFile> open(const char* fn,const char* mode);
+		static std::shared_ptr<HtsFile> open(const char* fn);
+		static std::shared_ptr<HtsFile> wrap(htsFile* p);
 	};
 
 }
