@@ -53,6 +53,8 @@ struct AlignmentBlock {
 
 
 class AbstractSamRecord {
+	protected:
+		mutable std::unique_ptr<Cigar> _cigar;
 	public:
 		virtual bam1_t* get() const =0;
 		virtual bam1_t* get_not_null() const;
@@ -85,7 +87,7 @@ class AbstractSamRecord {
 
 		virtual int num_cigar_elements() const;
 		virtual bool has_cigar() const ;
-		std::unique_ptr<Cigar> cigar() const;
+		const Cigar* cigar() const;
 		std::string cigar_string() const;
 		virtual std::vector<AlignmentBlock> alignment_blocks() const;
 		virtual std::vector<AlignmentBlock>::size_type alignment_blocks(std::vector<AlignmentBlock>& array) const;

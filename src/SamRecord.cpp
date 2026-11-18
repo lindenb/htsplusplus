@@ -33,6 +33,7 @@ using namespace std;
 
 SamRecord& SamRecord::operator=(const SamRecord& cp) {
 if(this!=&cp) {
+    this->_cigar.reset();
     ::bam_destroy1(this->b);
     this->b=::bam_dup1(cp.b);
     assert(b!=NULL);
@@ -86,7 +87,6 @@ return *this;
 			return os.str();
 			}
 
-	
 
 	std::shared_ptr<SamRecord> SamRecord::read(std::shared_ptr<HtsFile> fp,std::shared_ptr<SamFileHeader> hdr) {
 		 bam1_t *bam_line = ::bam_init1();

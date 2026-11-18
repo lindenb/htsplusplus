@@ -26,6 +26,32 @@ SOFTWARE.
 #include "AbstractSamRecord.hh"
 
 using namespace htspp;
+using namespace std;
+
+class Cigar2: public Cigar {
+    private:
+        vector<CigarElement*> elements;
+    public:
+       Cigar2(const AbstractSamRecord* owner) {
+          assert(owner->get()!=NULL);
+          CigarIterator iter(owner->get());
+          elements.reserve(owner->get()->core.n_cigar);
+          while(iter.next()) {
+                  elements.push_back(new CigarElement(iter.letter(), iter.length()));
+                  }
+          assert(elements.size()==owner->get()->core.n_cigar);
+        }
+       virtual ~Cigar2() {
+        for(auto ce: elements) delete ce;
+        }
+
+       virtual unsigned int size() const { return  elements.size();}
+       virtual const CigarElement* at(unsigned int idx) const {
+            return elements.at(idx);
+            }
+
+    };
+
 
 		 bam1_t* AbstractSamRecord::get_not_null() const {
 			bam1_t* b = get();
@@ -102,13 +128,16 @@ using namespace htspp;
 		 bool AbstractSamRecord::has_cigar() const {
 			return num_cigar_elements() >0;
 			}
-		std::unique_ptr<Cigar> AbstractSamRecord::cigar() const {
-			return std::unique_ptr<Cigar>(new Cigar(get()));
+		const Cigar* AbstractSamRecord::cigar() const {
+		    if(!_cigar) {
+		        _cigar.reset(new Cigar2(this));
+		        }
+			return _cigar.get();
 			}
 	
 		std::string AbstractSamRecord::cigar_string() const {
 			if(!has_cigar()) return "*";
-			Cigar c(get());
+			Cigar2 c(this);
 		  return c.to_string();
 		}
 	
@@ -116,7 +145,7 @@ std::vector<AlignmentBlock> AbstractSamRecord::alignment_blocks() const {
 		 std::vector<AlignmentBlock> alignmentBlocks;
 		 alignment_blocks(alignmentBlocks);
 		 return alignmentBlocks;
-		}	
+		}
 	
 std::vector<AlignmentBlock>::size_type AbstractSamRecord::alignment_blocks(std::vector<AlignmentBlock>& alignmentBlocks) const {
 				CigarIterator iter(get());

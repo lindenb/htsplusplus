@@ -29,23 +29,24 @@ SOFTWARE.
 #include <string>
 #include <sstream>
 #include <memory>
-#include "htslib/sam.h"
 #include "CigarElement.hh"
 #include "CigarIterator.hh"
 
 namespace htspp {
 
-
+/**
+ * Implementation of a cigar string
+ */
 class Cigar {
-	private:
+	protected:
 		std::vector<CigarElement*> elements;
-		Cigar();
 	public:
-		Cigar(bam1_t* b);
+		Cigar();
+		Cigar(bam1_t*);
 		virtual ~Cigar();
 		bool empty() const;
-		unsigned int size() const;
-		const CigarElement* at(unsigned int idx) const;
+		virtual unsigned int size() const;
+		virtual const CigarElement* at(unsigned int idx) const;
 		virtual std::ostream& print(std::ostream& out) const;
 		virtual std::string to_string();
 		virtual hts_pos_t reference_length() const;
@@ -53,7 +54,7 @@ class Cigar {
 		virtual bool is_left_clipped() const;
 		virtual bool is_right_clipped() const;
 		virtual bool is_clipped() const;
-		static std::unique_ptr<Cigar> of(const char* s);
+		static std::shared_ptr<Cigar> of(const char* s);
 	};
 
 }

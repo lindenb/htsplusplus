@@ -28,19 +28,25 @@ SOFTWARE.
 #include "debug.hh"
 
 using namespace htspp;
+using namespace std;
+
+
 
 Cigar::Cigar() {
 }
 
- 	Cigar::Cigar(bam1_t* b) {
- 	        assert(b!=NULL);
+
+Cigar::Cigar(bam1_t* b) {
+          assert(b!=NULL);
           CigarIterator iter(b);
           elements.reserve(b->core.n_cigar);
           while(iter.next()) {
                   elements.push_back(new CigarElement(iter.letter(), iter.length()));
                   }
           assert(elements.size()==b->core.n_cigar);
-          }
+    }
+
+
                 Cigar::~Cigar() {
                         for(unsigned int i=0;i< elements.size();i++) {
                                 delete elements[i];
@@ -62,19 +68,22 @@ Cigar::Cigar() {
                         return out;
                         }
 
- std::unique_ptr<Cigar> Cigar::of(const char* s) {
-  std::unique_ptr<Cigar> cig(new Cigar());
+
+ std::shared_ptr<Cigar> Cigar::of(const char* s) {
   char* p=(char*)s;
   char* p2;
+   assert(s!=0UL);
   errno=0;
+   Cigar* cigar=new Cigar();
   while(*p!=0) {
     int len = strtol(p,&p2,10);
     assert(errno==0);
     char c = *p2;
-    cig->elements.push_back(new CigarElement(c, len));
+    cigar->elements.push_back(new CigarElement(c, len));
     p=p2+1;
     }
-  return cig;
+  std::shared_ptr<Cigar> r(cigar);
+  return r;
  }
  
  

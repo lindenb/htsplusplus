@@ -39,7 +39,6 @@ class SamRecord : public Locatable, public AbstractSamRecord {
 	public:
 		bam1_t* b;
 		std::shared_ptr<SamFileHeader> header;
-
 		bam1_t* get() const;
 		bam1_t* get();
 		SamRecord(std::shared_ptr<htspp::SamFileHeader> hdr,bam1_t* b);
