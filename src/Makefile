@@ -102,7 +102,7 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_htspp_OBJECTS = htspp-HtsPlusPlus.$(OBJEXT) htspp-Option.$(OBJEXT) \
 	htspp-OptionFlag.$(OBJEXT) htspp-GetOpt.$(OBJEXT) \
-	htspp-HtsFile.$(OBJEXT)
+	htspp-HtsFile.$(OBJEXT) htspp-Program.$(OBJEXT)
 htspp_OBJECTS = $(am_htspp_OBJECTS)
 htspp_DEPENDENCIES =
 htspp_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(htspp_LDFLAGS) \
@@ -124,7 +124,8 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/htspp-GetOpt.Po \
 	./$(DEPDIR)/htspp-HtsFile.Po ./$(DEPDIR)/htspp-HtsPlusPlus.Po \
-	./$(DEPDIR)/htspp-Option.Po ./$(DEPDIR)/htspp-OptionFlag.Po
+	./$(DEPDIR)/htspp-Option.Po ./$(DEPDIR)/htspp-OptionFlag.Po \
+	./$(DEPDIR)/htspp-Program.Po
 am__mv = mv -f
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -265,7 +266,7 @@ top_srcdir = ..
 ACLOCAL_AMFLAGS = -I ../m4
 
 # Define the source file
-htspp_SOURCES = HtsPlusPlus.cpp Option.cpp OptionFlag.cpp GetOpt.cpp HtsFile.cpp
+htspp_SOURCES = HtsPlusPlus.cpp Option.cpp OptionFlag.cpp GetOpt.cpp HtsFile.cpp Program.cpp
 
 # Add the flags defined by configure (HTSLIB_*)
 htspp_CPPFLAGS = -I/home/lindenbaum-p@univ-nantes.fr/src/bcftools-1.23.1/htslib-1.23.1
@@ -362,6 +363,7 @@ include ./$(DEPDIR)/htspp-HtsFile.Po # am--include-marker
 include ./$(DEPDIR)/htspp-HtsPlusPlus.Po # am--include-marker
 include ./$(DEPDIR)/htspp-Option.Po # am--include-marker
 include ./$(DEPDIR)/htspp-OptionFlag.Po # am--include-marker
+include ./$(DEPDIR)/htspp-Program.Po # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -452,6 +454,20 @@ htspp-HtsFile.obj: HtsFile.cpp
 #	$(AM_V_CXX)source='HtsFile.cpp' object='htspp-HtsFile.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o htspp-HtsFile.obj `if test -f 'HtsFile.cpp'; then $(CYGPATH_W) 'HtsFile.cpp'; else $(CYGPATH_W) '$(srcdir)/HtsFile.cpp'; fi`
+
+htspp-Program.o: Program.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT htspp-Program.o -MD -MP -MF $(DEPDIR)/htspp-Program.Tpo -c -o htspp-Program.o `test -f 'Program.cpp' || echo '$(srcdir)/'`Program.cpp
+	$(AM_V_at)$(am__mv) $(DEPDIR)/htspp-Program.Tpo $(DEPDIR)/htspp-Program.Po
+#	$(AM_V_CXX)source='Program.cpp' object='htspp-Program.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o htspp-Program.o `test -f 'Program.cpp' || echo '$(srcdir)/'`Program.cpp
+
+htspp-Program.obj: Program.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT htspp-Program.obj -MD -MP -MF $(DEPDIR)/htspp-Program.Tpo -c -o htspp-Program.obj `if test -f 'Program.cpp'; then $(CYGPATH_W) 'Program.cpp'; else $(CYGPATH_W) '$(srcdir)/Program.cpp'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/htspp-Program.Tpo $(DEPDIR)/htspp-Program.Po
+#	$(AM_V_CXX)source='Program.cpp' object='htspp-Program.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(htspp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o htspp-Program.obj `if test -f 'Program.cpp'; then $(CYGPATH_W) 'Program.cpp'; else $(CYGPATH_W) '$(srcdir)/Program.cpp'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -585,6 +601,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/htspp-HtsPlusPlus.Po
 	-rm -f ./$(DEPDIR)/htspp-Option.Po
 	-rm -f ./$(DEPDIR)/htspp-OptionFlag.Po
+	-rm -f ./$(DEPDIR)/htspp-Program.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -635,6 +652,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/htspp-HtsPlusPlus.Po
 	-rm -f ./$(DEPDIR)/htspp-Option.Po
 	-rm -f ./$(DEPDIR)/htspp-OptionFlag.Po
+	-rm -f ./$(DEPDIR)/htspp-Program.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

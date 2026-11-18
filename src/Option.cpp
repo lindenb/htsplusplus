@@ -48,6 +48,7 @@ SOFTWARE.
 */
 
 #include <iostream>
+#include <sstream>
 #include "Option.hh"
 
 

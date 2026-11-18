@@ -6,7 +6,7 @@ ACLOCAL_AMFLAGS = -I ../m4
 bin_PROGRAMS = htspp
 
 # Define the source file
-htspp_SOURCES = HtsPlusPlus.cpp Option.cpp OptionFlag.cpp GetOpt.cpp HtsFile.cpp
+htspp_SOURCES = HtsPlusPlus.cpp Option.cpp OptionFlag.cpp GetOpt.cpp HtsFile.cpp Program.cpp
 
 # Add the flags defined by configure (HTSLIB_*)
 htspp_CPPFLAGS = @HTSLIB_CPPFLAGS@

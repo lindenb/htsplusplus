@@ -26,6 +26,7 @@ SOFTWARE.
 #ifndef PROGRAM_HH
 #define PROGRAM_HH
 #include <string>
+#include <memory>
 #include "GetOpt.hh"
 namespace htspp {
 class Program {
