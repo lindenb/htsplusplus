@@ -32,6 +32,7 @@ SOFTWARE.
 namespace htspp {
 
 class HFile:public Pointer<hFILE> {
+public:
 private:
         HFile(hFILE* fp);
 public:
@@ -39,9 +40,8 @@ public:
     virtual void close();
     virtual bool is_open();
     virtual bool getline(KString& line);
-    static std::unique_ptr<HFile> open(const char* f);
-    static std::unique_ptr<HFile> open(const char* f,const char* mode);
-    
+    static std::shared_ptr<HFile> open(const char* f);
+    static std::shared_ptr<HFile> open(const char* f,const char* mode);
 };
 
 

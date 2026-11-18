@@ -30,15 +30,16 @@ SOFTWARE.
 #include <memory>
 #include <htslib/hts.h>
 #include <htslib/sam.h>
-#include "SamSequenceDictionary.hh"
+//#include "SamSequenceDictionary.hh"
 #include "utils.hh"
+#include "HtsFile.hh"
 
 namespace htspp {
 
 class SamFileHeader:public Pointer<sam_hdr_t> {
   private:
-  	mutable std::shared_ptr<SamSequenceDictionary> _dict;
-	protected:
+  	//mutable std::shared_ptr<SamSequenceDictionary> _dict;
+	public:
 		SamFileHeader( sam_hdr_t *header);
 	public:
 		virtual ~SamFileHeader();
@@ -52,9 +53,8 @@ class SamFileHeader:public Pointer<sam_hdr_t> {
 		virtual void assert_coordinate_sorted();
 		virtual std::set<std::string> samples();
 		virtual std::set<std::string>::size_type samples(std::set<std::string>& samples);
-		virtual std::shared_ptr<SamSequenceDictionary> dictionary() const;
-		static std::unique_ptr<SamFileHeader> read(samFile *fp,int flag);
-		static std::unique_ptr<SamFileHeader> wrap(sam_hdr_t *header);
+		//virtual std::shared_ptr<SamSequenceDictionary> dictionary() const;
+		static std::shared_ptr<SamFileHeader> read(std::shared_ptr<htspp::HtsFile> fp,int flag);
 	};
 
 }

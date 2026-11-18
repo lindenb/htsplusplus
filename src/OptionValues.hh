@@ -27,34 +27,39 @@ SOFTWARE.
 #define OPTION_VALUES_HH
 #include <vector>
 #include <memory>
+#include <sstream>
 #include "Option.hh"
 
 namespace htspp {
     
+/**
 
+An option that store an array of values
+
+*/
 template<typename T>
     class OptionValues: public Option {
         public:
             std:vector<T> value;
             OptionValues(int optc,const char* long_opt,const char* description):Option(optc,long_opt,description) {
-		}
+				}
             virtual ~OptionValues() {
-		}
+				}
             virtual bool is_flag() {
-		return false;
-		}
+				return false;
+				}
             virtual int process(const char* p) {
-		    std::string s(p);
-		    std::stringstream ss{s};
-		    T t;
-		    ss >> t;
-		    if(ss.fail()) {
-		        cerr << label() << ": Cannot convert "<<s<<" to " << typeid(T).name() << endl;
-                        return -1;
-        		}
-		    this->values.push_back(t);
-                    return 0;
-		    }
+				std::string s{p};
+				std::stringstream ss{s};
+				T t;
+				ss >> t;
+				if(ss.fail()) {
+					cerr << label() << ": Cannot convert "<<s<<" to " << typeid(T).name() << endl;
+							return -1;
+					}
+				this->values.push_back(t);
+                return 0;
+		    	}
     };
 
 }

@@ -22,7 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-
+#include <cstring>
+#include "debug.hh"
 #include "Program.hh"
 
 using namespace htspp;
@@ -42,11 +43,19 @@ const char* Program::name() const { return _name.c_str();}
 const char* Program::description() const { return _description.c_str();}
 
 
-void Program::usage(std::ostream& out,GetOpt* getopt) {
+void Program::usage(std::ostream& out) {
 	out << _name << endl;
 	out << "Description: " << _description << endl;
-	if(getopt!=NULL) {
-		getopt->usage(out);
-		}
+	this->getopt.usage(out);	
 	out << endl;
+	}
+
+char* Program::oneFileOrNull(int argc,char** argv) {
+	switch(argc) {
+		case 1: return NULL;
+		case 2:
+			if(strcmp(argv[1],"-")==0) return NULL;
+			return argv[1];
+		default:THROW_ERROR("in " << argv[0]<<": expected one or zero argument but got "<< (argc-1));
+		}
 	}

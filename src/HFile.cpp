@@ -49,11 +49,11 @@ HFile::~HFile() {
    close();
 }
 
-std::unique_ptr<HFile> HFile::open(const char* f) {
+std::shared_ptr<HFile> HFile::open(const char* f) {
     return open(f,"r");
     }
    
-std::unique_ptr<HFile> HFile::open(const char* fname,const char* mode) {
+std::shared_ptr<HFile> HFile::open(const char* fname,const char* mode) {
     hFILE *f=::hopen(fname, mode);
     if(f==NULL) THROW_ERROR("cannot open " << fname << " : " << strerror(errno));
     return  std::unique_ptr<HFile>(new HFile(f));

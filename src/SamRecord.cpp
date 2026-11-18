@@ -25,6 +25,7 @@ SOFTWARE.
 
 #include <cassert>
 #include <sstream>
+#include "KString.hh"
 #include "SamRecord.hh"
 
 using namespace htspp;
@@ -45,18 +46,12 @@ return *this;
 		bam1_t* SamRecord::get() const {return b;}
 
 
-		SamRecord::SamRecord():b(::bam_init1()),header(NULL) {
-			if(b==NULL) {
-				THROW_ERROR("Out of memory.");
+		SamRecord::SamRecord(std::shared_ptr<htspp::SamFileHeader> header,bam1_t* b):b(b),header(header) {
+				if(b==NULL) {
+					THROW_ERROR("null ptr");
+					}
 				}
 
-			}
-		SamRecord::SamRecord(SamFileHeader* header):b(::bam_init1()),header(header) {
-			if(b==NULL) {
-				THROW_ERROR("Out of memory.");
-				}
-
-			}
 		SamRecord::SamRecord(const SamRecord& cp):b(::bam_dup1(cp.b)),header(cp.header) {
 			if(b==NULL) {
 				THROW_ERROR("Out of memory.");
@@ -72,14 +67,17 @@ return *this;
        hts_pos_t SamRecord::end() const { return AbstractSamRecord::end();}
 
 
-		std::unique_ptr<SamRecord> SamRecord::clone() {
-			return std::unique_ptr<SamRecord>(new SamRecord(*this));
+		std::shared_ptr<SamRecord> SamRecord::clone() const {
+			SamRecord* cp=new SamRecord(*this);
+			return std::make_shared<SamRecord>(*cp);
 			}
 
 
 		std::ostream& SamRecord::print(std::ostream& out) const {
 			KString str;
-			if (sam_format1(header->get(), get(), str.get()) < 0);
+			if (sam_format1(header->get(), get(), str.get()) < 0) {
+				cerr << "cannot write SAMRecord" << endl; 
+				}
 			return str.print(out);
 			}
 		std::string SamRecord::to_string() const {
@@ -87,3 +85,27 @@ return *this;
 			print(os);
 			return os.str();
 			}
+
+	
+
+	std::shared_ptr<SamRecord> SamRecord::read(std::shared_ptr<HtsFile> fp,std::shared_ptr<SamFileHeader> hdr) {
+		 bam1_t *bam_line = ::bam_init1();
+		 if(bam_line==NULL) {
+				THROW_ERROR("Out of memory.");
+				}
+		 int ret = sam_read1(fp->get(), hdr->get(), bam_line);
+		 if(ret>=0) {
+			SamRecord* rec = new SamRecord(hdr,bam_line);
+		 	std::shared_ptr<SamRecord> ptr(rec);
+			return ptr;
+			}
+
+		if (ret < -1) {
+			fprintf(stderr, "Failure while running the iterator\n");
+			}
+		::bam_destroy1(bam_line);
+		std::shared_ptr<SamRecord> empty;
+		return empty;
+		}
+	
+

@@ -37,7 +37,7 @@ namespace htspp {
             /** long opt or empty */
 	        std::string long_opt;
             /** description */
-            std::string desc;
+            std::string description;
             /** visited by getopt */
             int count_seen;
             /** hidden in usage */

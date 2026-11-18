@@ -33,6 +33,11 @@ SOFTWARE.
 using namespace std;
 using namespace htspp;
 
+GetOpt::GetOpt() {
+}
+
+GetOpt::~GetOpt() {
+}
 
 void  GetOpt::add(shared_ptr<Option> opt) {
 	if(opt->optc==0 && opt->long_opt.empty() ) {
@@ -63,9 +68,11 @@ void GetOpt::usage(std::ostream& out) {
       	out << ANSI_GREEN( "--" << opt->long_opt);
       	}
       if(!opt->is_flag()) out << ANSI_BLUE( " <" << opt->arg_name << ">" ) ;  
-      out <<  " " << ansi::white << opt->desc << ansi::reset;
+      out <<  " " << ansi::white << opt->description << ansi::reset;
       if(opt->flag_required)   out <<  " " << ANSI_YELLOW( "[REQUIRED]");
-     	if(!opt->is_flag()) {out<< ". " << ansi::cyan << "[" ; opt->write_default(out)  ; out << "]" << ansi::reset ;}
+     	if(!opt->is_flag()) {
+			out<< ". " << ansi::cyan << "[" << opt->description << "]" << ansi::reset ;
+			}
       out << std::endl;
       }
   out << std::endl;

@@ -102,13 +102,14 @@ std::set<std::string>::size_type SamFileHeader::samples(std::set<std::string>& _
 				return _samples.size();
 				}
 
+				/*
 std::shared_ptr<SamSequenceDictionary> SamFileHeader::dictionary() const {
 	if(this->_dict.get() ==NULL) {
 		SamSequenceDictionary* d = SamSequenceDictionary::of_sam_header(get()).release();
 		this->_dict.reset(d);
 		}
 	return _dict;
-	}
+	}*/
 
 
 class SamFileHeader2 : public SamFileHeader {
@@ -121,13 +122,20 @@ class SamFileHeader2 : public SamFileHeader {
     };
 
 
-std::unique_ptr<SamFileHeader> SamFileHeader::read(samFile *fp,int flags) {
-			sam_hdr_t *header = ::sam_hdr_read(fp);
-			return std::unique_ptr<SamFileHeader>(header==NULL?NULL:new SamFileHeader2(header, true));
+std::shared_ptr<SamFileHeader> SamFileHeader::read(std::shared_ptr<htspp::HtsFile> fp,int flags) {
+			sam_hdr_t *header = ::sam_hdr_read(fp->require_not_null());
+			
+			if(header==NULL) {
+				std::shared_ptr<SamFileHeader> ret;
+				cerr << "Canoot read sam file header" << endl;
+				return ret;
+				}
+			else
+				{
+				return std::make_shared<SamFileHeader>(header);
+				}
 			}
 
 
-std::unique_ptr<SamFileHeader> SamFileHeader::wrap(sam_hdr_t* header) {
-			return std::unique_ptr<SamFileHeader>(header==NULL?NULL:new SamFileHeader2(header,false));
-			}
+
 

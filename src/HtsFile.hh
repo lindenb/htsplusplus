@@ -37,6 +37,14 @@ SOFTWARE.
 namespace htspp {
 
 class HtsFile : public Pointer<htsFile> {
+	public:
+		enum {
+			THROW_ON_ERROR = 0x01,    /* First bit set */
+			VERBOSE = 0x02,    /* First bit set */
+			//,DRAW_REPEAT_Y = 0x02,    /* Second bit set */
+			//DRAW_MIRRORED = 0x04,    /* Third bit set */
+			};
+
 	private:
 		bool close_in_descructor;
 	protected:
@@ -50,7 +58,7 @@ class HtsFile : public Pointer<htsFile> {
 		virtual int set_opt(hts_fmt_option key,int value);
 		virtual void fush();
 		virtual void set_cache_size(int n);
-		static std::shared_ptr<HtsFile> open(const char* fn,const char* mode);
+		static std::shared_ptr<HtsFile> open(const char* fn,const char* mode,int modifiers);
 		static std::shared_ptr<HtsFile> open(const char* fn);
 		static std::shared_ptr<HtsFile> wrap(htsFile* p);
 	};

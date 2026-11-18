@@ -31,8 +31,9 @@ SOFTWARE.
 #include "ANSI.hh"
 #include "Program.hh"
 #include "SelfTest.hh"
+#include "ProgramOnePassBam.hh"
 //#include "ShiftSam.hh"
-#include "Rimbert20241119.hh"
+//#include "Rimbert20241119.hh"
 
 using namespace std;
 using namespace htspp;
@@ -40,8 +41,8 @@ class HtsPlusPlus: public Program {
 public:
     std::vector<Program*> subprograms;
     HtsPlusPlus():Program("hts++","hts++") {
-        subprograms.push_back(new Rimbert20241119);
-        subprograms.push_back(new SelfTest);
+        subprograms.push_back(new ProgramOnePassBam("x","y"));
+        //subprograms.push_back(new SelfTest);
         //subprograms.push_back(new ShiftSam);
     }
     
@@ -79,7 +80,7 @@ public:
 	if(optind==argc) {
 		 list(cerr);
 		 return -1;
-	}
+		}
 
         char* subcmd = argv[optind];
         Program* subprog = NULL;
@@ -92,10 +93,14 @@ public:
 
         if(subprog==NULL) {
             cerr << "unknown program \"" << subcmd << "\"" << endl;
-	    list(cerr);
+	    	list(cerr);
             return -1;
             }
-        return subprog->main(argc - optind, &argv[optind]);
+        int ret= subprog->main(argc - optind, &argv[optind]);
+		if(ret!=0) {
+			std::cerr << "Program exited with error" << std::endl;
+			}
+		return ret;
         }
 };
 
@@ -105,7 +110,10 @@ int main(int argc,char** argv) {
     
 	try {
 	    HtsPlusPlus app;
-		return app.main(argc, argv);
+		int ret= app.main(argc, argv);
+		if(ret!=0) {
+			std::cerr << "Program exited with error" << std::endl;
+			}
 		}
 	catch(exception& err) {
 		std::cerr << "Error: " << err.what() << std::endl;

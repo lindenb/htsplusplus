@@ -23,10 +23,11 @@ SOFTWARE.
 
 */
 
-#ifndef OPTION_STRING_HH
-#define OPTION_STRING_HH
+#ifndef OPTION_VALUE_HH
+#define OPTION_VALUE_HH
 #include <vector>
 #include <memory>
+#include <sstream>
 #include "Option.hh"
 
 namespace htspp {
@@ -36,25 +37,26 @@ template<typename T>
     class OptionValue: public Option {
         public:
             T value;
-            OptionValue(int optc,const char* long_opt,const char* description,T value):Option(optc,long_opt,description):value(value) {
-		}
+            OptionValue(int optc,const char* long_opt,const char* description,T value):Option(optc,long_opt,description),value(value) {
+				}
             virtual ~OptionValue() {
-		}
+				}
             virtual bool is_flag() {
-		return false;
-		}
+				return false;
+				}
             virtual int process(const char* p) {
-		    std::string s(p);
-		    std::stringstream ss{s};
-		    T t;
-		    ss >> t;
-		    if(ss.fail()) {
-		        cerr << label() << ": Cannot convert "<<s<<" to " << typeid(T).name() << endl;
-			return -1;
-        		}
-		    this->value =  t;
+				if(p==0UL) return -1;
+				std::string s{p};
+				std::stringstream ss{s};
+				T t;
+				ss >> t;
+				if(ss.fail()) {
+					std::cerr << label() << ": Cannot convert "<<s<<" to " << typeid(T).name() << std::endl;
+				return -1;
+					}
+				this->value =  t;
                     return 0;
-		    }
+		   		}
     };
 
 }

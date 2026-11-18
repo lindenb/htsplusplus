@@ -1,5 +1,6 @@
 *.o
 hts++
+src/htspp
 src/programs.hh
 src/git.hh
 src/bison.report.txt

@@ -58,7 +58,7 @@ using namespace htspp;
 Option::Option(int optc,const char* long_opt,const char* description):
             optc(optc),
  			long_opt(long_opt==NULL?"":long_opt),
-            desc(description==NULL?"":description),
+            description(description==NULL?"":description),
             count_seen(0),
             flag_hidden(false),
             flag_required(false),
