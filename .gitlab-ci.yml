@@ -1,0 +1,33 @@
+image: ubuntu-latest
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  HTSLIB: 1.25
+
+before_script:
+  - hostname
+  - env | grep -i PROXY
+  - apt-get update -y
+  - apt-get install -y make g++ wget libxml2-utils  perl zlib1g-dev libbz2-dev liblzma-dev libcurl4-gnutls-dev libssl-dev $deflate_pkgs autoconf automake
+  - echo -e 'systemProp.http.proxyHost=proxy-serveur.univ-nantes.prive\nsystemProp.http.proxyPort=3128\nsystemProp.https.proxyHost=proxy-serveur.univ-nantes.prive\nsystemProp.https.proxyPort=3128' >  gradle.properties
+  - wget --no-check-certificate -O "jeter.tar.bz2" "https://github.com/samtools/htslib/releases/download/${HTSLIB}/htslib-${HTSLIB}.tar.bz2"
+  - tar xvfj jeter.tar.bz2 \
+  - rm jeter.tar.bz2
+  - make -C htslib-${HTSLIB}
+
+
+
+stages:          # List of stages for jobs, and their order of execution
+  - build
+  - test
+
+
+build-job:       # This job will compile your project
+  stage: build
+  script:
+    -  autoreconf -fi && ./configure --with-htslib=\${PWD}/htslib-${HTSLIB} && make
+
+test-job:        # This job will run tests on your project
+  stage: test
+  script:
+    - echo "Hello"
